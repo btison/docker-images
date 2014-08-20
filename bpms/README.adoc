@@ -1,0 +1,75 @@
+:numbered!:
+
+== BPMS image
+
+Docker image that provides a container for JBoss BPMS. Built upon the `btison/java` image. Uses a MySQL instance running in its own Docker container as database.
+
+The image uses BPMS 6.0.2.GA.
+
+Prerequisites:
+
+* EAP 6.1.1 distribution (jboss-eap-6.1.1.zip) in `resources` directory.  
+
+* BPMS distribution (jboss-bpms-6.0.2.GA-redhat-5-deployable-eap6.x.zip) in `resources` directory.
+
+* MySQL driver version 5.1.28 (mysql-connector-java-5.1.28.jar) in `resources` directory.
+
+To build:
+
+----
+# cd bpms
+# docker build -t btison/bpms .
+----
+
+To run:
+
+First start the MySQL container:
+
+----
+# docker run -d --name=mysql-bpms btison/mysql-bpms
+----
+
+Run the BPMS container and link to the MySQL container:
+
+----
+# docker run -d --name=bpms --link=mysql-bpms:bpms btison/bpms 
+----
+
+To get a prompt into the container:
+
+----
+# BPMS_PID=$(docker inspect --format '{{ .State.Pid }}' bpms)
+# nsenter -m -u -n -i -p -t $BPMS_PID
+----
+
+=== Container details:
+
+* BPMS is installed in directory `opt/jboss/bpms`.
+
+* The BPMS instance runs as system user `jboss`.
+
+* The BPMS instance is bound to the IP address of the container.
+
+* BPMS is configured with management user `admin:admin`.
+
+* BPMS is configured with application users:
+** `admin1:admin` with roles `admin,analyst,user,reviewer`
+** `user:user` with roles `user,reviewer`
+
+* To stop BPMS, enter the container with _nsenter_ and issue the following command (as root)
++
+----
+# ./stop-bpms.sh
+----
+
+* To start BPMS, enter the container with _nsenter_ and issue the following command (as root)
++
+----
+# ./start-bpms.sh
+----
+
+* To start BPMS in admin-only mode:
++
+----
+# ./start-bpms.sh --admin-only
+----

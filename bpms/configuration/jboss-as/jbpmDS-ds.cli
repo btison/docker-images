@@ -1,0 +1,5 @@
+batch
+/subsystem=datasources/jdbc-driver=mysql:add(driver-xa-datasource-class-name=com.mysql.jdbc.jbdc2.optional.MysqlXAConnection,driver-name=mysql,driver-module-name=com.mysql)
+data-source add --name=jbpmDS --jndi-name="java:jboss/datasources/jbpmDS" --driver-name=mysql --user-name=jboss --password=jboss --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker --connection-url="jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/bpms?transformedBitIsBoolean=true&sessionVariables=storage_engine=InnoDB"
+/subsystem=datasources/data-source=jbpmDS:enable
+run-batch
