@@ -11,7 +11,7 @@ SOURCE_RESOURCES_DIR=$SCRIPT_DIR/../../resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
-RESOURCES=( jboss-bpms-6.0.2.GA-redhat-5-deployable-eap6.x.zip jboss-eap-6.1.1.zip mysql-connector-java-5.1.28.jar )
+RESOURCES=( jboss-bpms-6.0.2.GA-redhat-5-deployable-eap6.x.zip jboss-eap-6.1.1.zip )
 
 # Force flag
 FORCE=FALSE

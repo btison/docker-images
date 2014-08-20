@@ -12,8 +12,6 @@ Prerequisites:
 
 * BPMS distribution (jboss-bpms-6.0.2.GA-redhat-5-deployable-eap6.x.zip) in `resources` directory.
 
-* MySQL driver version 5.1.28 (mysql-connector-java-5.1.28.jar) in `resources` directory.
-
 To build:
 
 ----

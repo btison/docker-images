@@ -2,8 +2,8 @@ FROM btison/java
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
-#Install unzip
-RUN yum -y install unzip
+# Install unzip, mysql driver
+RUN yum -y install unzip mysql-connector-java; yum clean all
 
 # Copy files
 ADD ./start-container.sh /start-container.sh
@@ -33,7 +33,7 @@ RUN /install-bpms.sh
 # Cleanup
 RUN rm -rf /resources
 
-#Expose port 8080,9990,9999
+# Expose port 8080,9990,9999
 EXPOSE 8080 9990 9999
 
 ENTRYPOINT ["/bin/bash", "/start-container.sh"]
