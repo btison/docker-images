@@ -1,0 +1,6 @@
+mysql:
+  image: btison/mysql-bpms
+bpms:
+  image: btison/bpms
+  links:
+    - mysql:mysql

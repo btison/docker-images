@@ -40,6 +40,14 @@ To get a prompt into the container:
 # nsenter -m -u -n -i -p -t $BPMS_PID
 ----
 
+Both containers can also be started using fig (http://www.fig.sh):
+
+----
+# cd bpms
+# fig up -d
+----
+
+
 === Container details:
 
 * BPMS is installed in directory `opt/jboss/bpms`.
