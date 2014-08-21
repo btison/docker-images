@@ -1,0 +1,25 @@
+:numbered!:
+
+== FSW MySQL image
+
+Docker image that provides the MySQL container for JBoss Fuse Service Works. Built upon the `btison/mysql` image. Adds a user and the schema for FSW, and executes scripts for creation of tables. 
+
+To build:
+
+----
+# cd mysql-fsw
+# docker build -t btison/mysql-fsw .
+----
+
+To run:
+
+----
+# docker run -d --name=mysql-fsw btison/mysql-fsw 
+----
+
+To get a prompt into the container:
+
+----
+# MYSQL_PID=$(docker inspect --format '{{ .State.Pid }}' mysql-fsw)
+# nsenter -m -u -n -i -p -t $MYSQL_PID
+----
