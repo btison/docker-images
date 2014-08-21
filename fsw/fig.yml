@@ -1,0 +1,6 @@
+mysql:
+  image: btison/mysql-fsw
+fsw:
+  image: btison/fsw
+  links:
+    - mysql:mysql

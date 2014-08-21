@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<AutomatedInstallation langpack="eng">
+<com.izforge.izpack.panels.HTMLLicencePanel id="HTMLLicencePanel"/>
+<com.izforge.izpack.panels.TargetPanel id="DirectoryPanel">
+<installpath>@@SERVER_INSTALL_DIR@@</installpath>
+</com.izforge.izpack.panels.TargetPanel>
+<com.izforge.izpack.panels.TreePacksPanel id="TreePacksPanel">
+<pack index="0" name="Red Hat JBoss Enterprise Application Platform" selected="true"/>
+<pack index="1" name="Red Hat JBoss Fuse Service Works" selected="true"/>
+<pack index="2" name="Switchyard quickstarts" selected="false"/>
+<pack index="3" name="RT-Gov Client-only" selected="true"/>
+<pack index="4" name="RT-Gov Server+Client" selected="false"/>
+<pack index="5" name="RTGov Server quickstarts" selected="false"/>
+<pack index="6" name="DT-Gov run-time" selected="false"/>
+<pack index="7" name="DT-Gov quickstarts" selected="false"/>
+<pack index="8" name="S-RAMP run-time" selected="false"/>
+<pack index="9" name="S-RAMP quickstarts" selected="false"/>
+<pack index="10" name="Red Hat JBoss Fuse Service Works quickstarts" selected="false"/>
+</com.izforge.izpack.panels.TreePacksPanel>
+<com.izforge.izpack.panels.UserInputPanel id="CreateUserPanel">
+<userInput>
+<entry key="adminPassword" value="d041a4bcc575ab17cf6039a206f72af8"/>
+<entry key="adminUser" value="admin"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="FSWCredentials">
+<userInput>
+<entry autoPrompt="true" key="fsw.password"/>
+<entry key="fsw.user" value="admin"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="RTGovServer">
+<userInput>
+<entry key="rtgov.user" value="admin"/>
+<entry key="rtgov.url" value="http://rtgovserver.com:8080"/>
+<entry autoPrompt="true" key="rtgov.password"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.MavenCheckPanel id="MavenSetup"/>
+<com.izforge.izpack.panels.UserInputPanel id="samlsecurity">
+<userInput>
+<entry autoPrompt="true" key="saml.storepass"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="JavaSecurityManager">
+<userInput>
+<entry key="jvm.security.enabled" value="false"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="postinstall">
+<userInput>
+<entry key="postinstallServer" value="true"/>
+<entry key="installSsl" value="off"/>
+<entry key="jdbc.driver.install" value="on"/>
+<entry key="installVault" value="off"/>
+<entry key="installLdap" value="off"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="vaultsecurity"/>
+<com.izforge.izpack.panels.UserInputPanel id="vaultsecuritypreexisting"/>
+<com.izforge.izpack.panels.UserInputPanel id="vaultsecuritydefault">
+<userInput>
+<entry autoPrompt="true" key="vault.keystorepwd"/>
+</userInput>
+</com.izforge.izpack.panels.UserInputPanel>
+<com.izforge.izpack.panels.UserInputPanel id="sslsecurity"/>
+<com.izforge.izpack.panels.UserInputPanel id="ldapsecurity"/>
+<com.izforge.izpack.panels.UserInputPanel id="ldapsecurity2"/>
+<com.redhat.installer.panels.JBossJDBCDriverSetupPanelFSW id="JDBC Setup Panel">
+<jdbc.driver.jar>
+<path-1>@@MYSQL_DRIVER@@</path-1>
+</jdbc.driver.jar>
+<jdbc.driver.name>mysql</jdbc.driver.name>
+<jdbc.driver.module.name>com.mysql</jdbc.driver.module.name>
+<jdbc.driver.xa.class>com.mysql.jdbc.jdbc2.optional.MysqlXADataSource</jdbc.driver.xa.class>
+<jdbc.driver.dir.struct>modules/com/mysql/main</jdbc.driver.dir.struct>
+<db.driver>mysql</db.driver>
+<db.dialect>MySQL5InnoDBDialect</db.dialect>
+<db.user>jboss</db.user>
+<db.password autoPrompt="true"/>
+<db.url>jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/@@MYSQL_SCHEMA@@?transformedBitIsBoolean=true&amp;sessionVariables=storage_engine=InnoDB</db.url>
+</com.redhat.installer.panels.JBossJDBCDriverSetupPanelFSW>
+<com.redhat.installer.panels.JBossDatasourceConfigPanel id="Datasource Configuration Panel"/>
+<com.izforge.izpack.panels.UserInputPanel id="DBDefaultConfiguration" />
+<com.izforge.izpack.panels.SummaryPanel id="SummaryPanel"/>
+<com.izforge.izpack.panels.InstallPanel id="InstallPanel"/>
+<com.izforge.izpack.panels.ProcessPanel id="ProcessPanel"/>
+<com.izforge.izpack.panels.FinishPanel id="FinishPanel"/>
+</AutomatedInstallation>

@@ -1,0 +1,77 @@
+:numbered!:
+
+== FSW image
+
+Docker image that provides a container for JBoss Fuse Service Works. Built upon the `btison/java` image. Uses a MySQL instance running in its own Docker container as database.
+
+The image uses FSW 6.0.0.GA
+
+Prerequisites:
+
+* FSW installer (jboss-fsw-installer-6.0.0.GA-redhat-4.jar) in `resources` directory.
+
+To build:
+
+----
+# cd fsw
+# docker build -t btison/fsw .
+----
+
+To run:
+
+First start the MySQL container:
+
+----
+# docker run -d --name=mysql-fsw btison/mysql-fsw
+----
+
+Run the FSW container and link to the MySQL container:
+
+----
+# docker run -d --name=fsw --link=mysql-fsw:mysql btison/fsw 
+----
+
+To get a prompt into the container:
+
+----
+# FSW_PID=$(docker inspect --format '{{ .State.Pid }}' fsw)
+# nsenter -m -u -n -i -p -t $FSW_PID
+----
+
+Both containers can also be started using fig (http://www.fig.sh):
+
+----
+# cd fsw
+# fig up -d
+----
+
+
+=== Container details:
+
+* FSW is installed in directory `opt/jboss/fsw`.
+
+* The FSW installation includes following components: Switchyard, RTGov client (no DTGov, RTGov server)
+
+* The FSW instance runs as system user `jboss`.
+
+* The FSW instance is bound to the IP address of the container.
+
+* FSW is configured with management user `admin:admin123!`.
+
+* To stop FSW, enter the container with _nsenter_ and issue the following command (as root)
++
+----
+# ./stop-fsw.sh
+----
+
+* To start FSW, enter the container with _nsenter_ and issue the following command (as root)
++
+----
+# ./start-fsw.sh
+----
+
+* To start BPMS in admin-only mode:
++
+----
+# ./start-fsw.sh --admin-only
+----
