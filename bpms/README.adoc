@@ -30,7 +30,7 @@ First start the MySQL container:
 Run the BPMS container and link to the MySQL container:
 
 ----
-# docker run -d --name=bpms --link=mysql-bpms:bpms btison/bpms 
+# docker run -d --name=bpms --link=mysql-bpms:mysql btison/bpms 
 ----
 
 To get a prompt into the container:
