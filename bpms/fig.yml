@@ -4,3 +4,5 @@ bpms:
   image: btison/bpms
   links:
     - mysql:mysql
+  volumes:
+    - /etc/localtime:/etc/localtime
