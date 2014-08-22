@@ -1,0 +1,14 @@
+    DELIMITER /
+
+    DROP PROCEDURE IF EXISTS execute_if_exists/
+
+    CREATE PROCEDURE execute_if_exists(IN statement TEXT)
+    BEGIN
+        DECLARE CONTINUE HANDLER FOR SQLSTATE '42S02' BEGIN END;
+        DECLARE CONTINUE HANDLER FOR 1025 BEGIN END;
+        DECLARE CONTINUE HANDLER FOR 1061 BEGIN END;
+        SET @stmt = statement;
+        PREPARE s FROM @stmt;
+        EXECUTE s;
+        DEALLOCATE PREPARE s;
+    END/

@@ -1,0 +1,25 @@
+:numbered!:
+
+== FSW-RTGov MySQL image
+
+Docker image that provides the MySQL container for JBoss Fuse Service Works and RT-Gov Server. Built upon the `btison/mysql` image. Adds a user and the schema for FSW and RTGov, and executes scripts for creation of tables. 
+
+To build:
+
+----
+# cd fsw-rtgov/mysql
+# docker build -t btison/mysql-fsw-rtgov .
+----
+
+To run:
+
+----
+# docker run -d --name=mysql-fsw-rtgov btison/mysql-fsw-rtgov 
+----
+
+To get a prompt into the container:
+
+----
+# MYSQL_PID=$(docker inspect --format '{{ .State.Pid }}' mysql-fsw-rtgov)
+# nsenter -m -u -n -i -p -t $MYSQL_PID
+----
