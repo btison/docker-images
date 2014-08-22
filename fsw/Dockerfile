@@ -31,7 +31,7 @@ RUN chmod 755 /start-container.sh /install-fsw.sh /env.sh /start-fsw.sh /stop-fs
 RUN /install-fsw.sh
 
 # Cleanup
-RUN rm -rf /temp-install /resources /manifests
+RUN rm -rf /temp-install /resources /configuration
 
 # Expose ports 8080,9990,9999
 EXPOSE 8080 9990 9999
