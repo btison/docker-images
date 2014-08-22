@@ -1,4 +1,4 @@
-FROM btison/java:latest
+FROM btison/java
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
@@ -8,7 +8,6 @@ RUN yum -y install mysql-connector-java; yum clean all
 # Scripts
 ADD ./install-fsw.sh /install-fsw.sh
 ADD ./env.sh /env.sh
-RUN mkdir /resources /manifests /temp-install
 ADD ./resources /resources
 ADD ./configuration /configuration
 ADD ./start-container.sh /start-container.sh
@@ -31,7 +30,7 @@ RUN chmod 755 /start-container.sh /install-fsw.sh /env.sh /start-fsw.sh /stop-fs
 RUN /install-fsw.sh
 
 # Cleanup
-RUN rm -rf /temp-install /resources /configuration
+RUN rm -rf /resources /configuration
 
 # Expose ports 8080,9990,9999
 EXPOSE 8080 9990 9999
