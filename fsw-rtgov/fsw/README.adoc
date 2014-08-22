@@ -2,7 +2,7 @@
 
 == FSW image
 
-Docker image that provides a container for JBoss Fuse Service Works. Built upon the `btison/fsw` image. Uses a MySQL instance running in its own Docker container as database. Enab;led for RTGov data collection. The RTGov server runs in its own container.
+Docker image that provides a container for JBoss Fuse Service Works. Built upon the `btison/fsw` image. Uses a MySQL instance running in its own Docker container as database. Enabled for RTGov data collection. The RTGov server runs in its own container.
 
 The image uses FSW 6.0.0.GA
 
