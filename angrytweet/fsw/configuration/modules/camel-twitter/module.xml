@@ -1,0 +1,11 @@
+<module xmlns="urn:jboss:module:1.0" name="@@module_camel_twitter@@">
+
+    <resources>
+        <resource-root path="@@module_camel_twitter_camel_twitter_jar@@"/>
+    </resources>
+
+    <dependencies>
+        <module name="org.apache.camel.core"/>
+        <module name="org.twitter4j" export="true"/>
+    </dependencies>
+</module>

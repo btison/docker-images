@@ -1,0 +1,4 @@
+batch
+data-source add --name=angrytweetDS --jndi-name="java:jboss/datasources/AngryTweetDS" --driver-name=mysql --user-name=jboss --password=jboss --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker --connection-url="jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/angrytweet?transformedBitIsBoolean=true&sessionVariables=storage_engine=InnoDB"
+/subsystem=datasources/data-source=angrytweetDS:enable
+run-batch
