@@ -6,3 +6,4 @@ fsw:
     - mysql:mysql
   volumes:
     - /etc/localtime:/etc/localtime
+    - /data/docker-data/fsw:/data
