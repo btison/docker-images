@@ -1,0 +1,25 @@
+:numbered!:
+
+== Angrytweet MySQL image
+
+Docker image that provides the MySQL container for the AngryTweet JBoss Fuse Service Works demo application. Built upon the `btison/mysql-fsw-rtgov` image. Adds the schema for AngryTweet. 
+
+To build:
+
+----
+# cd angrytweet/mysql
+# docker build -t angrytweet/mysql .
+----
+
+To run:
+
+----
+# docker run -d --name=angrytweet-mysql angrytweet/mysql 
+----
+
+To get a prompt into the container:
+
+----
+# MYSQL_PID=$(docker inspect --format '{{ .State.Pid }}' angrytweet-mysql)
+# nsenter -m -u -n -i -p -t $MYSQL_PID
+----
