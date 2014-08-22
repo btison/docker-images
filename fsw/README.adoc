@@ -70,7 +70,7 @@ Both containers can also be started using fig (http://www.fig.sh):
 # ./start-fsw.sh
 ----
 
-* To start BPMS in admin-only mode:
+* To start FSW in admin-only mode:
 +
 ----
 # ./start-fsw.sh --admin-only
