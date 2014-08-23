@@ -1,0 +1,10 @@
+:numbered!:
+
+== BPMS images
+
+Docker images for BPMS configured with persistent Quartz timer.
+
+Consists of two images:
+
+* mysql : MySQL container for BPMS
+* bpms : BPMS container

@@ -1,0 +1,8 @@
+mysql:
+  image: btison/mysql-bpms-quartz
+bpms:
+  image: btison/bpms-quartz
+  links:
+    - mysql:mysql
+  volumes:
+    - /etc/localtime:/etc/localtime
