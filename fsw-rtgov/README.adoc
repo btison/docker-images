@@ -1,0 +1,11 @@
+:numbered!:
+
+== FSW + RTGov images
+
+Docker images for FSW with RTGov server.
+
+Consists of 3 images:
+
+* mysql : MySQL container for FSW and RTGov
+* fsw : FSW container
+* rtgov : RTGov container
