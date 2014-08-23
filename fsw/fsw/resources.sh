@@ -7,7 +7,7 @@
 
 # Resources
 SCRIPT_DIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-SOURCE_RESOURCES_DIR=$SCRIPT_DIR/../../resources
+SOURCE_RESOURCES_DIR=$HOME/resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
