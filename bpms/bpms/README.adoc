@@ -15,7 +15,7 @@ Prerequisites:
 To build:
 
 ----
-# cd bpms
+# cd bpms/bpms
 # docker build -t btison/bpms .
 ----
 

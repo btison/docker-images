@@ -7,7 +7,7 @@ Docker image that provides the MySQL container for JBoss BPMS. Built upon the `b
 To build:
 
 ----
-# cd mysql-bpms
+# cd bpms/mysql
 # docker build -t btison/mysql-bpms .
 ----
 
