@@ -13,7 +13,7 @@ Prerequisites:
 To build:
 
 ----
-# cd fsw
+# cd fsw/fsw
 # docker build -t btison/fsw .
 ----
 

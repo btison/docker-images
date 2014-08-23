@@ -7,7 +7,7 @@ Docker image that provides the MySQL container for JBoss Fuse Service Works. Bui
 To build:
 
 ----
-# cd mysql-fsw
+# cd fsw/mysql
 # docker build -t btison/mysql-fsw .
 ----
 
