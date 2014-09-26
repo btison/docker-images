@@ -3,7 +3,7 @@ FROM btison/java
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
 # Install mysql driver
-RUN yum -y install mysql-connector-java; yum clean all
+RUN yum -y install unzip mysql-connector-java; yum clean all
 
 # Scripts
 ADD ./install-rtgov.sh /install-rtgov.sh
