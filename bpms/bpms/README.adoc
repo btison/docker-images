@@ -4,13 +4,15 @@
 
 Docker image that provides a container for JBoss BPMS. Built upon the `btison/java` image. Uses a MySQL instance running in its own Docker container as database.
 
-The image uses BPMS 6.0.2.GA.
+The image uses BPMS 6.0.3.GA. The latest security patch is applied to EAP.
 
 Prerequisites:
 
 * EAP 6.1.1 distribution (jboss-eap-6.1.1.zip) in `resources` directory.  
 
 * BPMS distribution (jboss-bpms-6.0.2.GA-redhat-5-deployable-eap6.x.zip) in `resources` directory.
+
+* BRMS/BPM Suite security patch for EAP 6.1.1 (EAP6.1.1-Patch.zip) in `resources` directory.
 
 To build:
 

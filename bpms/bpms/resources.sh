@@ -11,7 +11,7 @@ SOURCE_RESOURCES_DIR=$HOME/resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
-RESOURCES=( jboss-bpms-6.0.2.GA-redhat-5-deployable-eap6.x.zip jboss-eap-6.1.1.zip )
+RESOURCES=( jboss-bpms-6.0.3.GA-redhat-1-deployable-eap6.x.zip jboss-eap-6.1.1.zip EAP6.1.1-Patch.zip )
 
 # Force flag
 FORCE=FALSE
