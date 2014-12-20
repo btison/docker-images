@@ -1,4 +1,4 @@
-FROM mattdm/fedora:f20
+FROM fedora:20
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
