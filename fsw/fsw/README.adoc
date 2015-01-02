@@ -4,12 +4,12 @@
 
 Docker image that provides a container for JBoss Fuse Service Works. Built upon the `btison/java` image. Uses a MySQL instance running in its own Docker container as database.
 
-The image uses FSW 6.0.0.GA, with Fuse Service Works 6.0.0 Rollup Patch 2 applied
+The image uses FSW 6.0.0.GA, with Fuse Service Works 6.0.0 Rollup Patch 3 applied
 
 Prerequisites:
 
 * FSW installer (jboss-fsw-installer-6.0.0.GA-redhat-4.jar) in `resources` directory.
-* Fuse Service Works 6.0.0 Rollup Patch 2 (BZ-1085860.zip) in `resources` directory.
+* Fuse Service Works 6.0.0 Rollup Patch 2 (BZ-1120384.zip) in `resources` directory.
 
 To build:
 
