@@ -21,17 +21,33 @@ then
 fi
 
 CLEAN=false
-
+DEBUG_MODE=false
+DEBUG_PORT="8787"
 SERVER_OPTS=""
+ADMIN_ONLY=""
 
-while [ "$1" != "" ]; do
-    case $1 in
-        --clean )               CLEAN=true
-                                ;;
-        --admin-only )          ADMIN_ONLY=--admin-only
-                                ;;
-        * )                     SERVER_OPTS="$SERVER_OPTS \"$1\""
-                                ;;
+while [ "$#" -gt 0 ]
+do
+    case "$1" in
+      --debug)
+          DEBUG_MODE=true
+          shift
+          if [ -n "$1" ] && [ "${1#*-}" = "$1" ]; then
+              DEBUG_PORT=$1
+          fi
+          ;;
+      --admin-only)
+          ADMIN_ONLY=--admin-only
+          ;;
+      --clean)
+          CLEAN=true
+          ;; 
+      --)
+          shift
+          break;;
+      *)
+          SERVER_OPTS="$SERVER_OPTS \"$1\""
+          ;;
     esac
     shift
 done
@@ -40,6 +56,11 @@ done
 if [ "$CLEAN" = "true" ]
 then
     rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/data $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/log $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/tmp
+fi
+
+# Set debug settings if not already set
+if [ "$DEBUG_MODE" = "true" ]; then
+    SERVER_OPTS="$SERVER_OPTS --debug ${DEBUG_PORT}"
 fi
 
 # Start rtgov

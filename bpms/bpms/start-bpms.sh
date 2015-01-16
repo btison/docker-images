@@ -21,16 +21,35 @@ then
 fi
 
 CLEAN=false
+DEBUG_MODE=false
+DEBUG_PORT="8787"
+SERVER_OPTS=""
+ADMIN_ONLY=""
 
-for var in $@
+while [ "$#" -gt 0 ]
 do
-    case $var in
-        --clean)
-            CLEAN=true
-            ;;
-        --admin-only)
-            ADMIN_ONLY=--admin-only 
+    case "$1" in
+      --debug)
+          DEBUG_MODE=true
+          shift
+          if [ -n "$1" ] && [ "${1#*-}" = "$1" ]; then
+              DEBUG_PORT=$1
+          fi
+          ;;
+      --admin-only)
+          ADMIN_ONLY=--admin-only
+          ;;
+      --clean)
+          CLEAN=true
+          ;; 
+      --)
+          shift
+          break;;
+      *)
+          SERVER_OPTS="$SERVER_OPTS \"$1\""
+          ;;
     esac
+    shift
 done
 
 # Clean data, log and temp directories
@@ -39,9 +58,14 @@ then
     rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/data $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/log $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/tmp
 fi
 
+# Set debug settings if not already set
+if [ "$DEBUG_MODE" = "true" ]; then
+    SERVER_OPTS="$SERVER_OPTS --debug ${DEBUG_PORT}"
+fi
+
 # start bpms
 su jboss <<EOF
-nohup ${SERVER_INSTALL_DIR}/${SERVER_NAME}/bin/standalone.sh -Djboss.bind.address=$IPADDR -Djboss.bind.address.management=$IPADDR -Djboss.bind.address.insecure=$IPADDR -Djboss.node.name=server-$IPADDR -Dmysql.host.ip=$MYSQL_HOST_IP -Dmysql.host.port=$MYSQL_HOST_PORT -Dorg.uberfire.nio.git.daemon.host=$IPADDR -Dorg.uberfire.nio.git.ssh.host=$IPADDR --server-config=$JBOSS_CONFIG $ADMIN_ONLY 0<&- &>/dev/null &
+nohup ${SERVER_INSTALL_DIR}/${SERVER_NAME}/bin/standalone.sh -Djboss.bind.address=$IPADDR -Djboss.bind.address.management=$IPADDR -Djboss.bind.address.insecure=$IPADDR -Djboss.node.name=server-$IPADDR -Dmysql.host.ip=$MYSQL_HOST_IP -Dmysql.host.port=$MYSQL_HOST_PORT -Dorg.uberfire.nio.git.daemon.host=$IPADDR -Dorg.uberfire.nio.git.ssh.host=$IPADDR --server-config=$JBOSS_CONFIG $ADMIN_ONLY $SERVER_OPTS 0<&- &>/dev/null &
 EOF
 echo "BPMS started"
  
