@@ -1,0 +1,13 @@
+IP_ADDR=127.0.0.1
+RESOURCES_DIR=/resources
+CONFIGURATION_DIR=/configuration
+EAP=$RESOURCES_DIR/jboss-eap-6.3.0.zip
+SERVER_INSTALL_DIR=/opt/jboss
+SERVER_NAME_ORIG=jboss-eap-6.3
+SERVER_NAME=eap
+MYSQL_DRIVER_JAR=mysql-connector-java.jar
+MYSQL_DRIVER_JAR_DIR=/usr/share/java
+MYSQL_MODULE_NAME=com.mysql
+MYSQL_MODULE=$CONFIGURATION_DIR/mysql/module.xml
+JBOSS_CONFIG=standalone-full.xml
+JAVA_HOME=

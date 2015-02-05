@@ -1,0 +1,10 @@
+<module xmlns="urn:jboss:module:1.0" name="@@MYSQL_MODULE_NAME@@">
+   <resources>
+     <resource-root path="@@MYSQL_DRIVER_JAR@@"/>
+   </resources>
+
+   <dependencies>
+      <module name="javax.api"/>
+      <module name="javax.transaction.api"/>
+    </dependencies>
+</module>

@@ -1,0 +1,5 @@
+eap:
+  image: btison/eap
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /data/docker-data/eap:/data
