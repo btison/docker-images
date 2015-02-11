@@ -2,10 +2,12 @@ FROM btison/mysql
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
-ADD ./create-schema.sh /create-schema.sh
+ADD create-schema.sh /
+ADD supervisord.conf /etc/
+ADD ./sql /sql
 
 #Modify permissons
-RUN chmod 755 /create-schema.sh
+RUN chmod 755 /create-schema.sh /start-container.sh
 
 RUN /create-schema.sh
 

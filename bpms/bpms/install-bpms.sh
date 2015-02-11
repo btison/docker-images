@@ -2,6 +2,43 @@
 
 . env.sh
 
+FORCE=false
+
+while [ "$#" -gt 0 ]
+do
+    case "$1" in
+      --nexus)
+          NEXUS=true
+          ;;
+      --no-nexus)
+          NEXUS=false
+          ;;
+      --dashboard)
+          DASHBOARD=true
+          ;;
+      --no-dashboard)
+          DASHBOARD=false
+          ;;
+      --quartz)
+          QUARTZ=true
+          ;;
+      --no-quartz)
+          QUARTZ=false
+          ;;
+      --force)
+          FORCE=true
+          ;;  
+      --)
+          shift
+          break;;
+    esac
+    shift
+done
+
+echo "NEXUS=$NEXUS"
+echo "DASHBOARD=$DASHBOARD"
+echo "QUARTZ=$QUARTZ"
+
 # Sanity Checks
 if [ -f $EAP ];
 then
@@ -35,10 +72,16 @@ else
     exit 255
 fi
 
-if [ -d $SERVER_INSTALL_DIR/jboss-eap-6.1 ] || [ -d $SERVER_INSTALL_DIR/$SERVER_NAME ]
+if [ -d $SERVER_INSTALL_DIR/jboss-eap-6.1 ] || [ -d $SERVER_INSTALL_DIR/$SERVER_NAME ];
 then
-  echo "Target directory already exists. Please remove it before installing BPMS again."
-  exit 250
+  if [ $FORCE = "true" ] ;
+    then
+      echo "Removing existing installation"
+      rm -rf $SERVER_INSTALL_DIR/*
+    else  
+      echo "Target directory already exists. Please remove it before installing BPMS again."
+      exit 250
+  fi 
 fi
 
 # Install bpms
@@ -48,10 +91,26 @@ unzip -q $EAP -d $SERVER_INSTALL_DIR
 echo "Unzipping BPMS"
 unzip -q -o $BPMS -d $SERVER_INSTALL_DIR
 
+# Install Security patch
+echo "Install security patch"
+unzip -q -o $EAP_PATCH_ZIP -d $RESOURCES_DIR
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bin/client/jboss-cli-client.jar
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bin/client/jboss-client.jar
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bundles/system/layers/base/org/jboss/as/osgi/configadmin/main
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/docs/schema/module-1_3.xsd
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/jboss-modules.jar
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/apache/xalan
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/fusesource/jansi
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/jboss/as/
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/jboss/vfs
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/opensaml
+rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/picketbox
+unzip -q -o $EAP_PATCH -d $SERVER_INSTALL_DIR
+
 echo "Renaming the EAP dir to $SERVER_NAME"
 mv $SERVER_INSTALL_DIR/jboss-eap-6.1 $SERVER_INSTALL_DIR/$SERVER_NAME
 
-if [ "$REMOVE_DASHBOARD" == "true" ];
+if [ ! "$DASHBOARD" == "true" ];
 then
   echo "Removing dashboard app"
   rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war
@@ -90,7 +149,7 @@ if [ "$NEXUS" == "true" ]
 then
   echo "Setup local maven repo with Nexus"
   cp $MAVEN_SETTINGS_XML $SERVER_INSTALL_DIR/$MAVEN_DIR/
-  VARS=( NEXUS_URL )
+  VARS=( NEXUS_URL MAVEN_REPO_DIR )
   for i in "${VARS[@]}"
   do
     sed -i "s'@@${i}@@'${!i}'" $SERVER_INSTALL_DIR/$MAVEN_DIR/$(basename $MAVEN_SETTINGS_XML)	
@@ -138,27 +197,13 @@ do
   sed -i "s'@@${i}@@'${!i}'" $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/$MYSQL_MODULE_DIR/main/module.xml	
 done
 
-# Install Security patch
-echo "Install security patch"
-unzip $EAP_PATCH_ZIP -d $RESOURCES_DIR
-unzip $EAP_PATCH -d $RESOURCES_DIR
-mv $RESOURCES_DIR/jboss-eap-6.1 $RESOURCES_DIR/$SERVER_NAME
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bin/client/jboss-cli-client.jar
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bin/client/jboss-client.jar
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bundles/system/layers/base/org/jboss/as/osgi/configadmin/main
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/docs/schema/module-1_3.xsd
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/jboss-modules.jar
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/apache/xalan
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/fusesource/jansi
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/jboss/as/
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/jboss/vfs
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/opensaml
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/picketbox
-cp -r $RESOURCES_DIR/$SERVER_NAME $SERVER_INSTALL_DIR
-
 # Create directories and set permissions
 echo "Make directories for maven and git repo"
 mkdir -p $SERVER_INSTALL_DIR/${REPO_DIR}
+
+# Quartz Properties
+echo "Copy quartz properties file"
+cp $QUARTZ_PROPERTIES $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration
 
 echo "Change owner to user jboss"
 chown jboss:jboss $SERVER_INSTALL_DIR
@@ -170,7 +215,11 @@ chown -R jboss:jboss $SERVER_INSTALL_DIR/$MAVEN_DIR
 echo "Configure the Server"
 su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.sh --admin-only -c $JBOSS_CONFIG &"
 sleep 15
-su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$IP_ADDR:9999 --file=$CLI_JBPM_DS"
+su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$IP_ADDR:9999 --file=$CLI_BPMS"
+if [ "$QUARTZ" = "true" ]
+then
+  su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$IP_ADDR:9999 --file=$CLI_BPMS_QUARTZ"   
+fi
 su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$IP_ADDR:9999 \":shutdown\" "
 sleep 10
 
@@ -178,5 +227,12 @@ sleep 10
 echo "Modify persistence.xml"
 sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/jbpmDS/ $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
 sed -i s/org.hibernate.dialect.H2Dialect/org.hibernate.dialect.MySQL5Dialect/ $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
+
+# Configure dashboard
+if [ "$DASHBOARD" == "true" ];
+then
+  echo "Configure Dashboard app"
+  sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/jbpmDS/ $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war/WEB-INF/jboss-web.xml
+fi
 
 exit 0

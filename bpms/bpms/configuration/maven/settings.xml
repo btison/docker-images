@@ -1,0 +1,28 @@
+<settings>
+  <localRepository>@@MAVEN_REPO_DIR@@</localRepository>
+  <offline>false</offline>
+  <profiles>
+    <profile>
+      <id>nexus</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>nexus</id>
+          <url>http://@@NEXUS_URL@@/nexus/content/groups/public</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+      </repositories>
+     <pluginRepositories>
+        <pluginRepository>
+          <id>nexus</id>
+          <url>http://@@NEXUS_URL@@/nexus/content/groups/public</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+</settings>

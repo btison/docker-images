@@ -1,0 +1,5 @@
+batch
+data-source add --name=quartzDS --jta=false --jndi-name="java:jboss/datasources/quartzDS" --driver-name=mysql --user-name=jboss --password=jboss --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker --connection-url="jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/bpms?transformedBitIsBoolean=true&sessionVariables=storage_engine=InnoDB"
+/subsystem=datasources/data-source=quartzDS:enable
+/system-property=org.quartz.properties:add(value="${jboss.server.config.dir}/quartz.properties")
+run-batch
