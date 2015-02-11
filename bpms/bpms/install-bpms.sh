@@ -56,14 +56,6 @@ else
     exit 255
 fi
 
-if [ -f $EAP_PATCH_ZIP ];
-then
-    echo "File $EAP_PATCH_ZIP found"
-else
-    echo "File $EAP_PATCH_ZIP not found. Please put it in the resources folder"
-    exit 255
-fi
-
 if [ -f $MYSQL_DRIVER_JAR_DIR/$MYSQL_DRIVER_JAR ];
 then
     echo "File $MYSQL_DRIVER_JAR_DIR/$MYSQL_DRIVER_JAR found"
@@ -72,7 +64,7 @@ else
     exit 255
 fi
 
-if [ -d $SERVER_INSTALL_DIR/jboss-eap-6.1 ] || [ -d $SERVER_INSTALL_DIR/$SERVER_NAME ];
+if [ -d $SERVER_INSTALL_DIR/$SERVER_NAME_ORIG ] || [ -d $SERVER_INSTALL_DIR/$SERVER_NAME ];
 then
   if [ $FORCE = "true" ] ;
     then
@@ -85,30 +77,14 @@ then
 fi
 
 # Install bpms
-echo "Unzipping EAP 6"
+echo "Unzipping EAP 6.3.2"
 unzip -q $EAP -d $SERVER_INSTALL_DIR
 
 echo "Unzipping BPMS"
 unzip -q -o $BPMS -d $SERVER_INSTALL_DIR
 
-# Install Security patch
-echo "Install security patch"
-unzip -q -o $EAP_PATCH_ZIP -d $RESOURCES_DIR
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bin/client/jboss-cli-client.jar
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bin/client/jboss-client.jar
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bundles/system/layers/base/org/jboss/as/osgi/configadmin/main
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/docs/schema/module-1_3.xsd
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/jboss-modules.jar
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/apache/xalan
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/fusesource/jansi
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/jboss/as/
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/jboss/vfs
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/opensaml
-rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/picketbox
-unzip -q -o $EAP_PATCH -d $SERVER_INSTALL_DIR
-
 echo "Renaming the EAP dir to $SERVER_NAME"
-mv $SERVER_INSTALL_DIR/jboss-eap-6.1 $SERVER_INSTALL_DIR/$SERVER_NAME
+mv $SERVER_INSTALL_DIR/$SERVER_NAME_ORIG $SERVER_INSTALL_DIR/$SERVER_NAME
 
 if [ ! "$DASHBOARD" == "true" ];
 then
