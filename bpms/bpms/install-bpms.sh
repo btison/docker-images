@@ -77,7 +77,7 @@ then
 fi
 
 # Install bpms
-echo "Unzipping EAP 6.3.2"
+echo "Unzipping EAP"
 unzip -q $EAP -d $SERVER_INSTALL_DIR
 
 echo "Unzipping BPMS"
