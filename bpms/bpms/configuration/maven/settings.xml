@@ -1,6 +1,14 @@
 <settings>
   <localRepository>@@MAVEN_REPO_DIR@@</localRepository>
   <offline>false</offline>
+  <mirrors>
+    <mirror>
+      <id>nexus</id>
+      <mirrorOf>central</mirrorOf>
+      <layout>default</layout>
+      <url>http://nexus:8080/nexus/content/groups/public</url>
+    </mirror>
+  </mirrors>
   <profiles>
     <profile>
       <id>nexus</id>
