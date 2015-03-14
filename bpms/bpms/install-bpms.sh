@@ -149,8 +149,8 @@ RET=`cat $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-r
 if [[ "$RET" == "" ]]
 then
   echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
-  echo "admin1=admin,analyst,user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
-  echo "user1=user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "admin1=admin,analyst,user,reviewer,kie-server" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "user1=user,reviewer,kie-server" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
 fi
 
 echo "Create management user admin:admin"
