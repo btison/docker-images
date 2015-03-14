@@ -166,7 +166,7 @@ if [[ "$RET" == "" ]]
 then
   echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
   echo "admin1=8b68b1984bd2f4faf6b7a3c6a0c78968" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
-  echo "user=c5568adea472163dfc00c19c6348a665" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
+  echo "user1=e6e3515c498a9dd0d3f9ff109a563d70" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
 fi
 
 RET=`cat $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties | grep "admin1=" | grep -v "#"`
@@ -174,7 +174,7 @@ if [[ "$RET" == "" ]]
 then
   echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
   echo "admin1=admin,analyst,user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
-  echo "user=user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "user1=user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
 fi
 
 echo "Create management user admin:admin"
