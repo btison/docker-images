@@ -11,7 +11,7 @@ SOURCE_RESOURCES_DIR=$HOME/resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
-RESOURCES=( nexus-2.9.0-04-bundle.zip )
+RESOURCES=( nexus-2.11.1-01-bundle.zip )
 
 # Force flag
 FORCE=FALSE
