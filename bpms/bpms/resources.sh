@@ -11,7 +11,7 @@ SOURCE_RESOURCES_DIR=$HOME/resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
-RESOURCES=( jboss-bpmsuite-6.1.0.ER5-deployable-eap6.x.zip jboss-as-dist-7.5.0.Final-redhat-18.zip )
+RESOURCES=( jboss-bpmsuite-6.1.0.ER6-deployable-eap6.x.zip jboss-as-dist-7.5.0.Final-redhat-18.zip )
 
 # Force flag
 FORCE=FALSE
