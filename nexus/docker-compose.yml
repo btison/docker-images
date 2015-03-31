@@ -1,0 +1,7 @@
+nexus:
+  build: nexus
+  expose:
+    - "8080"
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /data/docker-data/nexus:/data
