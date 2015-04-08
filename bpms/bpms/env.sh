@@ -1,8 +1,8 @@
 IP_ADDR=127.0.0.1
 RESOURCES_DIR=/resources
 CONFIGURATION_DIR=/configuration
-EAP=$RESOURCES_DIR/jboss-as-dist-7.5.0.Final-redhat-18.zip
-BPMS=$RESOURCES_DIR/jboss-bpmsuite-6.1.0.ER6-deployable-eap6.x.zip
+EAP=$RESOURCES_DIR/jboss-eap-6.4.0.CR1.zip
+BPMS=$RESOURCES_DIR/jboss-bpmsuite-6.1.0.GA-redhat-2-deployable-eap6.x.zip
 SERVER_INSTALL_DIR=/opt/jboss
 SERVER_NAME=bpms
 SERVER_NAME_ORIG=jboss-eap-6.4
