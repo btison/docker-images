@@ -1,5 +1,9 @@
 eap:
-  image: btison/eap
+  build: eap
+  expose:
+    - "8080"
+    - "9990"
+    - "9999"
   volumes:
     - /etc/localtime:/etc/localtime
     - /data/docker-data/eap:/data

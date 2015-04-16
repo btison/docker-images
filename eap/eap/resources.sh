@@ -11,7 +11,7 @@ SOURCE_RESOURCES_DIR=$HOME/resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
-RESOURCES=( jboss-eap-6.3.0.zip )
+RESOURCES=( jboss-eap-6.4.0.zip )
 
 # Force flag
 FORCE=FALSE
