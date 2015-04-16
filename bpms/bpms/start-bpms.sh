@@ -7,11 +7,8 @@ IPADDR=$(ip a s | sed -ne '/127.0.0.1/!{s/^[ \t]*inet[ \t]*\([0-9.]\+\)\/.*$/\1/
 
 echo "IPADDR = $IPADDR"
 
-MYSQL_HOST_IP=$MYSQL_PORT_3306_TCP_ADDR
-MYSQL_HOST_PORT=$MYSQL_PORT_3306_TCP_PORT
-
-echo "MySQL host = $MYSQL_HOST_IP"
-echo "MySQL port = $MYSQL_HOST_PORT"
+MYSQL_HOST_IP=mysql
+MYSQL_HOST_PORT=3306
 
 # Sanity checks
 if [ ! -d $SERVER_INSTALL_DIR/$SERVER_NAME ]
