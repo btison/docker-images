@@ -137,6 +137,7 @@ if [[ "$RET" == "" ]]
 then
   echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
   echo "admin1=8b68b1984bd2f4faf6b7a3c6a0c78968" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
+  echo "busadmin=a8d820ddeedbba0de0a776fd99863419" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
   echo "user1=e6e3515c498a9dd0d3f9ff109a563d70" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
 fi
 
@@ -144,8 +145,9 @@ RET=`cat $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-r
 if [[ "$RET" == "" ]]
 then
   echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
-  echo "admin1=admin,analyst,user,reviewer,kie-server" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
-  echo "user1=user,reviewer,kie-server" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "admin1=admin,analyst,user,reviewer,kie-server,kiemgmt" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "busadmin=Administrators,analyst,user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "user1=user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
 fi
 
 echo "Create management user admin:admin"
