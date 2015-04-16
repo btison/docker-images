@@ -93,13 +93,8 @@ then
   rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war.dodeploy
 fi
 
-echo "Set system variables for BPMS"
-RET=`cat $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf | grep "org.kie.example=" | grep -v "#"`
-if [[ "$RET" == "" ]]
-then
-  echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
-  echo "JAVA_OPTS=\"\$JAVA_OPTS -Dorg.kie.example=false \"" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
-fi
+echo "Remove org.kie.example"
+sed -i 's/property name="org.kie.example" value="true"/property name="org.kie.example" value="false"/' $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/standalone.xml
 
 echo "Set system variables for maven and git repos"
 RET=`cat $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf | grep "org.guvnor.m2repo.dir=" | grep -v "#"`
