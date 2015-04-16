@@ -6,7 +6,8 @@ MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 RUN yum -y install unzip mysql-connector-java; yum clean all
 
 # Copy files
-ADD start-container.sh install-bpms.sh env.sh copy-environment-variables.sh start-bpms.sh stop-bpms.sh supervisord.conf /
+ADD start-container.sh install-bpms.sh env.sh start-bpms.sh stop-bpms.sh supervisord.conf /
+
 ADD resources /resources/
 ADD configuration /configuration/
 
@@ -17,9 +18,9 @@ RUN groupadd -r jboss -g 400 && useradd -u 400 -r -g jboss -d /opt/jboss -s /bin
 RUN mkdir -p /opt/jboss;chown -R jboss:jboss /opt/jboss
 
 # Modify script permissions
-RUN chmod 755 /start-container.sh /install-bpms.sh /env.sh /copy-environment-variables.sh /start-bpms.sh /stop-bpms.sh
+RUN chmod 755 /start-container.sh /install-bpms.sh /env.sh /start-bpms.sh /stop-bpms.sh
 
 # Install bpms script
 RUN /install-bpms.sh
 
-ENTRYPOINT ["/bin/bash", "/start-container.sh"]
+CMD ["/bin/bash", "/start-container.sh"]
