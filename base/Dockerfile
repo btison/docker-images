@@ -2,14 +2,13 @@ FROM fedora:20
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
-#perform updates
-RUN yum -y update; yum clean all
+# Perform updates, install supervisor
+RUN yum -y update && \
+    yum -y install supervisor && \
+    yum clean all -y
 
-#Install supervisor
-RUN yum -y install supervisor; yum clean all
-
-#create directories
+# Create directory for supervisor
 RUN mkdir -p /var/run/supervisord
 
-#Entrypoint
+# Entrypoint
 CMD true
