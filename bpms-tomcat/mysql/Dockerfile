@@ -2,14 +2,13 @@ FROM btison/mysql
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
-ADD create-schema.sh /
-ADD supervisord.conf /etc/
-ADD ./sql /sql
+ADD . /
 
-#Modify permissons
+# Modify permissons
 RUN chmod 755 /create-schema.sh /start-container.sh
 
+# Create schema
 RUN /create-schema.sh
 
-#Entrypoint
-ENTRYPOINT ["/bin/bash", "/start-container.sh"]
+# Entrypoint
+CMD ["/bin/bash", "/start-container.sh"]
