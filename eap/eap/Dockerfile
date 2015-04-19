@@ -3,24 +3,21 @@ FROM btison/java
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
 # Install unzip, mysql driver
-RUN yum -y install unzip mysql-connector-java; yum clean all
+RUN yum -y install unzip mysql-connector-java && \
+    yum clean all -y
 
 # Copy files
-ADD start-container.sh install-eap.sh env.sh start-eap.sh stop-eap.sh supervisord.conf /
-
-ADD resources /resources/
-ADD configuration /configuration/
+ADD . /
 
 # Create user jboss
 RUN groupadd -r jboss -g 400 && useradd -u 400 -r -g jboss -d /opt/jboss -s /bin/bash -c "JBoss user" jboss
 
 # Create installation directory and set permissions
-RUN mkdir -p /opt/jboss;chown -R jboss:jboss /opt/jboss
+RUN mkdir -p /opt/jboss && \
+    chown -R jboss:jboss /opt/jboss && \
+    chmod 755 /start-container.sh /install-eap.sh /env.sh /start-eap.sh /stop-eap.sh
 
-# Modify script permissions
-RUN chmod 755 /start-container.sh /install-eap.sh /env.sh /start-eap.sh /stop-eap.sh
-
-# Install eap script
+# Run install script
 RUN /install-eap.sh
 
 # Expose port 8080,9990,9999
