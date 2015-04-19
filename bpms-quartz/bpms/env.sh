@@ -1,9 +1,0 @@
-IP_ADDR=127.0.0.1
-RESOURCES_DIR=/resources
-CONFIGURATION_DIR=/configuration
-SERVER_INSTALL_DIR=/opt/jboss
-SERVER_NAME=bpms
-CLI_BPMS=$CONFIGURATION_DIR/configure-bpms.cli
-JBOSS_CONFIG=standalone.xml
-QUARTZ_PROPERTIES=$CONFIGURATION_DIR/quartz.properties
-JAVA_HOME=
