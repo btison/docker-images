@@ -75,7 +75,7 @@ fi
 
 # Apply Rollup Patch 3
 echo "Apply Fuse Service Works 6.0.0 Rollup Patch 3"
-unzip $FSW_PATCH_ZIP -d $RESOURCES_DIR
+unzip -q $FSW_PATCH_ZIP -d $RESOURCES_DIR
 # Base Installation
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bin/client/jboss-cli-client.jar
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/bin/client/jboss-client.jar
@@ -252,7 +252,7 @@ rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/picketbox
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/picketbox/main/picketbox-commons-1.0.0.final-redhat-2.jar
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/org/picketbox/main/picketbox-infinispan-4.0.17.SP2-redhat-2.jar
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/version.txt
-unzip $FSW_PATCH_BASE -d $RESOURCES_DIR
+unzip -q $FSW_PATCH_BASE -d $RESOURCES_DIR
 mv $RESOURCES_DIR/jboss-eap-6.1 $RESOURCES_DIR/$SERVER_NAME
 cp -r $RESOURCES_DIR/$SERVER_NAME $SERVER_INSTALL_DIR
 rm -rf $RESOURCES_DIR/$SERVER_NAME 
@@ -2951,7 +2951,7 @@ rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/switchyard-bpel-c
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/switchyard-bpel-console.war/images/tab.gif
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/switchyard-bpel-console.war/index.html
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/switchyard-bpel-console.war/logout.jsp
-unzip $FSW_PATCH_SWITCHYARD -d $RESOURCES_DIR
+unzip -q $FSW_PATCH_SWITCHYARD -d $RESOURCES_DIR
 mv $RESOURCES_DIR/jboss-eap-6.1 $RESOURCES_DIR/$SERVER_NAME
 cp -r $RESOURCES_DIR/$SERVER_NAME $SERVER_INSTALL_DIR
 rm -rf $RESOURCES_DIR/$SERVER_NAME
@@ -2999,7 +2999,7 @@ rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/overlord-rtgov/ov
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/overlord-rtgov/overlord-rtgov.war/WEB-INF/lib/rtgov-jbossas-1.0.1.Final-redhat-4.jar
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/overlord-rtgov/overlord-rtgov.war/WEB-INF/lib/rtgov-switchyard-1.0.1.Final-redhat-4.jar
 rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/overlord-rtgov/overlord-rtgov.war.dodeploy
-unzip $FSW_PATCH_RTGOV -d $RESOURCES_DIR
+unzip -q $FSW_PATCH_RTGOV -d $RESOURCES_DIR
 mv $RESOURCES_DIR/jboss-eap-6.1 $RESOURCES_DIR/$SERVER_NAME
 cp -r $RESOURCES_DIR/$SERVER_NAME $SERVER_INSTALL_DIR
 rm -rf $RESOURCES_DIR/$SERVER_NAME
