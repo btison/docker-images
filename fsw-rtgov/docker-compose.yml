@@ -1,7 +1,11 @@
 mysql:
-  image: btison/mysql-fsw-rtgov
+  build: mysql
+  expose:
+    - "3306"
+  volumes:
+    - /etc/localtime:/etc/localtime
 rtgov:
-  image: btison/rtgov
+  build: rtgov
   links:
     - mysql:mysql
   volumes:
@@ -9,7 +13,7 @@ rtgov:
     - /data/docker-data/fsw:/data
 
 fsw:
-  image: btison/fsw-rtgov
+  build: fsw
   links:
     - mysql:mysql
     - rtgov:rtgov

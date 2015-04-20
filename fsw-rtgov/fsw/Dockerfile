@@ -1,9 +1,9 @@
-FROM btison/fsw
+FROM fsw603_fsw
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
 # Scripts
-ADD ./configure-fsw.sh /configure-fsw.sh
+ADD ./configure-fsw.sh /
 
 # Modify script permissions
 RUN chmod 755 /configure-fsw.sh
@@ -12,4 +12,4 @@ RUN chmod 755 /configure-fsw.sh
 RUN /configure-fsw.sh
 
 # Entrypoint
-ENTRYPOINT ["/bin/bash", "/start-container.sh"]
+CMD ["/bin/bash", "/start-container.sh"]

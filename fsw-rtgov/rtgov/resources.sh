@@ -11,7 +11,7 @@ SOURCE_RESOURCES_DIR=$HOME/resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
-RESOURCES=( jboss-fsw-installer-6.0.0.GA-redhat-4.jar BZ-1085860.zip )
+RESOURCES=( jboss-fsw-installer-6.0.0.GA-redhat-4.jar BZ-1120384.zip )
 
 # Force flag
 FORCE=FALSE
