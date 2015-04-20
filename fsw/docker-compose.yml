@@ -1,9 +1,17 @@
 mysql:
-  image: btison/mysql-fsw
+  build: mysql
+  expose:
+    - "3306"
+  volumes:
+    - /etc/localtime:/etc/localtime
 fsw:
-  image: btison/fsw
+  build: fsw
   links:
     - mysql:mysql
+  expose:
+    - "8080"
+    - "9990"
+    - "9999"  
   volumes:
     - /etc/localtime:/etc/localtime
     - /data/docker-data/fsw:/data

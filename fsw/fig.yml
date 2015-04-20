@@ -1,9 +1,0 @@
-mysql:
-  image: btison/mysql-fsw
-fsw:
-  image: btison/fsw
-  links:
-    - mysql:mysql
-  volumes:
-    - /etc/localtime:/etc/localtime
-    - /data/docker-data/fsw:/data
