@@ -3,14 +3,13 @@ FROM btison/mysql
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
 # Add scripts
-ADD ./sql /sql
-ADD /create-schema.sh /create-schema.sh
+ADD . /
 
 # Change permissions
-RUN chmod 755 /create-schema.sh
+RUN chmod 755 /create-schema.sh /start-container.sh
 
 # Execute script
 RUN /create-schema.sh
 
 # Entrypoint
-ENTRYPOINT ["/bin/bash", "/start-container.sh"]
+CMD ["/bin/bash", "/start-container.sh"]
