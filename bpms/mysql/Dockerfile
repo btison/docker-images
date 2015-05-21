@@ -5,7 +5,7 @@ MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 ADD . /
 
 # Modify permissons
-RUN chmod 755 /create-schema.sh /start-container.sh
+RUN chmod 755 /*.sh
 
 # Create schema
 RUN /create-schema.sh
