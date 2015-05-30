@@ -89,6 +89,10 @@ fi
 echo "Install mysql driver"
 cp $MYSQL_DRIVER_JAR_DIR/$MYSQL_DRIVER_JAR $SERVER_INSTALL_DIR/$SERVER_NAME/lib
 
+# Remote debugging
+echo "set remote debugging settings"
+echo "JPDA_ADDRESS=8787" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/setenv.sh
+
 echo "Change owner to user jboss"
 chown jboss:jboss $SERVER_INSTALL_DIR
 chown -R jboss:jboss $SERVER_INSTALL_DIR/$SERVER_NAME

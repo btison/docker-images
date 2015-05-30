@@ -43,6 +43,7 @@ fi
 
 # Set debug settings if not already set
 JPDA=""
+JPDA_OPTS=""
 if [ "$DEBUG_MODE" = "true" ]; then
     JPDA="jpda"
 fi
