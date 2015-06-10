@@ -57,28 +57,23 @@ then
   echo "admin=c22052286cd5d72239a90fe193737253" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/mgmt-users.properties
 fi
 
-# MySQL module
-echo "Configure mysql module"
-MYSQL_MODULE_DIR=$(echo $MYSQL_MODULE_NAME | sed -e "s:\.:/:g")
-mkdir -p $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/$MYSQL_MODULE_DIR/main
-cp $MYSQL_DRIVER_JAR_DIR/$MYSQL_DRIVER_JAR $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/$MYSQL_MODULE_DIR/main
-cp $MYSQL_MODULE $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/$MYSQL_MODULE_DIR/main
-MYSQL_VARS=( MYSQL_MODULE_NAME MYSQL_DRIVER_JAR )
-for i in "${MYSQL_VARS[@]}"
-do
-  sed -i "s'@@${i}@@'${!i}'" $SERVER_INSTALL_DIR/$SERVER_NAME/modules/system/layers/base/$MYSQL_MODULE_DIR/main/module.xml	
-done
-
 echo "Change owner to user jboss"
 chown jboss:jboss $SERVER_INSTALL_DIR
 chown -R jboss:jboss $SERVER_INSTALL_DIR/$SERVER_NAME
 
 # Configure the server
-#echo "Configure the Server"
-#su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.sh --admin-only -c $JBOSS_CONFIG &"
-#sleep 15
-#su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$IP_ADDR:9999 --file=$CLI_JBPM_DS"
-#su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$IP_ADDR:9999 \":shutdown\" "
-#sleep 10
+echo "Configure the Server"
+# replace placeholders in cli file
+VARS=( MYSQL_MODULE_NAME MYSQL_DRIVER_JAR MYSQL_DRIVER_JAR_DIR )
+for i in "${VARS[@]}"
+do
+    sed -i "s'@@${i}@@'${!i}'" $CLI_EAP	
+done
+
+su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.sh --admin-only -c $JBOSS_CONFIG &"
+sleep 15
+su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$IP_ADDR:9999 --file=${CLI_EAP}"
+su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$IP_ADDR:9999 \":shutdown\" "
+sleep 10
 
 exit 0

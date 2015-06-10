@@ -8,6 +8,6 @@ SERVER_NAME=eap
 MYSQL_DRIVER_JAR=mysql-connector-java.jar
 MYSQL_DRIVER_JAR_DIR=/usr/share/java
 MYSQL_MODULE_NAME=com.mysql
-MYSQL_MODULE=$CONFIGURATION_DIR/mysql/module.xml
 JBOSS_CONFIG=standalone-full.xml
+CLI_EAP=$CONFIGURATION_DIR/jboss-as/eap.cli
 JAVA_HOME=
