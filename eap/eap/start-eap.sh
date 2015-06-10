@@ -12,7 +12,7 @@ MYSQL_HOST_PORT=3306
 # Sanity checks
 if [ ! -d $SERVER_INSTALL_DIR/$SERVER_NAME ]
 then
-  echo "BPMS not installed."
+  echo "EAP not installed."
   exit 0
 fi
 
