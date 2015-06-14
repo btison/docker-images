@@ -1,4 +1,4 @@
-FROM btison/java
+FROM f20/java
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 

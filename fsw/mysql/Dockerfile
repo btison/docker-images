@@ -1,4 +1,4 @@
-FROM btison/mysql
+FROM f20/mysql
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
@@ -6,7 +6,7 @@ MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 ADD . /
 
 # Change permissions
-RUN chmod 755 /create-schema.sh /start-container.sh
+RUN chmod 755 /*.sh
 
 # Execute script
 RUN /create-schema.sh

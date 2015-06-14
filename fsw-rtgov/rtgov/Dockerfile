@@ -1,4 +1,4 @@
-FROM btison/java
+FROM f20/java
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
@@ -15,7 +15,7 @@ RUN groupadd -r jboss -g 400 && useradd -u 400 -r -g jboss -d /opt/jboss -s /bin
 # Create installation directory and set permissions
 RUN mkdir -p /opt/jboss && \
     chown -R jboss:jboss /opt/jboss && \
-    chmod 755 /start-container.sh /install-rtgov.sh /env.sh /start-rtgov.sh /stop-rtgov.sh
+    chmod 755 /*.sh
 
 # Run installation script
 RUN /install-rtgov.sh

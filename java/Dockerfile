@@ -1,4 +1,4 @@
-FROM btison/base
+FROM f20/base
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 

@@ -1,4 +1,4 @@
-FROM btison/mysql
+FROM f20/mysql
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
