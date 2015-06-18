@@ -6,7 +6,7 @@
       <id>nexus</id>
       <mirrorOf>central</mirrorOf>
       <layout>default</layout>
-      <url>http://@@NEXUS_URL@@:8080/nexus/content/groups/public</url>
+      <url>http://@@NEXUS_URL@@/nexus/content/groups/public</url>
     </mirror>
   </mirrors>
   <profiles>
@@ -18,7 +18,7 @@
       <repositories>
         <repository>
           <id>nexus</id>
-          <url>http://@@NEXUS_URL@@:8080/nexus/content/groups/public</url>
+          <url>http://@@NEXUS_URL@@/nexus/content/groups/public</url>
           <releases>
             <enabled>true</enabled>
             <updatePolicy>always</updatePolicy>
@@ -32,7 +32,7 @@
      <pluginRepositories>
         <pluginRepository>
           <id>nexus</id>
-          <url>http://@@NEXUS_URL@@:8080/nexus/content/groups/public</url>
+          <url>http://@@NEXUS_URL@@/nexus/content/groups/public</url>
           <releases>
             <enabled>true</enabled>
             <updatePolicy>always</updatePolicy>
