@@ -1,4 +1,4 @@
-FROM f20/java
+FROM centos7/java
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 

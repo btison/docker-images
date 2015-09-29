@@ -1,4 +1,4 @@
-FROM f20/mysql
+FROM centos7/mysql
 
 MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 
