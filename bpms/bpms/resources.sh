@@ -7,11 +7,12 @@
 
 # Resources
 SCRIPT_DIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+. $SCRIPT_DIR/env.sh
 SOURCE_RESOURCES_DIR=$HOME/resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
-RESOURCES=( jboss-bpmsuite-6.1.0.GA-redhat-2-deployable-eap6.x.zip jboss-eap-6.4.0.zip )
+RESOURCES=( $EAP_DISTRO $BPMS_DISTRO )
 
 # Force flag
 FORCE=FALSE
