@@ -7,6 +7,18 @@ FORCE=false
 while [ "$#" -gt 0 ]
 do
     case "$1" in
+      --business-central)
+          BUSINESS_CENTRAL=true
+          ;;
+      --no-business-central)
+          BUSINESS_CENTRAL=false
+          ;;
+      --kie-server)
+          KIE_SERVER=true
+          ;;
+      --no-kie-server)
+          KIE_SERVER=false
+          ;;
       --nexus)
           NEXUS=true
           ;;
@@ -35,6 +47,8 @@ do
     shift
 done
 
+echo "BUSINESS_CENTRAL=$BUSINESS_CENTRAL"
+echo "KIE_SERVER=$KIE_SERVER"
 echo "NEXUS=$NEXUS"
 echo "DASHBOARD=$DASHBOARD"
 echo "QUARTZ=$QUARTZ"
@@ -93,6 +107,20 @@ then
   rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war.dodeploy
 fi
 
+if [ ! "$BUSINESS_CENTRAL" == "true" ];
+then
+  echo "Removing business-central app"
+  rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war.dodeploy
+fi
+
+if [ ! "$KIE_SERVER" == "true" ];
+then
+  echo "Removing kie_server app"
+  rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war.dodeploy
+fi
+
 echo "Remove org.kie.example"
 sed -i 's/property name="org.kie.example" value="true"/property name="org.kie.example" value="false"/' $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/standalone.xml
 
@@ -102,8 +130,8 @@ if [[ "$RET" == "" ]]
 then
   echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
   echo "JAVA_OPTS=\"\$JAVA_OPTS -Dorg.guvnor.m2repo.dir=$MAVEN_REPO_DIR \"" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
-  echo "JAVA_OPTS=\"\$JAVA_OPTS -Dorg.uberfire.nio.git.dir=$SERVER_INSTALL_DIR/$REPO_DIR \"" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
-  echo "JAVA_OPTS=\"\$JAVA_OPTS -Dorg.uberfire.metadata.index.dir=$SERVER_INSTALL_DIR/$REPO_DIR \"" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
+  echo "JAVA_OPTS=\"\$JAVA_OPTS -Dorg.uberfire.nio.git.dir=$BPMS_DATA_DIR/$REPO_DIR \"" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
+  echo "JAVA_OPTS=\"\$JAVA_OPTS -Dorg.uberfire.metadata.index.dir=$BPMS_DATA_DIR/$REPO_DIR \"" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
 fi 
 
 echo "Set system variable for local Maven repo"
@@ -111,23 +139,22 @@ RET=`cat $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf | grep "kie.maven.
 if [[ "$RET" == "" ]]
 then
   echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
-  echo "JAVA_OPTS=\"\$JAVA_OPTS -Dkie.maven.settings.custom=$SERVER_INSTALL_DIR/$MAVEN_DIR/settings.xml \"" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
+  echo "JAVA_OPTS=\"\$JAVA_OPTS -Dkie.maven.settings.custom=$BPMS_DATA_DIR/configuration/$(basename $MAVEN_SETTINGS_XML) \"" >> $SERVER_INSTALL_DIR/$SERVER_NAME/bin/standalone.conf
 fi 
 
 # Setup maven repo
-mkdir -p $SERVER_INSTALL_DIR/$MAVEN_DIR/repository
 if [ "$NEXUS" == "true" ]
 then
   echo "Setup local maven repo with Nexus"
-  cp $MAVEN_SETTINGS_XML $SERVER_INSTALL_DIR/$MAVEN_DIR/
-  VARS=( NEXUS_URL MAVEN_REPO_DIR )
+  cp $MAVEN_SETTINGS_XML $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/$(basename $MAVEN_SETTINGS_XML)
+  VARS=( MAVEN_REPO_DIR )
   for i in "${VARS[@]}"
   do
-    sed -i "s'@@${i}@@'${!i}'" $SERVER_INSTALL_DIR/$MAVEN_DIR/$(basename $MAVEN_SETTINGS_XML)	
+    sed -i "s'@@${i}@@'${!i}'" $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/$(basename $MAVEN_SETTINGS_XML)	
   done      
 else
   echo "Setup local maven repo off-line"
-  touch $SERVER_INSTALL_DIR/$MAVEN_DIR/settings.xml
+  touch $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/$(basename $MAVEN_SETTINGS_XML)
   echo "<settings><localRepository>$MAVEN_REPO_DIR</localRepository><offline>true</offline></settings>" >> $SERVER_INSTALL_DIR/$MAVEN_DIR/settings.xml
 fi
 
@@ -167,10 +194,7 @@ echo "Copy quartz properties file"
 cp $QUARTZ_PROPERTIES $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration
 
 echo "Change owner to user jboss"
-chown jboss:jboss $SERVER_INSTALL_DIR
-chown -R jboss:jboss $SERVER_INSTALL_DIR/$SERVER_NAME
-chown -R jboss:jboss $SERVER_INSTALL_DIR/$REPO_NAME
-chown -R jboss:jboss $SERVER_INSTALL_DIR/$MAVEN_DIR
+chown -R jboss:jboss $SERVER_INSTALL_DIR
 
 # Configure the server
 echo "Configure the Server"

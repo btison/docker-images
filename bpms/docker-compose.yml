@@ -4,13 +4,20 @@ mysql:
     - "3306"
   volumes:
     - /etc/localtime:/etc/localtime
+    - /var/lib/mysql/data
+  volumes_from:
+    - bpms_mysql_data
+  environment:
+    - MYSQL_LOWER_CASE_TABLE_NAMES=1
 nexus:
   build: nexus
   expose:
     - "8080"
   volumes:
     - /etc/localtime:/etc/localtime
-    - /data/docker-data/nexus:/data
+    - /data
+  volumes_from:
+    - bpms_nexus_data
 bpms:
   build: bpms
   links:
@@ -18,8 +25,10 @@ bpms:
     - nexus:nexus
   expose:
     - "8080"
-    - "9990"
-    - "9999"
+  environment:
+    - MYSQL_BPMS_SCHEMA=bpms
   volumes:
     - /etc/localtime:/etc/localtime
-    - /data/docker-data/bpms:/data
+    - /opt/jboss/data
+  volumes_from:
+    - bpms_bpms_data

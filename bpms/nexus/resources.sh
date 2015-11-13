@@ -7,11 +7,12 @@
 
 # Resources
 SCRIPT_DIR=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+. $SCRIPT_DIR/env.sh
 SOURCE_RESOURCES_DIR=$HOME/resources
 
 TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 
-RESOURCES=( nexus-2.11.1-01-bundle.zip )
+RESOURCES=( $(basename $NEXUS) )
 
 # Force flag
 FORCE=FALSE
