@@ -1,7 +1,5 @@
 FROM centos7/base
 
-MAINTAINER Bernard Tison <bernard.tison@gmail.com>
-
 ENV HOME=/var/lib/mysql
 
 RUN yum -y --setopt=tsflags=nodocs install mariadb-server gettext && \

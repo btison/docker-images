@@ -1,6 +1,4 @@
-FROM centos7/java
-
-MAINTAINER Bernard Tison <bernard.tison@gmail.com>
+FROM centos7/java8
 
 # Install unzip, mysql driver
 RUN yum -y install unzip mysql-connector-java sudo && \
