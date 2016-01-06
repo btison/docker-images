@@ -1,6 +1,6 @@
 batch
 module add --name=@@MYSQL_MODULE_NAME@@ --resources=@@MYSQL_DRIVER_JAR_DIR@@/@@MYSQL_DRIVER_JAR@@ --dependencies=javax.api,javax.transaction.api
-/subsystem=datasources/jdbc-driver=mysql:add(driver-xa-datasource-class-name=com.mysql.jdbc.jbdc2.optional.MysqlXAConnection,driver-name=mysql,driver-module-name=@@MYSQL_MODULE_NAME@@)
+/subsystem=datasources/jdbc-driver=mysql:add(driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,driver-name=mysql,driver-module-name=@@MYSQL_MODULE_NAME@@)
 data-source add --name=jbpmDS --jndi-name="java:jboss/datasources/jbpmDS" --driver-name=mysql --user-name=jboss --password=jboss --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker --connection-url="jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/${mysql.bpms.schema}?transformedBitIsBoolean=true&sessionVariables=storage_engine=InnoDB"
 /subsystem=datasources/data-source=jbpmDS:enable
 run-batch
