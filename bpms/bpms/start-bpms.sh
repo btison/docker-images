@@ -11,6 +11,7 @@ MYSQL_HOST_PORT=3306
 NEXUS_IP=$(ping -q -c 1 -t 1 nexus | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
 NEXUS_PORT=8080
 NEXUS_URL=$NEXUS_IP:$NEXUS_PORT
+BPMS_CONTROLLER_IP=$(ping -q -c 1 -t 1 bpms-wb | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
 
 # Sanity checks
 if [ ! -d $SERVER_INSTALL_DIR/$SERVER_NAME ]
@@ -20,7 +21,7 @@ then
 fi
 
 CLEAN=false
-DEBUG_MODE=false
+DEBUG_MODE=true
 DEBUG_PORT="8787"
 SERVER_OPTS=""
 ADMIN_ONLY=""
@@ -67,6 +68,21 @@ if [ ! -d "$BPMS_DATA_DIR/configuration" ]; then
   mkdir -p $BPMS_DATA_DIR
   cp -r $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration $BPMS_DATA_DIR
   chown -R jboss:jboss $BPMS_DATA_DIR 
+fi
+
+# remove unwanted deployments
+if [ ! "$BUSINESS_CENTRAL" == "true" ];
+then
+  echo "Removing business-central app"
+  rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war.*
+fi
+
+if [ ! "$KIE_SERVER" == "true" ];
+then
+  echo "Removing kie_server app"
+  rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war.*
 fi
 
 # setup nexus

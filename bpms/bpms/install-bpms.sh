@@ -107,6 +107,14 @@ then
   rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war.dodeploy
 fi
 
+# Kie server has no quartz library
+if [ ! -f  $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war/WEB-INF/lib/quartz-1.8.5.jar ];
+then 
+   echo "Copying quartz library to kie-server deployment"
+   cp $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war/WEB-INF/lib/quartz-1.8.5.jar \
+   $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war/WEB-INF/lib
+fi
+
 if [ ! "$BUSINESS_CENTRAL" == "true" ];
 then
   echo "Removing business-central app"
@@ -166,15 +174,17 @@ then
   echo "admin1=8b68b1984bd2f4faf6b7a3c6a0c78968" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
   echo "busadmin=a8d820ddeedbba0de0a776fd99863419" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
   echo "user1=e6e3515c498a9dd0d3f9ff109a563d70" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
+  echo "kieserver=16c6511893651c9b4b57e0c027a96075" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-users.properties
 fi
 
 RET=`cat $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties | grep "admin1=" | grep -v "#"`
 if [[ "$RET" == "" ]]
 then
   echo $'\n' >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
-  echo "admin1=admin,analyst,user,reviewer,kie-server,kiemgmt" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "admin1=admin,analyst,user,reviewer,kie-server,kiemgmt,rest-all" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
   echo "busadmin=Administrators,analyst,user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
-  echo "user1=user,reviewer" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "user1=user,reviewer,kie-server" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
+  echo "kieserver=kie-server,rest-all" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/application-roles.properties
 fi
 
 echo "Create management user admin:admin"
