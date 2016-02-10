@@ -5,6 +5,7 @@ MAINTAINER Bernard Tison <bernard.tison@gmail.com>
 # Perform updates, install supervisor
 RUN yum -y install epel-release && \
     yum -y install supervisor && \
+    yum -y install iproute && \
     yum clean all -y
 
 # Create directory for supervisor
