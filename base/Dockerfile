@@ -1,7 +1,5 @@
 FROM centos:7
 
-MAINTAINER Bernard Tison <bernard.tison@gmail.com>
-
 # Perform updates, install supervisor
 RUN yum -y install epel-release && \
     yum -y install supervisor && \
