@@ -15,7 +15,7 @@ nexus:
     - /etc/localtime:/etc/localtime
     - /data
   volumes_from:
-    - bpms_nexus_data
+    - nexus_data
 bpms-wb:
   build: bpms
   links:
