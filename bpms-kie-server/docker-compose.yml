@@ -1,0 +1,57 @@
+mysql:
+  build: mysql
+  expose:
+    - "3306"
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /var/lib/mysql/data
+  environment:
+    - MYSQL_LOWER_CASE_TABLE_NAMES=1
+nexus:
+  build: nexus
+  expose:
+    - "8080"
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /data
+  volumes_from:
+    - bpms_nexus_data
+bpms-wb:
+  build: bpms
+  links:
+    - mysql:mysql
+    - nexus:nexus
+  expose:
+    - "8080"
+  environment:
+    - MYSQL_BPMS_SCHEMA=bpmswb
+    - DASHBOARD=false
+    - QUARTZ=true
+    - NEXUS=true
+    - KIE_SERVER=false
+    - BUSINESS_CENTRAL=true
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /opt/jboss/data
+bpms-kieserver:
+  build: bpms
+  links:
+    - mysql:mysql
+    - nexus:nexus
+    - bpms-wb:bpms-wb
+  expose:
+    - "8080"
+  environment:
+    - MYSQL_BPMS_SCHEMA=bpmskieserver
+    - DASHBOARD=false
+    - QUARTZ=true
+    - NEXUS=true
+    - KIE_SERVER=true
+    - BUSINESS_CENTRAL=false
+    - BPMS_EXT_DISABLED=false
+    - BRMS_EXT_DISABLED=false
+    - KIE_SERVER_BYPASS_AUTH_USER=true
+    - KIE_SERVER_ID=1
+  volumes:
+    - /etc/localtime:/etc/localtime
+    - /opt/jboss/data

@@ -5,8 +5,6 @@ mysql:
   volumes:
     - /etc/localtime:/etc/localtime
     - /var/lib/mysql/data
-  volumes_from:
-    - bpms_mysql_data
   environment:
     - MYSQL_LOWER_CASE_TABLE_NAMES=1
 nexus:
@@ -16,8 +14,6 @@ nexus:
   volumes:
     - /etc/localtime:/etc/localtime
     - /data
-  volumes_from:
-    - bpms_nexus_data
 bpms:
   build: bpms
   links:
@@ -35,5 +31,3 @@ bpms:
   volumes:
     - /etc/localtime:/etc/localtime
     - /opt/jboss/data
-  volumes_from:
-    - bpms_bpms_data
