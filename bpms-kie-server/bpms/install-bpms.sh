@@ -195,13 +195,12 @@ then
   echo "admin=c22052286cd5d72239a90fe193737253" >> $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/mgmt-users.properties
 fi
 
-# Create directories and set permissions
-echo "Make directories for maven and git repo"
-mkdir -p $SERVER_INSTALL_DIR/${REPO_DIR}
-
 # Quartz Properties
-echo "Copy quartz properties file"
-cp $QUARTZ_PROPERTIES $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration
+if [ "$QUARTZ" = "true" ];
+then
+  echo "Copy quartz properties file"
+  cp $QUARTZ_PROPERTIES $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration
+fi
 
 echo "Change owner to user jboss"
 chown -R jboss:jboss $SERVER_INSTALL_DIR
@@ -225,9 +224,12 @@ su jboss -c "$SERVER_INSTALL_DIR/$SERVER_NAME/bin/jboss-cli.sh -c --controller=$
 sleep 10
 
 # Modify persistence.xml
-echo "Modify persistence.xml"
-sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/jbpmDS/ $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
-sed -i s/org.hibernate.dialect.H2Dialect/org.hibernate.dialect.MySQL5Dialect/ $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
+if [ "$BUSINESS_CENTRAL" == "true" ];
+then
+  echo "Modify persistence.xml"
+  sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/jbpmDS/ $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
+  sed -i s/org.hibernate.dialect.H2Dialect/org.hibernate.dialect.MySQL5Dialect/ $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
+fi
 
 # Configure dashboard
 if [ "$DASHBOARD" == "true" ];
