@@ -52,7 +52,24 @@ do
     shift
 done
 
+# Set debug settings if not already set
+if [ "$DEBUG_MODE" = "true" ]; then
+    SERVER_OPTS="$SERVER_OPTS --debug ${DEBUG_PORT}"
+fi
 
+# setup quartz
+if [ ! "$QUARTZ" = "true" ];
+then
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration/$(basename $QUARTZ_PROPERTIES)
+fi
+
+# configuration
+if [ ! -d "$BPMS_DATA_DIR/configuration" ]; then
+  mkdir -p $BPMS_DATA_DIR
+  cp -r $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration $BPMS_DATA_DIR
+  chown -R jboss:jboss $BPMS_DATA_DIR
+  $CLEAN="true"
+fi
 
 # Clean data, log and temp directories
 if [ "$CLEAN" = "true" ] 
@@ -60,43 +77,61 @@ then
     rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/data $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/log $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/tmp
 fi
 
-# Set debug settings if not already set
-if [ "$DEBUG_MODE" = "true" ]; then
-    SERVER_OPTS="$SERVER_OPTS --debug ${DEBUG_PORT}"
-fi
-
-# configuration
-if [ ! -d "$BPMS_DATA_DIR/configuration" ]; then
-  mkdir -p $BPMS_DATA_DIR
-  cp -r $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration $BPMS_DATA_DIR
-  chown -R jboss:jboss $BPMS_DATA_DIR 
-fi
-
 # remove unwanted deployments
 if [ ! "$BUSINESS_CENTRAL" == "true" ];
 then
-  echo "Removing business-central app"
-  rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war
   rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war.*
+else
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war.*
+  touch $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war.dodeploy
 fi
 
 if [ ! "$KIE_SERVER" == "true" ];
 then
-  echo "Removing kie_server app"
-  rm -rf $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war
   rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war.*
+else
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war.*
+  touch $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war.dodeploy
+fi
+
+if [ ! "$DASHBOARD" == "true" ];
+then
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war.*
+else
+  rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war.*
+  touch $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war.dodeploy
 fi
 
 # setup nexus
 sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$NEXUS_URL'g" $BPMS_DATA_DIR/configuration/$(basename $MAVEN_SETTINGS_XML)
 
+# start options
+BPMS_OPTS=""
+if [ $KIE_SERVER_BYPASS_AUTH_USER == "true" ]
+then
+  $BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.callback=props"
+  $BPMS_OPTS="$BPMS_OPTS -Djbpm.user.group.mapping=file:$BPMS_DATA_DIR/configuration/application-roles.properties"
+fi
+
+MAVEN_SETTINGS_XML_BASE=$(basename $MAVEN_SETTINGS_XML)
+
 # start bpms
 sudo -u jboss \
-    nohup ${SERVER_INSTALL_DIR}/${SERVER_NAME}/bin/standalone.sh -Djboss.bind.address=$IPADDR \
-    -Djboss.bind.address.management=$IPADDR -Djboss.bind.address.insecure=$IPADDR \
-    -Djboss.node.name=server-$IPADDR -Djboss.server.config.dir=$BPMS_DATA_DIR/configuration \
-    -Dmysql.host.ip=$MYSQL_HOST_IP -Dmysql.host.port=$MYSQL_HOST_PORT -Dmysql.bpms.schema=$MYSQL_BPMS_SCHEMA \
-    -Dorg.uberfire.nio.git.daemon.host=$IPADDR -Dorg.uberfire.nio.git.ssh.host=$IPADDR \
+    nohup ${SERVER_INSTALL_DIR}/${SERVER_NAME}/bin/standalone.sh \
+    -Djboss.bind.address=$IPADDR \
+    -Djboss.bind.address.management=$IPADDR \
+    -Djboss.bind.address.insecure=$IPADDR \
+    -Djboss.node.name=server-$IPADDR \
+    -Djboss.server.config.dir=$BPMS_DATA_DIR/configuration \
+    -Dmysql.host.ip=$MYSQL_HOST_IP \
+    -Dmysql.host.port=$MYSQL_HOST_PORT \
+    -Dmysql.bpms.schema=$MYSQL_BPMS_SCHEMA \
+    -Dorg.uberfire.nio.git.daemon.host=$IPADDR \
+    -Dorg.uberfire.nio.git.ssh.host=$IPADDR \
+    -Dorg.guvnor.m2repo.dir=$BPMS_DATA_DIR/$MAVEN_DIR/repository \
+    -Dorg.uberfire.nio.git.dir=$BPMS_DATA_DIR/$REPO_DIR \
+    -Dorg.uberfire.metadata.index.dir=$BPMS_DATA_DIR/$REPO_DIR \
+    -Dkie.maven.settings.custom=$BPMS_DATA_DIR/configuration/$(basename $MAVEN_SETTINGS_XML) \
     -Dorg.kie.server.id=kie-server-$KIE_SERVER_ID \
     -Dorg.kie.server.location=http://${IPADDR}:8080/kie-server/services/rest/server \
     -Dorg.kie.server.controller=http://${BPMS_CONTROLLER_IP}:8080/business-central/rest/controller \
@@ -110,8 +145,7 @@ sudo -u jboss \
     -Dorg.drools.server.ext.disabled=$BRMS_EXT_DISABLED \
     -Dorg.kie.server.repo=$BPMS_DATA_DIR/configuration \
     -Dorg.kie.server.bypass.auth.user=$KIE_SERVER_BYPASS_AUTH_USER \
-    -Dorg.jbpm.ht.callback=props \
-    -Djbpm.user.group.mapping=file:$BPMS_DATA_DIR/configuration/application-roles.properties \
+    $BPMS_OPTS \
     --server-config=$JBOSS_CONFIG $ADMIN_ONLY $SERVER_OPTS 0<&- &>/dev/null &
 echo "BPMS started"
  
