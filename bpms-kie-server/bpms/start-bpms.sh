@@ -11,7 +11,6 @@ MYSQL_HOST_PORT=3306
 NEXUS_IP=$(ping -q -c 1 -t 1 nexus | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
 NEXUS_PORT=8080
 NEXUS_URL=$NEXUS_IP:$NEXUS_PORT
-BPMS_CONTROLLER_IP=$(ping -q -c 1 -t 1 bpms-wb | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
 
 # Sanity checks
 if [ ! -d $SERVER_INSTALL_DIR/$SERVER_NAME ]
@@ -68,7 +67,7 @@ if [ ! -d "$BPMS_DATA_DIR/configuration" ]; then
   mkdir -p $BPMS_DATA_DIR
   cp -r $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration $BPMS_DATA_DIR
   chown -R jboss:jboss $BPMS_DATA_DIR
-  $CLEAN="true"
+  CLEAN="true"
 fi
 
 # Clean data, log and temp directories
@@ -107,13 +106,65 @@ sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$NEXUS_UR
 
 # start options
 BPMS_OPTS=""
-if [ $KIE_SERVER_BYPASS_AUTH_USER == "true" ]
+if [ "$KIE_SERVER_BYPASS_AUTH_USER" == "true" ]
 then
-  $BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.callback=props"
-  $BPMS_OPTS="$BPMS_OPTS -Djbpm.user.group.mapping=file:$BPMS_DATA_DIR/configuration/application-roles.properties"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.callback=props"
+  BPMS_OPTS="$BPMS_OPTS -Djbpm.user.group.mapping=file:$BPMS_DATA_DIR/configuration/application-roles.properties"
 fi
 
-MAVEN_SETTINGS_XML_BASE=$(basename $MAVEN_SETTINGS_XML)
+if [ ! "$EXECUTOR" == "true" ]
+then
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.executor.disabled=true"
+fi
+
+if [ ! "$EXECUTOR_JMS" == "true" ]
+then
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.executor.jms=false"
+fi
+
+if [ "$KIE_SERVER_MANAGED" == "true" ] 
+then
+  KIE_SERVER_CONTROLLER_IP=$(ping -q -c 1 -t 1 ${KIE_SERVER_CONTROLLER} | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.controller=http://${KIE_SERVER_CONTROLLER_IP}:8080/business-central/rest/controller"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.controller.user=kieserver"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.controller.pwd=kieserver1!"
+fi
+
+if [ "$KIE_SERVER_CONTROLLER" == "true" ]
+then
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.user=admin1"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.pwd=admin"
+fi
+
+if [ "$KIE_SERVER" == "true" ]
+then
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.id=kie-server-$KIE_SERVER_ID"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.location=http://${IPADDR}:8080/kie-server/services/rest/server"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.persistence.ds=java:jboss/datasources/jbpmDS"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.persistence.dialect=org.hibernate.dialect.MySQL5Dialect"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.server.ext.disabled=$BPMS_EXT_DISABLED"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.drools.server.ext.disabled=$BRMS_EXT_DISABLED"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.repo=$BPMS_DATA_DIR/configuration"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.bypass.auth.user=$KIE_SERVER_BYPASS_AUTH_USER"
+fi
+
+if [ "$BUSINESS_CENTRAL_DESIGN" == "true" ]
+then
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.ssh.enabled=true"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.daemon.enabled=true"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.daemon.host=$IPADDR"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.ssh.host=$IPADDR"
+else
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.ssh.enabled=false"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.daemon.enabled=false"
+fi
+
+if [ "$BUSINESS_CENTRAL" == "true" ];
+then
+  BPMS_OPTS="$BPMS_OPTS -Dorg.guvnor.m2repo.dir=$BPMS_DATA_DIR/$MAVEN_DIR/repository"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.dir=$BPMS_DATA_DIR/$REPO_DIR"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.metadata.index.dir=$BPMS_DATA_DIR/$REPO_DIR"
+fi
 
 # start bpms
 sudo -u jboss \
@@ -126,25 +177,7 @@ sudo -u jboss \
     -Dmysql.host.ip=$MYSQL_HOST_IP \
     -Dmysql.host.port=$MYSQL_HOST_PORT \
     -Dmysql.bpms.schema=$MYSQL_BPMS_SCHEMA \
-    -Dorg.uberfire.nio.git.daemon.host=$IPADDR \
-    -Dorg.uberfire.nio.git.ssh.host=$IPADDR \
-    -Dorg.guvnor.m2repo.dir=$BPMS_DATA_DIR/$MAVEN_DIR/repository \
-    -Dorg.uberfire.nio.git.dir=$BPMS_DATA_DIR/$REPO_DIR \
-    -Dorg.uberfire.metadata.index.dir=$BPMS_DATA_DIR/$REPO_DIR \
     -Dkie.maven.settings.custom=$BPMS_DATA_DIR/configuration/$(basename $MAVEN_SETTINGS_XML) \
-    -Dorg.kie.server.id=kie-server-$KIE_SERVER_ID \
-    -Dorg.kie.server.location=http://${IPADDR}:8080/kie-server/services/rest/server \
-    -Dorg.kie.server.controller=http://${BPMS_CONTROLLER_IP}:8080/business-central/rest/controller \
-    -Dorg.kie.server.controller.user=kieserver \
-    -Dorg.kie.server.controller.pwd=kieserver1! \
-    -Dorg.kie.server.user=admin1 \
-    -Dorg.kie.server.pwd=admin \
-    -Dorg.kie.server.persistence.ds=java:jboss/datasources/jbpmDS \
-    -Dorg.kie.server.persistence.dialect=org.hibernate.dialect.MySQL5Dialect \
-    -Dorg.jbpm.server.ext.disabled=$BPMS_EXT_DISABLED \
-    -Dorg.drools.server.ext.disabled=$BRMS_EXT_DISABLED \
-    -Dorg.kie.server.repo=$BPMS_DATA_DIR/configuration \
-    -Dorg.kie.server.bypass.auth.user=$KIE_SERVER_BYPASS_AUTH_USER \
     $BPMS_OPTS \
     --server-config=$JBOSS_CONFIG $ADMIN_ONLY $SERVER_OPTS 0<&- &>/dev/null &
 echo "BPMS started"
