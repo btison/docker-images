@@ -167,6 +167,13 @@ then
 fi
 
 # start bpms
+
+if [ "$START_BPMS" == "false" ] 
+then
+  exit 0
+fi
+
+
 sudo -u jboss \
     nohup ${SERVER_INSTALL_DIR}/${SERVER_NAME}/bin/standalone.sh \
     -Djboss.bind.address=$IPADDR \
