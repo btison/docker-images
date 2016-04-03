@@ -1,0 +1,66 @@
+postgresql-gitlab:
+  build: postgresql-gitlab
+  volumes:
+    - /var/lib/pgsql
+  volumes_from:
+    - postgresql_gitlab_data
+  environment:
+    - DB_NAME=gitlab_production
+    - DB_USER=gitlab
+    - DB_PASS=gitlab
+  expose:
+    - "5432"
+redis-gitlab:
+  build: redis-gitlab
+gitlab:
+  build: gitlab
+  links:
+    - redis-gitlab:redis
+    - postgresql-gitlab:postgresql
+  expose:
+    - "80"
+    - "22"  
+  ports:
+    - "10080:80"
+    - "10022:22"
+  volumes:
+    - /home/git/data
+    - /var/log/gitlab
+  volumes_from:
+    - gitlab_data
+  environment:
+    - TZ=Europe/Brussels
+    - GITLAB_TIMEZONE=Brussels
+
+    - GITLAB_SECRETS_DB_KEY_BASE=long-and-random-alphanumeric-string
+
+    - GITLAB_HOST=localhost
+    - GITLAB_PORT=10080
+    - GITLAB_SSH_PORT=10022
+    - GITLAB_RELATIVE_URL_ROOT=
+
+    - GITLAB_EMAIL=notifications@example.com
+    - GITLAB_EMAIL_REPLY_TO=noreply@example.com
+    - GITLAB_INCOMING_EMAIL_ADDRESS=reply@example.com
+
+    - GITLAB_BACKUPS=disable
+    - GITLAB_BACKUP_TIME=01:00
+
+    - NGINX_MAX_UPLOAD_SIZE=50m
+
+    - SMTP_ENABLED=false
+    - SMTP_DOMAIN=www.example.com
+    - SMTP_HOST=smtp.gmail.com
+    - SMTP_PORT=587
+    - SMTP_USER=mailer@example.com
+    - SMTP_PASS=password
+    - SMTP_STARTTLS=true
+    - SMTP_AUTHENTICATION=login
+
+    - IMAP_ENABLED=false
+    - IMAP_HOST=imap.gmail.com
+    - IMAP_PORT=993
+    - IMAP_USER=mailer@example.com
+    - IMAP_PASS=password
+    - IMAP_SSL=true
+    - IMAP_STARTTLS=false
