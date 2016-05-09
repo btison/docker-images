@@ -106,11 +106,6 @@ sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$NEXUS_UR
 
 # start options
 BPMS_OPTS=""
-if [ "$KIE_SERVER_BYPASS_AUTH_USER" == "true" ]
-then
-  BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.callback=props"
-  BPMS_OPTS="$BPMS_OPTS -Djbpm.user.group.mapping=file:$BPMS_DATA_DIR/configuration/application-roles.properties"
-fi
 
 if [ ! "$EXECUTOR" == "true" ]
 then
@@ -148,6 +143,30 @@ then
   BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ui.server.ext.disabled=$JBPMUI_EXT_DISABLED"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.repo=$BPMS_DATA_DIR/configuration"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.bypass.auth.user=$KIE_SERVER_BYPASS_AUTH_USER"
+fi
+
+if [ ! -f ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties -a "$KIE_SERVER" == "true" ]
+then
+  # userinfo properties file
+  touch ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
+  echo "busadmin=busadmin@example.com:en-UK:busadmin" >> ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
+  echo "user1=user1@example.com:en-UK:user1" >> ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
+  echo "reviewer=:en-UK:reviewer:[user1]" >> ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
+  echo "Administrator=admin@example.com.org:en-UK:Administrator" >> ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
+  echo "Administrators=:en-UK:Administrators:[busadmin]" >> ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
+fi
+
+if [ "$KIE_SERVER_BYPASS_AUTH_USER" == "true" -a "$KIE_SERVER" == "true" ]
+then
+  BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.callback=props"
+  BPMS_OPTS="$BPMS_OPTS -Djbpm.user.group.mapping=file:$BPMS_DATA_DIR/configuration/application-roles.properties"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.userinfo=props"
+  BPMS_OPTS="$BPMS_OPTS -Djbpm.user.info.properties=file:${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties"
+elif [ "$KIE_SERVER" == "true" ]
+then
+  BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.callback=jaas"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.userinfo=props"
+  BPMS_OPTS="$BPMS_OPTS -Djbpm.user.info.properties=file:${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties"
 fi
 
 if [ "$BUSINESS_CENTRAL_DESIGN" == "true" ]
