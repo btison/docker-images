@@ -52,6 +52,8 @@ bpms-kieserver:
     - BUSINESS_CENTRAL=false
     - BPMS_EXT_DISABLED=false
     - BRMS_EXT_DISABLED=false
+    - BRP_EXT_DISABLED=false
+    - JBPMUI_EXT_DISABLED=false
     - KIE_SERVER_BYPASS_AUTH_USER=true
     - KIE_SERVER_ID=1
     - KIE_SERVER_MANAGED=true
