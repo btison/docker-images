@@ -65,6 +65,7 @@ fi
 # configuration
 if [ ! -d "$BPMS_DATA_DIR/configuration" ]; then
   mkdir -p $BPMS_DATA_DIR
+  mkdir -p $BPMS_DATA_DIR/content
   cp -r $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/configuration $BPMS_DATA_DIR
   chown -R jboss:jboss $BPMS_DATA_DIR
   CLEAN="true"
@@ -205,6 +206,7 @@ sudo -u jboss \
     -Djboss.bind.address.insecure=$IPADDR \
     -Djboss.node.name=server-$IPADDR \
     -Djboss.server.config.dir=$BPMS_DATA_DIR/configuration \
+    -Djboss.server.deploy.dir=$BPMS_DATA_DIR/content \
     -Dmysql.host.ip=$MYSQL_HOST_IP \
     -Dmysql.host.port=$MYSQL_HOST_PORT \
     -Dmysql.bpms.schema=$MYSQL_BPMS_SCHEMA \
