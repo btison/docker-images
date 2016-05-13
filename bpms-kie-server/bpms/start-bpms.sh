@@ -184,20 +184,24 @@ else
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.daemon.enabled=false"
 fi
 
-if [ "$BUSINESS_CENTRAL" == "true" ];
+if [ "$BUSINESS_CENTRAL" == "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.guvnor.m2repo.dir=$BPMS_DATA_DIR/$MAVEN_DIR/repository"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.dir=$BPMS_DATA_DIR/$REPO_DIR"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.metadata.index.dir=$BPMS_DATA_DIR/$REPO_DIR"
 fi
 
-# start bpms
+# start-up properties
+if [ -n "$START_UP_PROPS" ]
+then
+  BPMS_OPTS="$BPMS_OPTS $(eval echo $START_UP_PROPS)"
+fi
 
+# start bpms
 if [ "$START_BPMS" == "false" ] 
 then
   exit 0
 fi
-
 
 sudo -u jboss \
     nohup ${SERVER_INSTALL_DIR}/${SERVER_NAME}/bin/standalone.sh \
@@ -214,4 +218,3 @@ sudo -u jboss \
     $BPMS_OPTS \
     --server-config=$JBOSS_CONFIG $ADMIN_ONLY $SERVER_OPTS 0<&- &>/dev/null &
 echo "BPMS started"
- 
