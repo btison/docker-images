@@ -155,6 +155,7 @@ then
   echo "reviewer=:en-UK:reviewer:[user1]" >> ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
   echo "Administrator=admin@example.com.org:en-UK:Administrator" >> ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
   echo "Administrators=:en-UK:Administrators:[busadmin]" >> ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
+  chown jboss:jboss ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
 fi
 
 if [ "$KIE_SERVER_BYPASS_AUTH_USER" == "true" -a "$KIE_SERVER" == "true" ]
