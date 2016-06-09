@@ -15,10 +15,10 @@ TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 RESOURCES=( $(basename $NEXUS) )
 
 # Force flag
-FORCE=FALSE
+FORCE=false
 
 # Clean flag
-REMOVE=FALSE
+REMOVE=false
 
 #
 # Usage

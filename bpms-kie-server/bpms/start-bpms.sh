@@ -78,7 +78,7 @@ then
 fi
 
 # remove unwanted deployments
-if [ ! "$BUSINESS_CENTRAL" == "true" ];
+if [ ! "$BUSINESS_CENTRAL" = "true" ];
 then
   rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war.*
 else
@@ -86,7 +86,7 @@ else
   touch $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/business-central.war.dodeploy
 fi
 
-if [ ! "$KIE_SERVER" == "true" ];
+if [ ! "$KIE_SERVER" = "true" ];
 then
   rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war.*
 else
@@ -94,7 +94,7 @@ else
   touch $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/kie-server.war.dodeploy
 fi
 
-if [ ! "$DASHBOARD" == "true" ];
+if [ ! "$DASHBOARD" = "true" ];
 then
   rm -f $SERVER_INSTALL_DIR/$SERVER_NAME/standalone/deployments/dashbuilder.war.*
 else
@@ -108,17 +108,17 @@ sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$NEXUS_UR
 # start options
 BPMS_OPTS=""
 
-if [ ! "$EXECUTOR" == "true" ]
+if [ ! "$EXECUTOR" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.executor.disabled=true"
 fi
 
-if [ ! "$EXECUTOR_JMS" == "true" ]
+if [ ! "$EXECUTOR_JMS" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.executor.jms=false"
 fi
 
-if [ "$KIE_SERVER_MANAGED" == "true" ] 
+if [ "$KIE_SERVER_MANAGED" = "true" ] 
 then
   KIE_SERVER_CONTROLLER_IP=$(ping -q -c 1 -t 1 ${KIE_SERVER_CONTROLLER} | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.controller=http://${KIE_SERVER_CONTROLLER_IP}:8080/business-central/rest/controller"
@@ -126,13 +126,13 @@ then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.controller.pwd=kieserver1!"
 fi
 
-if [ "$KIE_SERVER_CONTROLLER" == "true" ]
+if [ "$KIE_SERVER_CONTROLLER" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.user=admin1"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.pwd=admin"
 fi
 
-if [ "$KIE_SERVER" == "true" ]
+if [ "$KIE_SERVER" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.id=kie-server-$KIE_SERVER_ID"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.location=http://${IPADDR}:8080/kie-server/services/rest/server"
@@ -146,7 +146,7 @@ then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.bypass.auth.user=$KIE_SERVER_BYPASS_AUTH_USER"
 fi
 
-if [ ! -f ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties -a "$KIE_SERVER" == "true" ]
+if [ ! -f ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties -a "$KIE_SERVER" = "true" ]
 then
   # userinfo properties file
   touch ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
@@ -158,20 +158,20 @@ then
   chown jboss:jboss ${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties
 fi
 
-if [ "$KIE_SERVER_BYPASS_AUTH_USER" == "true" -a "$KIE_SERVER" == "true" ]
+if [ "$KIE_SERVER_BYPASS_AUTH_USER" = "true" -a "$KIE_SERVER" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.callback=props"
   BPMS_OPTS="$BPMS_OPTS -Djbpm.user.group.mapping=file:$BPMS_DATA_DIR/configuration/application-roles.properties"
   BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.userinfo=props"
   BPMS_OPTS="$BPMS_OPTS -Djbpm.user.info.properties=file:${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties"
-elif [ "$KIE_SERVER" == "true" ]
+elif [ "$KIE_SERVER" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.callback=jaas"
   BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ht.userinfo=props"
   BPMS_OPTS="$BPMS_OPTS -Djbpm.user.info.properties=file:${BPMS_DATA_DIR}/configuration/jbpm-userinfo.properties"
 fi
 
-if [ "$BUSINESS_CENTRAL_DESIGN" == "true" ]
+if [ "$BUSINESS_CENTRAL_DESIGN" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.ssh.enabled=true"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.daemon.enabled=true"
@@ -185,7 +185,7 @@ else
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.daemon.enabled=false"
 fi
 
-if [ "$BUSINESS_CENTRAL" == "true" ]
+if [ "$BUSINESS_CENTRAL" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.guvnor.m2repo.dir=$BPMS_DATA_DIR/$MAVEN_DIR/repository"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.dir=$BPMS_DATA_DIR/$REPO_DIR"
@@ -199,7 +199,7 @@ then
 fi
 
 # start bpms
-if [ "$START_BPMS" == "false" ] 
+if [ "$START_BPMS" = "false" ] 
 then
   exit 0
 fi

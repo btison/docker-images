@@ -15,10 +15,10 @@ TARGET_RESOURCES_DIR=$SCRIPT_DIR/resources
 RESOURCES=( $EAP_DISTRO $BPMS_DISTRO )
 
 # Force flag
-FORCE=FALSE
+FORCE=false
 
 # Clean flag
-REMOVE=FALSE
+REMOVE=false
 
 #
 # Usage
