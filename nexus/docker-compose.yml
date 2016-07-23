@@ -1,7 +1,10 @@
-nexus:
-  build: nexus
-  expose:
-    - "8080"
-  volumes:
-    - /etc/localtime:/etc/localtime
-    - /data/docker-data/nexus:/data
+version: '2'
+services:
+  nexus:
+    build: nexus
+    expose:
+      - "8080"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/docker-data/nexus:/data
+    network_mode: "bridge"

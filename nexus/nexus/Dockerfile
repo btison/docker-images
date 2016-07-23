@@ -1,9 +1,8 @@
-FROM f20/java
-
-MAINTAINER Bernard Tison <bernard.tison@gmail.com>
+FROM centos7/java8
 
 # Install unzip
-RUN yum -y install unzip; yum clean all
+RUN yum -y install unzip && \
+    yum clean all -y
 
 # Copy files
 ADD . /
@@ -18,8 +17,5 @@ RUN mkdir -p /opt/jboss && \
 
 # Run installation script
 RUN /install-nexus.sh
-
-# Expose port 8080
-EXPOSE 8080
 
 CMD ["/bin/bash", "/start-container.sh"]
