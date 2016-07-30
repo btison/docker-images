@@ -1,5 +1,5 @@
 <settings>
-  <localRepository>@@MAVEN_REPO_DIR@@</localRepository>
+  <localRepository>@@MAVEN_REPO@@</localRepository>
   <offline>false</offline>
   <mirrors>
     <mirror>

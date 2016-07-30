@@ -1,0 +1,12 @@
+<datasource jndi-name="java:jboss/datasources/jbpmDS" pool-name="jbpmDS" enabled="true">
+  <connection-url>jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/${mysql.bpms.schema}?transformedBitIsBoolean=true&amp;sessionVariables=storage_engine=InnoDB</connection-url>
+  <driver>mysql</driver>
+  <security>
+    <user-name>jboss</user-name>
+    <password>jboss</password>
+  </security>
+  <validation>
+    <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker"/>
+    <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter"/>
+  </validation>
+</datasource>
