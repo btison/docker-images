@@ -1,18 +1,24 @@
 FROM centos7/base
 
-RUN yum -y install sudo postgresql-server postgresql \
+ENV HOME=/var/lib/pgsql \
+    CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/postgresql
+
+RUN yum -y install gettext postgresql-server postgresql \
     postgresql-contrib && \
-    yum clean all
+    yum clean all && \
+    localedef -f UTF-8 -i en_US en_US.UTF-8 && \
+    mkdir -p /var/lib/pgsql/data && \
+    chown -R postgres.0 /var/lib/pgsql /var/run/postgresql && \
+    chmod -R g+rw var/lib/pgsql /var/run/postgresql && \
+    find var/lib/pgsql -type d -exec chmod g+x {} + && \
+    find /var/run/postgresql -type d -exec chmod g+x {} + && \
+    test "$(id postgres)" = "uid=26(postgres) gid=26(postgres) groups=26(postgres)"
 
-ADD ./postgresql-setup /usr/bin/postgresql-setup
-ADD ./supervisord.conf /etc/supervisord.conf
-ADD ./start_postgres.sh /start_postgres.sh
-ADD ./postgresql.conf /postgresql.conf
+COPY bin /usr/bin/
+COPY container-scripts /usr/share/container-scripts/
 
-# Sudo requires a tty. fix that.
-RUN sed -i 's/.*requiretty$/#Defaults requiretty/' /etc/sudoers && \
-    chmod +x /usr/bin/postgresql-setup && \
-    chmod +x /start_postgres.sh && \
-    chown -v postgres.postgres /postgresql.conf
+RUN chmod +x /usr/bin/run-postgresql.sh
 
-CMD ["/bin/bash", "/start_postgres.sh"]
+USER 26
+
+CMD ["/usr/bin/run-postgresql.sh"]
