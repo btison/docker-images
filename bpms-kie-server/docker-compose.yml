@@ -61,7 +61,7 @@ services:
       - KIE_SERVER_BYPASS_AUTH_USER=true
       - KIE_SERVER_ID=1
       - KIE_SERVER_MANAGED=true
-      - KIE_SERVER_CONTROLLER=bpms-admin
+      - KIE_SERVER_CONTROLLER_HOST=bpms-admin
       - EXECUTOR=true
       - EXECUTOR_JMS=true
     volumes:

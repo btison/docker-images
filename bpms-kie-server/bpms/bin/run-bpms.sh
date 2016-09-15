@@ -48,6 +48,7 @@ function dumpEnv() {
   echo "DEBUG_PORT: ${DEBUG_PORT}"
   if [ "${KIE_SERVER}" = "true" ];then
     echo "KIE_SERVER_ID: ${KIE_SERVER_ID}"
+    echo "KIE_SERVER_MANAGED: ${KIE_SERVER_MANAGED}"
     echo "BPMS_EXT_DISABLED: ${BPMS_EXT_DISABLED}"
     echo "BRMS_EXT_DISABLED: ${BRMS_EXT_DISABLED}"
     echo "BRP_EXT_DISABLED: ${BRP_EXT_DISABLED}"
@@ -55,6 +56,7 @@ function dumpEnv() {
     echo "KIE_SERVER_BYPASS_AUTH_USER: ${KIE_SERVER_BYPASS_AUTH_USER}"
   fi
   if [ "$BUSINESS_CENTRAL" = "true" ];then
+    echo "KIE_SERVER_CONTROLLER: ${KIE_SERVER_CONTROLLER}"
     echo "MAVEN_REPO: ${MAVEN_REPO}"
     echo "GIT_REPO: ${GIT_REPO}"
   fi
@@ -66,7 +68,10 @@ MYSQL_HOST_PORT=3306
 NEXUS_IP=$(ping -q -c 1 -t 1 nexus | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
 NEXUS_PORT=8080
 NEXUS_URL=$NEXUS_IP:$NEXUS_PORT
-BPMS_CONTROLLER_IP=$IPADDR
+if [ -n $KIE_SERVER_CONTROLLER_HOST ];
+then
+  KIE_SERVER_CONTROLLER_IP=$(ping -q -c 1 -t 1 ${KIE_SERVER_CONTROLLER_HOST} | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)  
+fi
 
 FIRST_RUN=false
 CLEAN=false
@@ -175,7 +180,7 @@ if [ "$FIRST_RUN" = "true" ]; then
   # configuration : Quartz datasource
   QUARTZ_DATASOURCE=$(cat $CONTAINER_SCRIPTS_PATH/$DATABASE-quartz-datasource-config.xml)
 
-  if [ "QUARTZ" = "true" ];
+  if [ "$QUARTZ" = "true" ];
   then
     DATASOURCE=$BPMS_DATASOURCE$'\n'$QUARTZ_DATASOURCE  
   else
@@ -192,6 +197,15 @@ if [ "$FIRST_RUN" = "true" ]; then
   createUser "busadmin" "busamin" "Administrators,analyst,user,rest-all"
   createUser "user1" "user" "user,reviewer,kie-server,rest-task,rest-query,rest-process"
   createUser "kieserver" "kieserver1!" "kie-server,rest-all" 
+
+  
+  # create additional users
+  for i in $(compgen -A variable | grep "^BPMS_USER_");
+  do
+    IFS=':' read -a bpmsUserArray <<< "${!i}"
+    echo "Create user ${bpmsUserArray[0]}"
+    createUser ${bpmsUserArray[0]} ${bpmsUserArray[1]} ${bpmsUserArray[2]} 
+  done
 
   # userinfo properties placeholder file
   cp $CONTAINER_SCRIPTS_PATH/jbpm-userinfo.properties $BPMS_DATA/configuration
@@ -275,14 +289,13 @@ fi
 # KIE-server in managed mode
 if [ "$KIE_SERVER_MANAGED" = "true" ] 
 then
-  KIE_SERVER_CONTROLLER_IP=$(ping -q -c 1 -t 1 ${KIE_SERVER_CONTROLLER} | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.controller=http://${KIE_SERVER_CONTROLLER_IP}:8080/business-central/rest/controller"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.controller.user=kieserver"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.controller.pwd=kieserver1!"
 fi
 
-# KIE controller
-if [ "$KIE_SERVER_CONTROLLER" = "true" ]
+# Business Central as KIE controller
+if [ "$KIE_SERVER_CONTROLLER" = "true" -a "$BUSINESS_CENTRAL" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.user=admin1"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.pwd=admin"
@@ -316,7 +329,7 @@ then
 fi
 
 # business-central
-if [ "$BUSINESS_CENTRAL_DESIGN" = "true" ]
+if [ "$BUSINESS_CENTRAL_DESIGN" = "true" -a "$BUSINESS_CENTRAL" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.ssh.enabled=true"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.daemon.enabled=true"
@@ -325,7 +338,8 @@ then
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.ext.security.management.api.userManagementServices=WildflyCLIUserManagementService"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.host=$IPADDR"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.port=9999"
-else
+elif [ "$BUSINESS_CENTRAL" = "true" ]
+then
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.ssh.enabled=false"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.daemon.enabled=false"
 fi
