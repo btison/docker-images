@@ -10,14 +10,14 @@ RUN yum install -y logrotate nginx openssh-server \
 ADD config/setup/ /app/setup/
 
 RUN sed -i 's/Defaults    requiretty/#Defaults    requiretty/g' /etc/sudoers && \
-    chmod 755 /app/setup/install
+    chmod 755 /app/setup/install.sh
 
-RUN /app/setup/install
+RUN /app/setup/install.sh
 
 COPY config/config/ /app/setup/config/
-COPY config/init /app/init
-RUN chmod 755 /app/init
+COPY config/init.sh /app/init.sh
+RUN chmod 755 /app/init.sh
 
 # Entrypoint
-ENTRYPOINT ["/app/init"]
+ENTRYPOINT ["/app/init.sh"]
 CMD ["app:start"]
