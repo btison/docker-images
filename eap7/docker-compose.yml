@@ -1,0 +1,14 @@
+version: '2'
+services:
+  eap:
+    build: eap
+    expose:
+      - "8080"
+      - "9990"
+      - "9999"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - eap:/opt/jboss/data
+    network_mode: "bridge"   
+volumes:
+  eap:

@@ -1,3 +1,0 @@
-batch
-module add --name=@@MYSQL_MODULE_NAME@@ --resources=@@MYSQL_DRIVER_JAR_DIR@@/@@MYSQL_DRIVER_JAR@@ --dependencies=javax.api,javax.transaction.api
-run-batch
