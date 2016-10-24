@@ -1,0 +1,12 @@
+{
+  "realm": "kieserver",
+  "realm-public-key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAioPkc8Xia2elTV+nTdBP5bTpG2xUgw8BJJYolXhZqG/x1uzuxaLRSie4qTv/fvm/isryAIMNoeQcaO16qaXiMuwimivhsXwG/a6+b+3OmCFphq3pBQheh6LqOT+vhf32J8OvMmqRJ5kK3riEm+74PcdoerzGPSqFSa7a5hdyyMZtbR0XVBnQf4Z+/FaGI+bhzcjITgico1IMCZJqkQcpYucGH5l45IcppLQIPbRyqvndMojlwLZRf0NXOA+M2I/sF2oa7CKv8ZQwNpMpgDp0j41xaUYOHi60vVSJoaaG42uYyytx+vznuDmTv8nFcjVcP6gjCLjYwbnnpSa4H0nDUQIDAQAB",
+  "bearer-only": true,
+  "auth-server-url": "http://0.0.0.0:8080/auth",
+  "ssl-required": "none",
+  "resource": "kieserver",
+  "enable-cors" : true,
+  "cors-max-age" : 1000,
+  "cors-allowed-methods" : "POST, PUT, DELETE, GET",
+  "principal-attribute" : "preferred_username"
+}
