@@ -43,8 +43,28 @@ EOF
 }
 
 function create_users() {
-  createuser "$DB_USER"
-  createdb --owner="$DB_USER" "$DB_NAME"
+  createuser "$DB_USER" --createdb
+}
+
+function create_database() {
+  if [[ -n ${DB_NAME} ]]; then
+    for database in $(awk -F',' '{for (i = 1 ; i <= NF ; i++) print $i}' <<< "${DB_NAME}"); do
+      echo "Creating database: ${database}..."
+      createdb --owner="$DB_USER" "$database"
+      load_extensions ${database}
+    done
+  fi
+}
+
+function load_extensions() {
+  local database=${1?missing argument} 
+
+  if [[ -n ${DB_EXTENSION} ]]; then
+    for extension in $(awk -F',' '{for (i = 1 ; i <= NF ; i++) print $i}' <<< "${DB_EXTENSION}"); do
+      echo "Loading ${extension} extension..."
+      psql -d ${database} -c "CREATE EXTENSION IF NOT EXISTS ${extension};" #>/dev/null 2>&1
+    done
+  fi 
 }
 
 function set_passwords() {

@@ -15,6 +15,7 @@ fi
 pg_ctl -w start -o "-h ''"
 if [ "${NEED_TO_CREATE_USERS:-}" == "yes" ]; then
   create_users
+  create_database
 fi
 set_passwords
 pg_ctl stop
