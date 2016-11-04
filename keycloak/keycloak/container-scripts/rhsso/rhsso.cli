@@ -1,6 +1,6 @@
-embed-server --admin-only=true --std-out=discard --server-config=standalone.xml
+embed-server --admin-only=true --std-out=discard --server-config=@@JBOSS_CONFIG@@
 batch
-module add --name=@@MYSQL_MODULE_NAME@@ --resources=@@MYSQL_DRIVER_JAR_DIR@@/@@MYSQL_DRIVER_JAR@@ --dependencies=javax.api,javax.transaction.api
+module add --name=@@MYSQL_MODULE_NAME@@ --resources=@@MYSQL_DRIVER_PATH@@/@@MYSQL_DRIVER@@ --dependencies=javax.api,javax.transaction.api
 /subsystem=datasources/jdbc-driver=mysql:add(driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,driver-name=mysql,driver-module-name=@@MYSQL_MODULE_NAME@@)
 /subsystem=datasources/data-source=KeycloakDS:remove
 data-source add --name=KeycloakDS --jndi-name="java:jboss/datasources/KeycloakDS" --driver-name=mysql --user-name=jboss --password=jboss --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker --connection-url="jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/${mysql.rhsso.schema}?transformedBitIsBoolean=true&sessionVariables=storage_engine=InnoDB"
