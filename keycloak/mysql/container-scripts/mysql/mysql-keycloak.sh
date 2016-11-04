@@ -3,7 +3,7 @@
 # Create users and databases
 function initialize_keycloak_database {
 
-  echo "Creating BPMS databases..."  
+  echo "Creating RHSSO database..."  
 
 mysql $mysql_flags <<EOSQL
     GRANT ALL ON *.* TO 'jboss'@'localhost' IDENTIFIED BY 'jboss';

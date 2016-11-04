@@ -9,6 +9,7 @@ services:
       - mysql:/var/lib/mysql/data
     environment:
       - MYSQL_LOWER_CASE_TABLE_NAMES=1
+      - MYSQL_ROOT_PASSWORD=redhat
     network_mode: "bridge"
   keycloak:
     build: keycloak
