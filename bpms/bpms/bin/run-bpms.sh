@@ -84,6 +84,7 @@ CLEAN=false
 
 # Database
 DATABASE=mysql
+DATABASE_DIALECT=org.hibernate.dialect.MySQL5Dialect
 MYSQL_DRIVER=mysql-connector-java.jar
 MYSQL_DRIVER_PATH=/usr/share/java
 MYSQL_MODULE_NAME=com.mysql
@@ -182,6 +183,12 @@ if [ "$FIRST_RUN" = "true" ]; then
 
   # configuration : driver
   DRIVER=$(cat $CONTAINER_SCRIPTS_PATH/$DATABASE-driver-config.xml)
+  #replace placeholders in driver file
+  VARS=( MYSQL_MODULE_NAME )
+  for i in "${VARS[@]}"
+  do
+    DRIVER=$(echo $DRIVER | sed "s'@@${i}@@'${!i}'")
+  done
   sed -i -e ':a' -e '$!{N;ba' -e '}' -e "s/$(quoteRe "<!-- ##DATASOURCE-DRIVERS## -->")/$(quoteSubst "$DRIVER")/" $BPMS_DATA/configuration/$JBOSS_CONFIG
 
   # configuration : BPMS datasource
@@ -206,8 +213,7 @@ if [ "$FIRST_RUN" = "true" ]; then
   createUser "admin1" "admin" "admin,analyst,user,kie-server,kiemgmt,rest-all"
   createUser "busadmin" "busamin" "Administrators,analyst,user,rest-all"
   createUser "user1" "user" "user,reviewer,kie-server,rest-task,rest-query,rest-process"
-  createUser "kieserver" "kieserver1!" "kie-server,rest-all" 
-
+  createUser "kieserver" "kieserver1!" "kie-server,rest-all"
   
   # create additional users
   for i in $(compgen -A variable | grep "^BPMS_USER_");
@@ -238,7 +244,7 @@ if [ ! -d $MYSQL_MODULE ];
 then
   echo "Setup mysql module"
   mkdir -p $MYSQL_MODULE
-  cp -rp $CONTAINER_SCRIPTS_PATH/mysql-module.xml $MYSQL_MODULE/module.xml
+  cp -rp $CONTAINER_SCRIPTS_PATH/$DATABASE-module.xml $MYSQL_MODULE/module.xml
   #replace placeholders in module file
   VARS=( MYSQL_MODULE_NAME MYSQL_DRIVER )
   for i in "${VARS[@]}"
@@ -251,7 +257,7 @@ fi
 # Configure business-central persistence.xml
 echo "Configure business-central persistence.xml"
 sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/jbpmDS/ $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
-sed -i s/org.hibernate.dialect.H2Dialect/org.hibernate.dialect.MySQL5Dialect/ $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
+sed -i s/org.hibernate.dialect.H2Dialect/${DATABASE_DIALECT}/ $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
 
 # Configure persistence in dashboard app
 echo "Configure persistence Dashboard app"
@@ -321,7 +327,7 @@ then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.id=kie-server-$KIE_SERVER_ID"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.location=http://${IPADDR}:8080/kie-server/services/rest/server"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.persistence.ds=java:jboss/datasources/jbpmDS"
-  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.persistence.dialect=org.hibernate.dialect.MySQL5Dialect"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.persistence.dialect=$DATABASE_DIALECT"
   BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.server.ext.disabled=$BPMS_EXT_DISABLED"
   BPMS_OPTS="$BPMS_OPTS -Dorg.drools.server.ext.disabled=$BRMS_EXT_DISABLED"
   BPMS_OPTS="$BPMS_OPTS -Dorg.optaplanner.server.ext.disabled=$BRP_EXT_DISABLED"
