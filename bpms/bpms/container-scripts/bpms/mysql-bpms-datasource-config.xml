@@ -1,6 +1,10 @@
 <datasource jndi-name="java:jboss/datasources/jbpmDS" pool-name="jbpmDS" enabled="true">
   <connection-url>jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/${mysql.bpms.schema}?transformedBitIsBoolean=true&amp;sessionVariables=storage_engine=InnoDB</connection-url>
   <driver>mysql</driver>
+  <pool>
+    <min-pool-size>${bpms.datasource.pool.min}</min-pool-size>
+    <max-pool-size>${bpms.datasource.pool.max}</max-pool-size>
+  </pool>
   <security>
     <user-name>jboss</user-name>
     <password>jboss</password>
