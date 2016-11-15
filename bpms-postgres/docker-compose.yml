@@ -1,0 +1,98 @@
+version: '2'
+services:
+  postgresql:
+    build: postgresql
+    volumes:
+      - postgresql:/var/lib/pgsql
+      - /etc/localtime:/etc/localtime
+    expose:
+      - "5432"
+    environment:
+      - DB_NAME=bpmswb,bpmskieserver
+      - DB_USER=jboss
+      - DB_PASS=jboss
+      - DB_EXTENSION=
+    network_mode: "bridge"
+  nexus:
+    build: nexus
+    expose:
+      - "8080"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/docker-data/nexus:/data
+    network_mode: "bridge"
+  bpms-wb:
+    build: bpms
+    links:
+      - postgresql:postgresql
+      - nexus:nexus
+    expose:
+      - "8080"
+    environment:
+      - PGSQL_BPMS_SCHEMA=bpmswb
+      - DASHBOARD=false
+      - QUARTZ=true
+      - KIE_SERVER=false
+      - BUSINESS_CENTRAL=true
+      - EXECUTOR=true
+      - EXECUTOR_JMS=true
+      - KIE_SERVER_CONTROLLER=false
+      - BUSINESS_CENTRAL_DESIGN=true
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - bpms-wb:/opt/jboss/data
+    network_mode: "bridge"
+  bpms-kieserver:
+    build: bpms
+    links:
+      - postgresql:postgresql
+      - nexus:nexus
+      - bpms-admin:bpms-admin
+    expose:
+      - "8080"
+    environment:
+      - PGSQL_BPMS_SCHEMA=bpmskieserver
+      - DASHBOARD=false
+      - QUARTZ=true
+      - KIE_SERVER=true
+      - BUSINESS_CENTRAL=false
+      - BPMS_EXT_DISABLED=false
+      - BRMS_EXT_DISABLED=false
+      - BRP_EXT_DISABLED=false
+      - JBPMUI_EXT_DISABLED=false
+      - KIE_SERVER_BYPASS_AUTH_USER=true
+      - KIE_SERVER_ID=1
+      - KIE_SERVER_MANAGED=true
+      - KIE_SERVER_CONTROLLER_HOST=bpms-admin
+      - EXECUTOR=true
+      - EXECUTOR_JMS=true
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - bpms-kieserver:/opt/jboss/data
+    network_mode: "bridge"
+  bpms-admin:
+    build: bpms
+    links:
+      - postgresql:postgresql
+      - nexus:nexus
+    expose:
+      - "8080"
+    environment:
+      - PGSQL_BPMS_SCHEMA=bpmskieserver
+      - DASHBOARD=false
+      - QUARTZ=false
+      - KIE_SERVER=false
+      - BUSINESS_CENTRAL=true
+      - EXECUTOR=false
+      - EXECUTOR_JMS=false
+      - KIE_SERVER_CONTROLLER=true
+      - BUSINESS_CENTRAL_DESIGN=false
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - bpms-admin:/opt/jboss/data
+    network_mode: "bridge"
+volumes:
+  postgresql:
+  bpms-wb:
+  bpms-admin:
+  bpms-kieserver:

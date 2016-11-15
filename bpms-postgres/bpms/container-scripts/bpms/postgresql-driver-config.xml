@@ -1,0 +1,3 @@
+<driver name="pgsql" module="@@PGSQL_MODULE_NAME@@">
+  <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
+</driver>

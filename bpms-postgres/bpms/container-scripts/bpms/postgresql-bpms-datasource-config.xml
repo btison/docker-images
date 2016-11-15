@@ -1,0 +1,12 @@
+<datasource jndi-name="java:jboss/datasources/jbpmDS" pool-name="jbpmDS" enabled="true">
+  <connection-url>jdbc:postgresql://${pgsql.host.ip}:${pgsql.host.port}/${pgsql.bpms.schema}</connection-url>
+  <driver>pgsql</driver>
+  <security>
+    <user-name>jboss</user-name>
+    <password>jboss</password>
+  </security>
+  <validation>
+    <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"/>
+    <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"/>
+  </validation>
+</datasource>
