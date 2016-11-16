@@ -63,6 +63,9 @@ function dumpEnv() {
     echo "JBPMUI_EXT_DISABLED: ${JBPMUI_EXT_DISABLED}"
     echo "KIE_SERVER_BYPASS_AUTH_USER: ${KIE_SERVER_BYPASS_AUTH_USER}"
   fi
+  if [ -n "$KIE_SERVER_CONTROLLER_HOST" ];then
+    echo "KIE_SERVER_CONTROLLER_IP: ${KIE_SERVER_CONTROLLER_IP}"
+  fi
   if [ "$BUSINESS_CENTRAL" = "true" ];then
     echo "KIE_SERVER_CONTROLLER: ${KIE_SERVER_CONTROLLER}"
     echo "MAVEN_REPO: ${MAVEN_REPO}"
@@ -76,8 +79,9 @@ MYSQL_HOST_PORT=3306
 NEXUS_IP=$(ping -q -c 1 -t 1 nexus | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
 NEXUS_PORT=8080
 NEXUS_URL=$NEXUS_IP:$NEXUS_PORT
-if [ -n $KIE_SERVER_CONTROLLER_HOST ];
+if [ -n "$KIE_SERVER_CONTROLLER_HOST" ];
 then
+  echo "ping for kie server controller"
   KIE_SERVER_CONTROLLER_IP=$(ping -q -c 1 -t 1 ${KIE_SERVER_CONTROLLER_HOST} | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)  
 fi
 
@@ -136,6 +140,14 @@ KIE_SERVER_BYPASS_AUTH_USER=${KIE_SERVER_BYPASS_AUTH_USER:-true}
 
 # quartz is enabled by default
 QUARTZ=${QUARTZ:-true}
+
+# start bpms?
+if [ "$START_BPMS" = "false" ] 
+then
+ echo "START_BPMS=${START_BPMS}. Shutting down container."
+ sleep 10
+ exit 0
+fi
 
 # First run?
 if [ ! -d "$BPMS_DATA/configuration" ]; then 
