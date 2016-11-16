@@ -10,15 +10,14 @@ function initialize_bpms_database {
     GRANT ALL ON *.* TO 'jboss'@'%' IDENTIFIED BY 'jboss';
     CREATE DATABASE IF NOT EXISTS bpmswb;
     CREATE DATABASE IF NOT EXISTS bpmskieserver;
+    CREATE DATABASE IF NOT EXISTS bpmsadmin;
 EOSQL
 
-  mysql $mysql_flags bpmswb < $CONTAINER_SCRIPTS_PATH/sql/mysql5-jbpm-schema.sql
-  mysql $mysql_flags bpmswb < $CONTAINER_SCRIPTS_PATH/sql/quartz_tables_mysql.sql
-  mysql $mysql_flags bpmswb < $CONTAINER_SCRIPTS_PATH/sql/mysql5-dashbuilder-schema.sql
-
-  mysql $mysql_flags bpmskieserver < $CONTAINER_SCRIPTS_PATH/sql/mysql5-jbpm-schema.sql
-  mysql $mysql_flags bpmskieserver < $CONTAINER_SCRIPTS_PATH/sql/quartz_tables_mysql.sql
-  mysql $mysql_flags bpmskieserver < $CONTAINER_SCRIPTS_PATH/sql/mysql5-dashbuilder-schema.sql
-
+  for DATABASE in bpmswb bpmskieserver bpmsadmin
+  do
+    mysql $mysql_flags $DATABASE < $CONTAINER_SCRIPTS_PATH/sql/mysql5-jbpm-schema.sql
+    mysql $mysql_flags $DATABASE < $CONTAINER_SCRIPTS_PATH/sql/quartz_tables_mysql.sql
+    mysql $mysql_flags $DATABASE < $CONTAINER_SCRIPTS_PATH/sql/mysql5-dashbuilder-schema.sql
+  done
 }
 
