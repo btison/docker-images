@@ -411,6 +411,12 @@ SERVER_OPTS="$SERVER_OPTS -Dbpms.datasource.pool.min=$BPMS_DATASOURCE_POOL_MIN"
 SERVER_OPTS="$SERVER_OPTS -Dbpms.datasource.pool.max=$BPMS_DATASOURCE_POOL_MAX"
 SERVER_OPTS="$SERVER_OPTS --server-config=$JBOSS_CONFIG"
 
+# start-up properties
+if [ -n "$START_UP_PROPS" ]
+then
+  SERVER_OPTS="$SERVER_OPTS $(eval echo $START_UP_PROPS)"
+fi
+
 # Set debug settings
 if [ "$DEBUG_MODE" = "true" ]; then
     echo "Debug mode = true"
