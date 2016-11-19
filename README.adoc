@@ -1,6 +1,0 @@
-:numbered!:
-
-== Docker images
-
-Collection of Docker images for JBoss Middleware products (BPMS, Fuse Service Works)
-
