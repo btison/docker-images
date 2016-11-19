@@ -1,0 +1,15 @@
+version: '2'
+services:
+  mysql:
+    build: mysql
+    expose:
+      - "3306"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - mysql:/var/lib/mysql/data
+    environment:
+      - MYSQL_LOWER_CASE_TABLE_NAMES=1
+      - MYSQL_ROOT_PASSWORD=redhat
+    network_mode: "bridge"
+volumes:
+  mysql:
