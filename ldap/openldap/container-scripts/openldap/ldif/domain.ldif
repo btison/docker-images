@@ -1,0 +1,39 @@
+dn: olcDatabase={1}monitor,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: {0}to * by dn.base="gidNumber=0+uidNumber=0,cn=peercred,cn=external,cn=auth"
+  read by dn.base="cn=@@LDAP_BIND_CN@@,@@LDAP_BASE_DN@@" read by * none
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: @@LDAP_BASE_DN@@
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+replace: olcRootDN
+olcRootDN: cn=@@LDAP_BIND_CN@@,@@LDAP_BASE_DN@@
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+add: olcRootPW
+olcRootPW: @@LDAP_ADMIN_PASSWORD_ENCRYPTED@@
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+add: olcAccess
+olcAccess: {0}to attrs=userPassword,shadowLastChange by
+  dn="cn=@@LDAP_BIND_CN@@,@@LDAP_BASE_DN@@" write by anonymous auth by self write by * none
+olcAccess: {1}to dn.base="" by * read
+olcAccess: {2}to * by dn="cn=@@LDAP_BIND_CN@@,@@LDAP_BASE_DN@@" write by * read
+
+dn: olcDatabase={2}hdb,cn=config
+changetype: modify
+add: olcDbIndex
+olcDbIndex: uid pres,sub,eq
+-
+add: olcDbIndex
+olcDbIndex: member pres,eq
+-
+add: olcDbIndex
+olcDbIndex: default sub

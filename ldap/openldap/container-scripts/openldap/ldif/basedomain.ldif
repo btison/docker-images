@@ -1,0 +1,19 @@
+dn: @@LDAP_BASE_DN@@
+objectClass: top
+objectClass: dcObject
+objectclass: organization
+o: @@LDAP_ORGANISATION@@
+dc: @@LDAP_DOMAIN@@
+
+dn: cn=@@LDAP_BIND_CN@@,@@LDAP_BASE_DN@@
+objectClass: organizationalRole
+cn: @@LDAP_BIND_CN@@
+description: Directory Administrator
+
+dn: ou=users,@@LDAP_BASE_DN@@
+objectClass: organizationalUnit
+ou: users
+
+dn: ou=groups,@@LDAP_BASE_DN@@
+objectClass: organizationalUnit
+ou: groups

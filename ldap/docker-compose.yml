@@ -1,0 +1,35 @@
+version: '2'
+services:
+  openldap:
+    build: openldap
+    expose:
+      - "389"
+      - "636"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - openldap-data:/var/lib/ldap
+      - openldap-config:/etc/openldap/slapd.d
+    environment:
+      - LDAP_ORGANISATION=ACME Inc.
+      - LDAP_DOMAIN=acme
+      - LDAP_BASE_DN=dc=acme,dc=org
+      - LDAP_BIND_CN=admin
+      - LDAP_ADMIN_PASSWORD=admin
+      - LDAP_CONFIG_PASSWORD=admin
+
+      - LDAP_LOG_LEVEL=stats
+
+      # Tls
+      - LDAP_TLS=true
+      - LDAP_TLS_CRT_FILENAME=ldap.crt
+      - LDAP_TLS_KEY_FILENAME=ldap.key
+      - LDAP_TLS_CA_CRT_FILENAME=ca.crt
+
+      - LDAP_TLS_ENFORCE=false
+      - LDAP_TLS_CIPHER_SUITE=SECURE256:-VERS-SSL3.0
+      - LDAP_TLS_PROTOCOL_MIN=3.1
+      - LDAP_TLS_VERIFY_CLIENT=demand
+    network_mode: "bridge"
+volumes:
+  openldap-data:
+  openldap-config:
