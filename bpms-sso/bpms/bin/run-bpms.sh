@@ -414,10 +414,10 @@ then
     sed -i "s'<auth-method>.*</auth-method>'<auth-method>KEYCLOAK</auth-method>'g" $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/web.xml
   fi
   # if rhsso, replace IP addr in keycloak config
-  KEYCLOAK_IP=$(ping -q -c 1 -t 1 keycloak | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
-  KEYCLOAK_PORT=8080
-  KEYCLOAK_URL=$KEYCLOAK_IP:$KEYCLOAK_PORT
-  sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$KEYCLOAK_URL'g" $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/$(basename $KEYCLOAK_CONFIG)
+  RHSSO_IP=$(ping -q -c 1 -t 1 rhsso | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
+  RHSSO_PORT=8080
+  RHSSO_URL=$RHSSO_IP:$RHSSO_PORT
+  sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$RHSSO_URL'g" $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/$(basename $KEYCLOAK_CONFIG)
 fi
 
 SERVER_OPTS="$SERVER_OPTS -Djboss.bind.address=$IPADDR"

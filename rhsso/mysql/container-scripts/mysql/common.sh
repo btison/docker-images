@@ -86,3 +86,4 @@ function unset_env_vars() {
   echo 'Cleaning up environment variables MYSQL_ROOT_PASSWORD ...'
   unset MYSQL_ROOT_PASSWORD
 }
+

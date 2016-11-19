@@ -11,8 +11,8 @@ services:
       - MYSQL_LOWER_CASE_TABLE_NAMES=1
       - MYSQL_ROOT_PASSWORD=redhat
     network_mode: "bridge"
-  keycloak:
-    build: keycloak
+  rhsso:
+    build: rhsso
     links:
       - mysql:mysql
     expose:
@@ -21,8 +21,8 @@ services:
       - MYSQL_RHSSO_SCHEMA=keycloak
     volumes:
       - /etc/localtime:/etc/localtime
-      - keycloak:/opt/jboss/data
+      - rhsso:/opt/jboss/data
     network_mode: "bridge"
 volumes:
   mysql:
-  keycloak:
+  rhsso:
