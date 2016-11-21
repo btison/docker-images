@@ -47,6 +47,37 @@ then
   ldapmodify -Y EXTERNAL -H ldapi:/// -f ${CONTAINER_SCRIPTS_PATH}/ldif/domain.ldif
   ldapadd -x -D cn=${LDAP_BIND_CN},${LDAP_BASE_DN} -w ${LDAP_ADMIN_PASSWORD} -f ${CONTAINER_SCRIPTS_PATH}/ldif/basedomain.ldif
   
+  if [ "$LDAP_TLS" = "true" ]
+  then
+
+    if [ ! -f /opt/secrets/${LDAP_TLS_CA_CRT_FILENAME} -o ! -f /opt/secrets/${LDAP_TLS_CRT_FILENAME} -o ! -f /opt/secrets/${LDAP_TLS_PASSWORD_FILENAME} ]
+    then
+      rm -rf /etc/openldap/certs/*
+      cp /opt/secrets/${LDAP_TLS_PASSWORD_FILENAME} /etc/openldap/certs/
+      chown root:ldap /etc/openldap/certs/${LDAP_TLS_PASSWORD_FILENAME} 
+      chmod 640 /etc/openldap/certs/${LDAP_TLS_PASSWORD_FILENAME} 
+      modutil -force -create -dbdir /etc/openldap/certs
+      chmod 644 /etc/openldap/certs/cert8.db /etc/openldap/certs/key3.db /etc/openldap/certs/secmod.db
+      certutil -d /etc/openldap/certs -A -n "CA Certificate" -t TCu,Cu,Tuw -a -i /opt/secrets/${LDAP_TLS_CA_CRT_FILENAME}
+      modutil -dbdir /etc/openldap/certs -force -changepw 'NSS Certificate DB' -newpwfile /etc/openldap/certs/${LDAP_TLS_PASSWORD_FILENAME} 
+      pk12util -i /opt/secrets/${LDAP_TLS_CRT_FILENAME} -d /etc/openldap/certs -k /etc/openldap/certs/${LDAP_TLS_PASSWORD_FILENAME} -w /etc/openldap/certs/${LDAP_TLS_PASSWORD_FILENAME}
+    
+      VARS=( LDAP_TLS_PASSWORD_FILENAME LDAP_TLS_CRT_NAME )
+      for i in "${VARS[@]}"
+      do
+        sed -i "s'@@${i}@@'${!i}'" ${CONTAINER_SCRIPTS_PATH}/ldif/tls.ldif
+      done
+      ldapmodify -Y EXTERNAL -H ldapi:/// -f ${CONTAINER_SCRIPTS_PATH}/ldif/tls.ldif
+
+      if [ "$LDAP_TLS_ENFORCE" = "true" ]
+      then
+        ldapmodify -Y EXTERNAL -H ldapi:/// -f ${CONTAINER_SCRIPTS_PATH}/ldif/tls-enforce.ldif
+      fi
+    else
+      echo "Missing files for TLS. Skipping TLS setup."
+    fi
+  fi
+
   # shut down slapd
   SLAPD_PID=$(cat /run/openldap/slapd.pid)
   kill -15 $SLAPD_PID

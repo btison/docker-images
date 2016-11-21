@@ -9,6 +9,8 @@ services:
       - /etc/localtime:/etc/localtime
       - openldap-data:/var/lib/ldap
       - openldap-config:/etc/openldap/slapd.d
+      - openldap-certs:/etc/openldap/certs
+      - openldap-secrets:/opt/secrets
     environment:
       - LDAP_ORGANISATION=ACME Inc.
       - LDAP_DOMAIN=acme
@@ -21,15 +23,14 @@ services:
 
       # Tls
       - LDAP_TLS=true
-      - LDAP_TLS_CRT_FILENAME=ldap.crt
-      - LDAP_TLS_KEY_FILENAME=ldap.key
-      - LDAP_TLS_CA_CRT_FILENAME=ca.crt
-
-      - LDAP_TLS_ENFORCE=false
-      - LDAP_TLS_CIPHER_SUITE=SECURE256:-VERS-SSL3.0
-      - LDAP_TLS_PROTOCOL_MIN=3.1
-      - LDAP_TLS_VERIFY_CLIENT=demand
+      - LDAP_TLS_PASSWORD_FILENAME=password
+      - LDAP_TLS_CRT_FILENAME=ldap_openldap.p12
+      - LDAP_TLS_CA_CRT_FILENAME=acme.crt
+      - LDAP_TLS_CRT_NAME=LDAP-Certificate
+      - LDAP_TLS_ENFORCE=true
     network_mode: "bridge"
 volumes:
   openldap-data:
   openldap-config:
+  openldap-certs:
+  openldap-secrets:
