@@ -1,0 +1,19 @@
+<security-domain name="@@LDAP_SECURITY_DOMAIN@@" cache-type="default">
+  <authentication>
+    <login-module code="org.jboss.security.auth.spi.LdapExtLoginModule" flag="required">
+      <module-option name="java.naming.provider.url" value="@@LDAP_URL@@"/>
+      <module-option name="java.naming.factory.initial" value="com.sun.jndi.ldap.LdapCtxFactory"/>
+      <module-option name="java.naming.security.authentication" value="simple"/>
+      <module-option name="bindDN" value="cn=@@LDAP_BIND_CN@@,@@LDAP_BASE_DN@@"/>
+      <module-option name="bindCredential" value="@@LDAP_ADMIN_PASSWORD@@"/>
+      <module-option name="baseCtxDN" value="@@LDAP_BASE_CTX_DN@@"/>
+      <module-option name="baseFilter" value="@@LDAP_BASE_FILTER@@"/>
+      <module-option name="rolesCtxDN" value="@@LDAP_ROLES_DN@@"/>
+      <module-option name="roleFilter" value="@@LDAP_ROLES_FILTER@@"/>
+      <module-option name="roleNameAttributeID" value="@@LDAP_ROLES_NAME_ATTRIBUTE@@"/>
+      <module-option name="roleRecursion" value="@@LDAP_ROLE_RECURSION@@"/>
+      <module-option name="roleAttributeIsDN" value="@@LDAP_ROLES_NAME_ATTRIBUTE_IS_DN@@"/>
+      <module-option name="searchScope" value="@@LDAP_SEARCH_SCOPE@@"/>
+    </login-module>
+  </authentication>
+</security-domain>

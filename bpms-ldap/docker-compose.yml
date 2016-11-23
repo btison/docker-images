@@ -1,0 +1,121 @@
+version: '2'
+services:
+  mysql:
+    build: mysql
+    expose:
+      - "3306"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - mysql:/var/lib/mysql/data
+    environment:
+      - MYSQL_LOWER_CASE_TABLE_NAMES=1
+      - MYSQL_ROOT_PASSWORD=redhat
+    network_mode: "bridge"
+  nexus:
+    build: nexus
+    expose:
+      - "8080"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - /data/docker-data/nexus:/data
+    network_mode: "bridge"
+  bpms-wb:
+    build: bpms
+    links:
+      - mysql:mysql
+      - nexus:nexus
+    expose:
+      - "8080"
+    environment:
+      - MYSQL_BPMS_SCHEMA=bpmswb
+      - DASHBOARD=false
+      - QUARTZ=true
+      - KIE_SERVER=false
+      - BUSINESS_CENTRAL=true
+      - EXECUTOR=true
+      - EXECUTOR_JMS=true
+      - KIE_SERVER_CONTROLLER=false
+      - BUSINESS_CENTRAL_DESIGN=true
+      - LDAP_SECURITY_DOMAIN=bpms
+      - LDAP_URL=ldaps://ldap_openldap_1.ldap_openldap.docker:636
+      - LDAP_BASE_DN=dc=acme,dc=org
+      - LDAP_BIND_CN=admin
+      - LDAP_ADMIN_PASSWORD=admin
+      - TLS_CA_CRT_FILENAME=acme.crt
+      - TLS_PASSWORD_FILENAME=password
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - bpms-wb:/opt/jboss/data
+      - bpms-secret:/opt/secrets
+    network_mode: "bridge"
+  bpms-kieserver:
+    build: bpms
+    links:
+      - mysql:mysql
+      - nexus:nexus
+      - bpms-admin:bpms-admin
+    expose:
+      - "8080"
+    environment:
+      - MYSQL_BPMS_SCHEMA=bpmskieserver
+      - DASHBOARD=false
+      - QUARTZ=true
+      - KIE_SERVER=true
+      - BUSINESS_CENTRAL=false
+      - BPMS_EXT_DISABLED=false
+      - BRMS_EXT_DISABLED=false
+      - BRP_EXT_DISABLED=false
+      - JBPMUI_EXT_DISABLED=false
+      - KIE_SERVER_BYPASS_AUTH_USER=true
+      - KIE_SERVER_ID=1
+      - KIE_SERVER_MANAGED=true
+      - KIE_SERVER_CONTROLLER_HOST=bpms-admin
+      - EXECUTOR=true
+      - EXECUTOR_JMS=true
+      - LDAP_SECURITY_DOMAIN=bpms
+      - LDAP_URL=ldaps://ldap_openldap_1.ldap_openldap.docker:636
+      - LDAP_BASE_DN=dc=acme,dc=org
+      - LDAP_BIND_CN=admin
+      - LDAP_ADMIN_PASSWORD=admin
+      - TLS_CA_CRT_FILENAME=acme.crt
+      - TLS_PASSWORD_FILENAME=password
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - bpms-kieserver:/opt/jboss/data
+      - bpms-secret:/opt/secrets
+    network_mode: "bridge"
+  bpms-admin:
+    build: bpms
+    links:
+      - mysql:mysql
+      - nexus:nexus
+    expose:
+      - "8080"
+    environment:
+      - MYSQL_BPMS_SCHEMA=bpmsadmin
+      - DASHBOARD=false
+      - QUARTZ=false
+      - KIE_SERVER=false
+      - BUSINESS_CENTRAL=true
+      - EXECUTOR=false
+      - EXECUTOR_JMS=false
+      - KIE_SERVER_CONTROLLER=true
+      - BUSINESS_CENTRAL_DESIGN=false
+      - LDAP_SECURITY_DOMAIN=bpms
+      - LDAP_URL=ldaps://ldap_openldap_1.ldap_openldap.docker:636
+      - LDAP_BASE_DN=dc=acme,dc=org
+      - LDAP_BIND_CN=admin
+      - LDAP_ADMIN_PASSWORD=admin
+      - TLS_CA_CRT_FILENAME=acme.crt
+      - TLS_PASSWORD_FILENAME=password
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - bpms-admin:/opt/jboss/data
+      - bpms-secret:/opt/secrets
+    network_mode: "bridge"
+volumes:
+  mysql:
+  bpms-wb:
+  bpms-admin:
+  bpms-kieserver:
+  bpms-secret:
