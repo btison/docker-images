@@ -54,7 +54,7 @@ These settings allow to have a CA with empty values for the attributes marked as
 # openssl req -new -key ldap_server.key  -out ldap_server.csr
 ----
 +
-Make sure to have the CN set to thre FQDN of the server where the service is deployed
+Make sure to have the CN set to the FQDN of the server where the service is deployed
 * Sign the csr
 +
 ----
