@@ -1,4 +1,4 @@
-<datasource jta="false" jndi-name="java:jboss/datasources/quartzDS" pool-name="quartzDS" enabled="true">
+<datasource jta="false" jndi-name="java:jboss/datasources/@@QUARTZ_DATASOURCE@@" pool-name="@@QUARTZ_DATASOURCE@@" enabled="true">
   <connection-url>jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/${mysql.bpms.schema}?transformedBitIsBoolean=true&amp;sessionVariables=storage_engine=InnoDB</connection-url>
   <driver>mysql</driver>
   <security>
