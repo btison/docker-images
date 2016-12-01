@@ -2,12 +2,12 @@ FROM centos7/java8
 
 ENV BPMS_HOME=/opt/jboss \
     BPMS_ROOT=bpms \
-    BPMS_ROOT_ORIG=jboss-eap-6.4 \
+    BPMS_ROOT_ORIG=jboss-eap-7.0 \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/bpms \
     BPMS_DATA=/opt/jboss/data \
-    EAP_DISTRO=jboss-eap-6.4.7-full-build.zip \
-    BPMS_DISTRO=jboss-bpmsuite-6.3.0.GA-redhat-4-deployable-eap6.x.zip \
-    KEYCLOAK_ADAPTER=rh-sso-7.0.0-eap6-adapter.zip
+    EAP_DISTRO=jboss-eap-7.0.3-full-build.zip \
+    BPMS_DISTRO=jboss-bpmsuite-6.4.0.GA-redhat-2-deployable-eap7.x.zip \
+    KEYCLOAK_ADAPTER=rh-sso-7.0.0-eap7-adapter.zip
 
 # Install unzip, mysql driver
 RUN yum -y install unzip mysql-connector-java which && \
@@ -36,8 +36,6 @@ USER jboss
 RUN unzip -q /tmp/resources/jboss-eap.zip -d $BPMS_HOME && \
     unzip -q -o /tmp/resources/jboss-bpmsuite.zip -d $BPMS_HOME && \
     unzip -q /tmp/resources/keycloak-adapter.zip -d $BPMS_HOME/$BPMS_ROOT_ORIG && \
-    mv $BPMS_HOME/$BPMS_ROOT_ORIG $BPMS_HOME/$BPMS_ROOT && \
-    cp $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/lib/quartz-1.8.5.jar \
-    $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/lib
+    mv $BPMS_HOME/$BPMS_ROOT_ORIG $BPMS_HOME/$BPMS_ROOT
 
 CMD ["/usr/bin/run-bpms.sh"]

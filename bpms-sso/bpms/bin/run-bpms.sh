@@ -96,6 +96,8 @@ MYSQL_DRIVER_PATH=/usr/share/java
 MYSQL_MODULE_NAME=com.mysql
 BPMS_DATASOURCE_POOL_MIN=${BPMS_DATASOURCE_POOL_MIN:-0}
 BPMS_DATASOURCE_POOL_MAX=${BPMS_DATASOURCE_POOL_MAX:-20}
+BPMS_DATASOURCE=jbpmDS
+QUARTZ_DATASOURCE=quartzDS
 
 # Standalone config file
 JBOSS_CONFIG=standalone-docker.xml
@@ -180,6 +182,12 @@ if [ "$FIRST_RUN" = "true" ]; then
   # copy standalone-docker.xml
   echo "Copy $JBOSS_CONFIG"
   cp -p --remove-destination $CONTAINER_SCRIPTS_PATH/standalone.xml $BPMS_DATA/configuration/$JBOSS_CONFIG
+  #replace placeholders
+  VARS=( BPMS_DATASOURCE )
+  for i in "${VARS[@]}"
+  do
+    sed -i "s'@@${i}@@'${!i}'g" $BPMS_DATA/configuration/$JBOSS_CONFIG
+  done  
 
   # Setup maven repo
   echo "Setup local maven repo with Nexus"
@@ -187,7 +195,7 @@ if [ "$FIRST_RUN" = "true" ]; then
   VARS=( MAVEN_REPO )
   for i in "${VARS[@]}"
   do
-    sed -i "s'@@${i}@@'${!i}'" $MAVEN_SETTINGS	
+    sed -i "s'@@${i}@@'${!i}'" $MAVEN_SETTINGS
   done
 
   # Remove kie sample project
@@ -196,7 +204,13 @@ if [ "$FIRST_RUN" = "true" ]; then
 
   # Quartz Properties
   echo "Copy quartz properties file"
-  cp $CONTAINER_SCRIPTS_PATH/quartz.properties $BPMS_DATA/configuration
+  cp $CONTAINER_SCRIPTS_PATH/quartz.properties $BPMS_DATA/configuration/quartz.properties
+  #replace placeholders
+  VARS=( BPMS_DATASOURCE QUARTZ_DATASOURCE )
+  for i in "${VARS[@]}"
+  do
+    sed -i "s'@@${i}@@'${!i}'g" $BPMS_DATA/configuration/quartz.properties
+  done
 
   # Configure datasources
   echo "Configure $DATABASE datasource"
@@ -212,16 +226,28 @@ if [ "$FIRST_RUN" = "true" ]; then
   sed -i -e ':a' -e '$!{N;ba' -e '}' -e "s/$(quoteRe "<!-- ##DATASOURCE-DRIVERS## -->")/$(quoteSubst "$DRIVER")/" $BPMS_DATA/configuration/$JBOSS_CONFIG
 
   # configuration : BPMS datasource
-  BPMS_DATASOURCE=$(cat $CONTAINER_SCRIPTS_PATH/$DATABASE-bpms-datasource-config.xml)
+  BPMS_DATASOURCE_CONFIG=$(cat $CONTAINER_SCRIPTS_PATH/$DATABASE-bpms-datasource-config.xml)
+  #replace placeholders
+  VARS=( BPMS_DATASOURCE )
+  for i in "${VARS[@]}"
+  do
+    BPMS_DATASOURCE_CONFIG=$(echo $BPMS_DATASOURCE_CONFIG | sed "s'@@${i}@@'${!i}'g")
+  done
 
   # configuration : Quartz datasource
-  QUARTZ_DATASOURCE=$(cat $CONTAINER_SCRIPTS_PATH/$DATABASE-quartz-datasource-config.xml)
+  QUARTZ_DATASOURCE_CONFIG=$(cat $CONTAINER_SCRIPTS_PATH/$DATABASE-quartz-datasource-config.xml)
+  #replace placeholders
+  VARS=( QUARTZ_DATASOURCE )
+  for i in "${VARS[@]}"
+  do
+    QUARTZ_DATASOURCE_CONFIG=$(echo $QUARTZ_DATASOURCE_CONFIG | sed "s'@@${i}@@'${!i}'g")
+  done
 
   if [ "$QUARTZ" = "true" ];
   then
-    DATASOURCE=$BPMS_DATASOURCE$'\n'$QUARTZ_DATASOURCE  
+    DATASOURCE=$BPMS_DATASOURCE_CONFIG$'\n'$QUARTZ_DATASOURCE_CONFIG
   else
-    DATASOURCE=$BPMS_DATASOURCE
+    DATASOURCE=$BPMS_DATASOURCE_CONFIG
   fi
   sed -i -e ':a' -e '$!{N;ba' -e '}' -e "s/$(quoteRe "<!-- ##DATASOURCES## -->")/$(quoteSubst "$DATASOURCE")/" $BPMS_DATA/configuration/$JBOSS_CONFIG
 
@@ -276,12 +302,12 @@ fi
 
 # Configure business-central persistence.xml
 echo "Configure business-central persistence.xml"
-sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/jbpmDS/ $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
+sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/${BPMS_DATASOURCE}/ $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
 sed -i s/org.hibernate.dialect.H2Dialect/${DATABASE_DIALECT}/ $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/classes/META-INF/persistence.xml
 
 # Configure persistence in dashboard app
 echo "Configure persistence Dashboard app"
-sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/jbpmDS/ $BPMS_HOME/$BPMS_ROOT/standalone/deployments/dashbuilder.war/WEB-INF/jboss-web.xml
+sed -i s/java:jboss\\/datasources\\/ExampleDS/java:jboss\\/datasources\\/${BPMS_DATASOURCE}/ $BPMS_HOME/$BPMS_ROOT/standalone/deployments/dashbuilder.war/WEB-INF/jboss-web.xml
 
 # remove unwanted deployments
 if [ ! "$BUSINESS_CENTRAL" = "true" ];
@@ -346,7 +372,7 @@ if [ "$KIE_SERVER" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.id=kie-server-$KIE_SERVER_ID"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.location=http://${IPADDR}:8080/kie-server/services/rest/server"
-  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.persistence.ds=java:jboss/datasources/jbpmDS"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.persistence.ds=java:jboss/datasources/$BPMS_DATASOURCE"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.persistence.dialect=$DATABASE_DIALECT"
   BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.server.ext.disabled=$BPMS_EXT_DISABLED"
   BPMS_OPTS="$BPMS_OPTS -Dorg.drools.server.ext.disabled=$BRMS_EXT_DISABLED"
@@ -378,7 +404,7 @@ then
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.ssh.host=$IPADDR"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.ext.security.management.api.userManagementServices=WildflyCLIUserManagementService"
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.host=$IPADDR"
-  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.port=9999"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.port=9990"
 elif [ "$BUSINESS_CENTRAL" = "true" ]
 then
   BPMS_OPTS="$BPMS_OPTS -Dorg.uberfire.nio.git.ssh.enabled=false"
