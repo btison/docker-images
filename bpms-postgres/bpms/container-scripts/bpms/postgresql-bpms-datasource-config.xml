@@ -1,4 +1,4 @@
-<datasource jndi-name="java:jboss/datasources/jbpmDS" pool-name="jbpmDS" enabled="true">
+<datasource jndi-name="java:jboss/datasources/@@BPMS_DATASOURCE@@" pool-name="@@BPMS_DATASOURCE@@" enabled="true">
   <connection-url>jdbc:postgresql://${pgsql.host.ip}:${pgsql.host.port}/${pgsql.bpms.schema}</connection-url>
   <driver>pgsql</driver>
   <pool>
