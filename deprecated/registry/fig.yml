@@ -1,8 +1,0 @@
-registry:
-  image: registry
-  ports:
-    - "5000:5000"
-  volumes:
-    - /data/docker-registry:/tmp/registry
-  environment:
-    - GUNICORN_OPTS=[--preload]

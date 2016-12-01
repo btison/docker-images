@@ -1,3 +1,0 @@
-batch
-/subsystem=switchyard/extension=org.apache.camel.twitter:add()
-run-batch

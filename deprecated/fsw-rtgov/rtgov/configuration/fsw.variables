@@ -1,5 +1,0 @@
-fsw.password=admin123!
-saml.storepass=admin123!
-vault.keystorepwd=admin123!
-db.password=jboss
-runDatabaseSchemas=off
