@@ -10,8 +10,9 @@ COPY container-scripts /usr/share/container-scripts/
 
 RUN chmod +x /usr/bin/run-openldap.sh
 
-# dir for certificates
-RUN mkdir /opt/secrets
+# dir for certificates and imports
+RUN mkdir -p /opt/secrets && \
+    mkdir -p /opt/openldap/import
 
 # Entrypoint
 ENTRYPOINT ["/usr/bin/run-openldap.sh"]

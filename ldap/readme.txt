@@ -71,3 +71,13 @@ Make sure to have the CN set to the FQDN of the server where the service is depl
 * Copy the CA certificate and the p12 file to the `openldap-secrets` volume.
 * Set the `LDAP_TLS_xxx` variables to suitable values.
 * To recreate the image, delete the `openldap-config` and `openldap-data` volumes.
+
+== Initial import
+
+ldif files mounted in the `openldap-import` volume will be imported on first run. 
+
+Note: to create a MD5 password:
++
+----
+$ slappasswd -h "{MD5}"
+----

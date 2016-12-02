@@ -47,11 +47,35 @@ then
   ldapmodify -Y EXTERNAL -H ldapi:/// -f ${CONTAINER_SCRIPTS_PATH}/ldif/domain.ldif
   ldapadd -x -D cn=${LDAP_BIND_CN},${LDAP_BASE_DN} -w ${LDAP_ADMIN_PASSWORD} -f ${CONTAINER_SCRIPTS_PATH}/ldif/basedomain.ldif
   
+  # import ldif files in /opt/openldap/import
+  ldif_file_list=()
+  while IFS= read -d $'\0' -r file ; do
+    ldif_file_list=("${ldif_file_list[@]}" "$file")
+  done < <(find /opt/openldap/import -name "*.ldif" -print0)
+
+  for file in "${ldif_file_list[@]}" ; do
+    echo "Importing $file."
+    cp -f $file /tmp/$(basename $file)
+    VARS=( LDAP_BASE_DN )
+    for i in "${VARS[@]}" ; do
+      sed -i "s'@@${i}@@'${!i}'g" /tmp/$(basename $file)
+    done
+    ldapadd -x -D cn=${LDAP_BIND_CN},${LDAP_BASE_DN} -w ${LDAP_ADMIN_PASSWORD} -f /tmp/$(basename $file)
+  done
+
   if [ "$LDAP_TLS" = "true" ]
   then
-
-    if [ ! -f /opt/secrets/${LDAP_TLS_CA_CRT_FILENAME} -o ! -f /opt/secrets/${LDAP_TLS_CRT_FILENAME} -o ! -f /opt/secrets/${LDAP_TLS_PASSWORD_FILENAME} ]
+    SKIP_TLS=false
+    crt_files=( ${LDAP_TLS_CA_CRT_FILENAME} ${LDAP_TLS_CRT_FILENAME} ${LDAP_TLS_PASSWORD_FILENAME} )
+    for crt_file in "${crt_files[@]}"; do
+      if [ ! -f /opt/secrets/$crt_file  ]; then
+        echo "TLS setup: $crt_file missing"
+        SKIP_TLS=true
+      fi
+    done
+    if [ ! "SKIP_TLS" = "true" ]
     then
+      echo "Setting up TLS"
       rm -rf /etc/openldap/certs/*
       cp /opt/secrets/${LDAP_TLS_PASSWORD_FILENAME} /etc/openldap/certs/
       chown root:ldap /etc/openldap/certs/${LDAP_TLS_PASSWORD_FILENAME} 
@@ -74,7 +98,7 @@ then
         ldapmodify -Y EXTERNAL -H ldapi:/// -f ${CONTAINER_SCRIPTS_PATH}/ldif/tls-enforce.ldif
       fi
     else
-      echo "Missing files for TLS. Skipping TLS setup."
+      echo "Missing files for TLS. Skipping TLS setup."    
     fi
   fi
 

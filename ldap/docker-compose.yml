@@ -11,6 +11,7 @@ services:
       - openldap-config:/etc/openldap/slapd.d
       - openldap-certs:/etc/openldap/certs
       - openldap-secrets:/opt/secrets
+      - openldap-import:/opt/openldap/import
     environment:
       - LDAP_ORGANISATION=ACME Inc.
       - LDAP_DOMAIN=acme
@@ -34,3 +35,4 @@ volumes:
   openldap-config:
   openldap-certs:
   openldap-secrets:
+  openldap-import:
