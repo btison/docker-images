@@ -1,0 +1,79 @@
+dn: ou=groups,@@LDAP_BASE_DN@@
+objectClass: organizationalUnit
+objectClass: top
+ou: groups
+
+dn: cn=admin,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: admin
+member: uid=admin1,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=Administrators,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: Administrators
+member: uid=busadmin,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=analyst,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: analyst
+member: uid=admin1,ou=users,@@LDAP_BASE_DN@@
+member: uid=busadmin,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=kie-server,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: kie-server
+member: uid=admin1,ou=users,@@LDAP_BASE_DN@@
+member: uid=kieserver,ou=users,@@LDAP_BASE_DN@@
+member: uid=busadmin,ou=users,@@LDAP_BASE_DN@@
+member: uid=user1,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=kiemgmt,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: kiemgmt
+member: uid=admin1,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=rest-all,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: rest-all
+member: uid=admin1,ou=users,@@LDAP_BASE_DN@@
+member: uid=busadmin,ou=users,@@LDAP_BASE_DN@@
+member: uid=kieserver,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=rest-process,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: rest-process
+member: uid=user1,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=rest-query,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: rest-query
+member: uid=user1,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=rest-task,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: rest-task
+member: uid=user1,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=reviewer,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: reviewer
+member: uid=user1,ou=users,@@LDAP_BASE_DN@@
+
+dn: cn=user,ou=groups,@@LDAP_BASE_DN@@
+objectClass: groupOfNames
+objectClass: top
+cn: user
+member: uid=admin1,ou=users,@@LDAP_BASE_DN@@
+member: uid=busadmin,ou=users,@@LDAP_BASE_DN@@
+member: uid=user1,ou=users,@@LDAP_BASE_DN@@
+

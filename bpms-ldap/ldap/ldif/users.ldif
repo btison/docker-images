@@ -1,0 +1,70 @@
+dn: ou=users,@@LDAP_BASE_DN@@
+objectClass: organizationalUnit
+objectClass: top
+ou: users
+
+# admin1/admin
+dn: uid=admin1,ou=users,@@LDAP_BASE_DN@@
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: BPMS Administrator
+description: BPMS Administrator
+mail: admin1@acme.org
+preferredLanguage: en-UK
+sn: Administrator
+uid: admin1
+userPassword: {MD5}ISMvKXpXpadDiUoOSoAfww==
+
+# kieserver/kieserver1!
+dn: uid=kieserver,ou=users,@@LDAP_BASE_DN@@
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: KieServer
+mail: kieserver@acme.org
+sn: KieServer
+uid: kieserver
+userPassword: {MD5}6iPiAoxOl5D0XySBvhnAaw==
+
+# busadmin/busadmin
+dn: uid=busadmin,ou=users,@@LDAP_BASE_DN@@
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: Business Administrator
+mail: busadmin@acme.org
+preferredLanguage: en-UK
+sn: Wallace
+uid: busadmin
+userPassword: {MD5}c9ODYYYBt2j9HEokz4MWRQ==
+
+# user1/user
+dn: uid=user1,ou=users,@@LDAP_BASE_DN@@
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: User One
+mail: user1@acme.org
+preferredLanguage: en-UK
+sn: One
+uid: user1
+userPassword: {MD5}7hHLsZBS5AsHqsDKBgwj7g==
+
+# user10/user
+dn: uid=user10,ou=users,@@LDAP_BASE_DN@@
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: User Ten
+mail: user10@acme.org
+preferredLanguage: en-UK
+sn: Ten
+uid: user10
+userPassword: {MD5}7hHLsZBS5AsHqsDKBgwj7g==
+
