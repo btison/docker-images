@@ -6,7 +6,8 @@ ENV RHSSO_HOME=/opt/jboss \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/rhsso \
     RHSSO_DATA=/opt/jboss/data \
     RHSSO_DISTRO=rh-sso-7.0.0.zip \
-    RHSSO_IMPORT=/opt/jboss/import
+    RHSSO_IMPORT=/opt/jboss/import \
+    RHSSO_SECRETS=/opt/secrets
 
 # Install unzip, mysql driver
 RUN yum -y install unzip mysql-connector-java which && \
@@ -26,7 +27,8 @@ RUN mkdir -p $RHSSO_HOME && \
     chown -R jboss:jboss $RHSSO_HOME $RHSSO_DATA && \
     chmod +x /usr/bin/run-rhsso.sh && \
     chmod u+s `which ping` && \
-    mkdir -p $RHSSO_IMPORT
+    mkdir -p $RHSSO_IMPORT && \
+    mkdir -p $RHSSO_SECRETS
 
 USER jboss
 

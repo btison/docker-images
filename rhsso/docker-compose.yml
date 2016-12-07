@@ -19,12 +19,19 @@ services:
       - "8080"
     environment:
       - MYSQL_RHSSO_SCHEMA=keycloak
+      - USE_TLS=true
+      - TLS_CA_CRT=acme.crt
+      - TLS_CRT=rhsso_rhsso.p12
+      - TLS_CRT_NAME=RHSSO-Certificate
+      - TLS_CRT_PASSWORD=password
     volumes:
       - /etc/localtime:/etc/localtime
       - rhsso:/opt/jboss/data
       - rhsso-import:/opt/jboss/import
+      - rhsso-secret:/opt/secrets
     network_mode: "bridge"
 volumes:
   mysql:
   rhsso:
   rhsso-import:
+  rhsso-secret:

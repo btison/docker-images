@@ -5,22 +5,28 @@ function createUser() {
   user=$1
   password=$2
   realm=management
-  if [ ! -z $3 ]
-  then
-    roles=$3
-    realm=application
+  if [ ! -z $3 ]; then
+    realm=$3
+  fi
+  if [ ! -z $4 ]; then
+    roles=$4
+  fi
+  if [ ! -z $5 ]; then
+    file=$5 
   fi
 
-  if [ "$realm" == "management" ]
-  then
+  if [ "$realm" == "management" ]; then
     $RHSSO_HOME/$RHSSO_ROOT/bin/add-user.sh -u $user -p $password -s -sc $RHSSO_DATA/configuration
-  else
+  elif [ "$realm" == "application" ]; then
     $RHSSO_HOME/$RHSSO_ROOT/bin/add-user.sh -u $user -p $password -g $roles -a -s -sc $RHSSO_DATA/configuration
+  else
+    $RHSSO_HOME/$RHSSO_ROOT/bin/add-user.sh -u $user -p $password -s -r $realm -up $RHSSO_DATA/configuration/$file
   fi
 }
 
 # Dump environment
 function dumpEnv() {
+  echo "======================="
   echo "FIRST_RUN: ${FIRST_RUN}"
   echo "IPADDR: ${IPADDR}"
   echo "MYSQL_HOST_IP: ${MYSQL_HOST_IP}"
@@ -28,6 +34,14 @@ function dumpEnv() {
   echo "JBOSS_CONFIG: ${JBOSS_CONFIG}"
   echo "DEBUG_MODE: ${DEBUG_MODE}"
   echo "DEBUG_PORT: ${DEBUG_PORT}"
+  echo "USE_TLS: $USE_TLS"
+  if [ "$USE_TLS" = "true" ]; then
+    echo "TLS_CA_CRT: $TLS_CA_CRT"
+    echo "TLS_CRT: $TLS_CRT"
+    echo "TLS_CRT_NAME: $TLS_CRT_NAME"
+    echo "TLS_CRT_PASSWORD: $TLS_CRT_PASSWORD" 
+  fi
+  echo "======================="    
 }
 
 IPADDR=$(ip a s | sed -ne '/127.0.0.1/!{s/^[ \t]*inet[ \t]*\([0-9.]\+\)\/.*$/\1/p}')
@@ -49,6 +63,12 @@ JBOSS_CONFIG=standalone.xml
 # debug options
 DEBUG_MODE=${DEBUG_MODE:-false}
 DEBUG_PORT=${DEBUG_PORT:-8787}
+
+# SSL/TLS options
+TLS_REALM=https-realm
+TLS_USERS=https-users.properties
+TLS_KEYSTORE=rhsso.jks
+TLS_KEYSTORE_ALIAS=rhsso-certificate
 
 # server options
 SERVER_OPTS=""
@@ -95,6 +115,49 @@ if [ "$FIRST_RUN" = "true" ]; then
 
   # import admin user
   cp $CONTAINER_SCRIPTS_PATH/keycloak-add-user.json $RHSSO_DATA/configuration
+  
+  # TLS/SSL setup
+  if [ "$USE_TLS" = "true" ]; then
+    SKIP_TLS=false
+    crt_files=( ${TLS_CRT} ${TLS_CRT_PASSWORD} ${TLS_CA_CRT} )
+    for crt_file in "${crt_files[@]}"; do
+      if [ ! -f $RHSSO_SECRETS/$crt_file ]; then
+        echo "TLS setup: $crt_file missing"
+        SKIP_TLS=true
+      fi
+    done
+    if [ ! "$SKIP_TLS" = "true" ]; then
+      echo "Set up SSL/TLS"
+      TLS_KEYSTORE_PASSWORD=$(cat ${RHSSO_SECRETS}/${TLS_CRT_PASSWORD})
+      # import pkcs12 certificate into keystore
+      # WFCORE-1373: JBoss CLI embedded server does not recognize -Djboss.server.config.dir
+      keytool -importkeystore -destkeystore $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_KEYSTORE \
+          -srckeystore $RHSSO_SECRETS/$TLS_CRT -srcstoretype pkcs12 \
+          -srcalias $TLS_CRT_NAME -destalias $TLS_KEYSTORE_ALIAS -noprompt \
+          -srcstorepass $(cat ${RHSSO_SECRETS}/${TLS_CRT_PASSWORD}) \
+          -deststorepass $TLS_KEYSTORE_PASSWORD
+      # import CA root certificate
+      keytool -import -trustcacerts -alias root -file $RHSSO_SECRETS/$TLS_CA_CRT \
+          -keystore $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_KEYSTORE -noprompt \
+          -storepass $TLS_KEYSTORE_PASSWORD
+      # create user file for https realm
+      touch $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_USERS
+      # setup security module
+      cp $CONTAINER_SCRIPTS_PATH/tls.cli /tmp/tls.cli
+      VARS=( JBOSS_CONFIG TLS_REALM TLS_USERS TLS_KEYSTORE TLS_KEYSTORE_PASSWORD TLS_KEYSTORE_ALIAS )
+      for i in "${VARS[@]}"
+      do
+        sed -i "s'@@${i}@@'${!i}'g" /tmp/tls.cli
+      done
+      $RHSSO_HOME/$RHSSO_ROOT/bin/jboss-cli.sh --file=/tmp/tls.cli
+      # mv keystore, user properties file and server configuration file
+      cp $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$JBOSS_CONFIG $RHSSO_DATA/configuration/
+      mv $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_KEYSTORE $RHSSO_DATA/configuration/
+      mv $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_USERS $RHSSO_DATA/configuration/
+      # create admin user for https-realm
+       createUser "admin" "admin" "$TLS_REALM" "" "$TLS_USERS"
+    fi
+  fi
 
   if [ -n "$(ls -A $RHSSO_IMPORT)" ]; then
     echo "Setting up rhsso for import" 
