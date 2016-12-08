@@ -96,6 +96,14 @@ if [ "$FIRST_RUN" = "true" ]; then
   # import admin user
   cp $CONTAINER_SCRIPTS_PATH/keycloak-add-user.json $RHSSO_DATA/configuration
 
+  if [ -n "$(ls -A $RHSSO_IMPORT)" ]; then
+    echo "Setting up rhsso for import" 
+    RHSSO_OPTS="$RHSSO_OPTS -Dkeycloak.migration.action=import"
+    RHSSO_OPTS="$RHSSO_OPTS -Dkeycloak.migration.provider=dir"
+    RHSSO_OPTS="$RHSSO_OPTS -Dkeycloak.migration.strategy=OVERWRITE_EXISTING"
+    RHSSO_OPTS="$RHSSO_OPTS -Dkeycloak.migration.dir=$RHSSO_IMPORT"
+  fi
+
   CLEAN="true"
 fi
 
@@ -103,6 +111,23 @@ fi
 if [ "$CLEAN" = "true" ] 
 then
     rm -rf $RHSSO_HOME/$RHSSO_ROOT/standalone/data $RHSSO_HOME/$RHSSO_ROOT/standalone/log $RHSSO_HOME/$RHSSO_ROOT/standalone/tmp
+fi
+
+# set up mysql module
+MYSQL_MODULE_DIR=$(echo $MYSQL_MODULE_NAME | sed 's@\.@/@g')
+MYSQL_MODULE=$RHSSO_HOME/$RHSSO_ROOT/modules/$MYSQL_MODULE_DIR/main
+if [ ! -d $MYSQL_MODULE ];
+then
+  echo "Setup mysql module"
+  mkdir -p $MYSQL_MODULE
+  cp -rp $CONTAINER_SCRIPTS_PATH/$DATABASE-module.xml $MYSQL_MODULE/module.xml
+  #replace placeholders in module file
+  VARS=( MYSQL_MODULE_NAME MYSQL_DRIVER )
+  for i in "${VARS[@]}"
+  do
+    sed -i "s'@@${i}@@'${!i}'" $MYSQL_MODULE/module.xml
+  done
+  ln -s $MYSQL_DRIVER_PATH/$MYSQL_DRIVER $MYSQL_MODULE/$MYSQL_DRIVER
 fi
 
 # start-up properties

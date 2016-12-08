@@ -22,7 +22,9 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - rhsso:/opt/jboss/data
+      - rhsso-import:/opt/jboss/import
     network_mode: "bridge"
 volumes:
   mysql:
   rhsso:
+  rhsso-import:
