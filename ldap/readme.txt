@@ -50,20 +50,20 @@ These settings allow to have a CA with empty values for the attributes marked as
 * Create a private key for the service (ex: ldap server)
 +
 ----
-# openssl genrsa 1024 > ldap_server.key
-# openssl req -new -key ldap_server.key  -out ldap_server.csr
+# openssl genrsa 2048 > ldap_openldap.key
+# openssl req -new -key ldap_openldap.key -out ldap_openldap.csr -subj "/CN=<FQDN>"
 ----
 +
 Make sure to have the CN set to the FQDN of the server where the service is deployed
 * Sign the csr
 +
 ----
-# openssl ca -config openssl.cnf -out ldap_server.crt -infiles ldap_server.csr
+# openssl ca -config openssl.cnf -out ldap_openldap.crt -infiles ldap_openldap.csr
 ----
 * Create a 'p12' file out of the certificate and the private key:
 +
 ----
-# openssl pkcs12 -inkey ldap_server.key -in ldap_server.crt -export -out ldap_server.p12 -nodes -name 'LDAP-Certificate'
+# openssl pkcs12 -inkey ldap_openldap.key -in ldap_openldap.crt -export -out ldap_openldap.p12 -nodes -name 'LDAP-Certificate'
 ----
 
 === Mount the certificates in the Docker image
