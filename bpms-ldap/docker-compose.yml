@@ -37,7 +37,7 @@ services:
       - KIE_SERVER_CONTROLLER=false
       - BUSINESS_CENTRAL_DESIGN=true
       - LDAP_SECURITY_DOMAIN=bpms
-      - LDAP_URL=ldaps://ldap_openldap_1.ldap_openldap.docker:636
+      - LDAP_URL=ldaps://ldap-openldap-1.ldap-openldap.docker:636
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
@@ -73,7 +73,7 @@ services:
       - EXECUTOR=true
       - EXECUTOR_JMS=true
       - LDAP_SECURITY_DOMAIN=bpms
-      - LDAP_URL=ldaps://ldap_openldap_1.ldap_openldap.docker:636
+      - LDAP_URL=ldaps://ldap-openldap-1.ldap-openldap.docker:636
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
@@ -102,7 +102,7 @@ services:
       - KIE_SERVER_CONTROLLER=true
       - BUSINESS_CENTRAL_DESIGN=false
       - LDAP_SECURITY_DOMAIN=bpms
-      - LDAP_URL=ldaps://ldap_openldap_1.ldap_openldap.docker:636
+      - LDAP_URL=ldaps://ldap-openldap-1.ldap-openldap.docker:636
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
