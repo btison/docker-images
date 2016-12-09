@@ -16,17 +16,22 @@ function createUser() {
   user=$1
   password=$2
   realm=management
-  if [ ! -z $3 ]
-  then
-    roles=$3
-    realm=application
+  if [ ! -z $3 ]; then
+    realm=$3
+  fi
+  if [ ! -z $4 ]; then
+    roles=$4
+  fi
+  if [ ! -z $5 ]; then
+    file=$5 
   fi
 
-  if [ "$realm" == "management" ]
-  then
+  if [ "$realm" == "management" ]; then
     $BPMS_HOME/$BPMS_ROOT/bin/add-user.sh -u $user -p $password -s -sc $BPMS_DATA/configuration
-  else
+  elif [ "$realm" == "application" ]; then
     $BPMS_HOME/$BPMS_ROOT/bin/add-user.sh -u $user -p $password -g $roles -a -s -sc $BPMS_DATA/configuration
+  else
+    $BPMS_HOME/$BPMS_ROOT/bin/add-user.sh -u $user -p $password -s -r $realm -up $BPMS_DATA/configuration/$file
   fi
 }
 
@@ -134,8 +139,17 @@ BRP_EXT_DISABLED=${BRP_EXT_DISABLED:-false}
 JBPMUI_EXT_DISABLED=${JBPMUI_EXT_DISABLED:-false}
 
 # RHSSO
-RH_SSO=${RH_SSO:-true}
+RHSSO=${RHSSO:-true}
 KEYCLOAK_CONFIG=$CONTAINER_SCRIPTS_PATH/keycloak.json
+RHSSO_TRUSTSTORE=$BPMS_DATA/configuration/rhsso.jks
+RHSSO_TRUSTSTORE_PASSWORD=password
+
+# TLS
+TLS_REALM=https-realm
+TLS_KEYSTORE=bpms.jks
+TLS_KEYSTORE_PASSWORD=password
+TLS_KEYSTORE_ALIAS=bpms-certificate
+TLS_USERS=https-users.properties
 
 # KIE server bypass authenticated user
 KIE_SERVER_BYPASS_AUTH_USER=${KIE_SERVER_BYPASS_AUTH_USER:-true}
@@ -256,21 +270,72 @@ if [ "$FIRST_RUN" = "true" ]; then
   createUser "admin" "admin"
 
   # create application users
-  createUser "admin1" "admin" "admin,analyst,user,kie-server,kiemgmt,rest-all"
-  createUser "busadmin" "busamin" "Administrators,analyst,user,rest-all"
-  createUser "user1" "user" "user,reviewer,kie-server,rest-task,rest-query,rest-process"
-  createUser "kieserver" "kieserver1!" "kie-server,rest-all"
+  createUser "admin1" "admin" "application" "admin,analyst,user,kie-server,kiemgmt,rest-all"
+  createUser "busadmin" "busamin" "application" "Administrators,analyst,user,rest-all"
+  createUser "user1" "user" "application" "user,reviewer,kie-server,rest-task,rest-query,rest-process"
+  createUser "kieserver" "kieserver1!" "application" "kie-server,rest-all"
   
   # create additional users
   for i in $(compgen -A variable | grep "^BPMS_USER_");
   do
     IFS=':' read -a bpmsUserArray <<< "${!i}"
     echo "Create user ${bpmsUserArray[0]}"
-    createUser ${bpmsUserArray[0]} ${bpmsUserArray[1]} ${bpmsUserArray[2]} 
+    createUser ${bpmsUserArray[0]} ${bpmsUserArray[1]} "application" ${bpmsUserArray[2]} 
   done
 
   # userinfo properties placeholder file
   cp $CONTAINER_SCRIPTS_PATH/jbpm-userinfo.properties $BPMS_DATA/configuration
+
+  # rhsso truststore
+  if [ -f $BPMS_SECRETS/$RHSSO_CA_CRT ]; then
+    keytool -importcert -file $BPMS_SECRETS/$RHSSO_CA_CRT -alias $RHSSO_CA_CRT \
+      -keystore $RHSSO_TRUSTSTORE -storepass $RHSSO_TRUSTSTORE_PASSWORD -noprompt
+  else
+    echo "Missing files for truststore. Skipping truststore setup."
+  fi
+
+  # TLS/SSL setup
+  if [ "$USE_TLS" = "true" ]; then
+    SKIP_TLS=false
+    crt_files=( ${TLS_CRT} ${TLS_CRT_PASSWORD} ${TLS_CA_CRT} )
+    for crt_file in "${crt_files[@]}"; do
+      if [ ! -f $BPMS_SECRETS/$crt_file ]; then
+        echo "TLS setup: $crt_file missing"
+        SKIP_TLS=true
+      fi
+    done
+    if [ ! "$SKIP_TLS" = "true" ]; then
+      echo "Set up SSL/TLS"
+      # import pkcs12 certificate into keystore
+      # WFCORE-1373: JBoss CLI embedded server does not recognize -Djboss.server.config.dir
+      keytool -importkeystore -destkeystore $BPMS_HOME/$BPMS_ROOT/standalone/configuration/$TLS_KEYSTORE \
+          -srckeystore $BPMS_SECRETS/$TLS_CRT -srcstoretype pkcs12 \
+          -srcalias $TLS_CRT_NAME -destalias $TLS_KEYSTORE_ALIAS -noprompt \
+          -srcstorepass $(cat ${BPMS_SECRETS}/${TLS_CRT_PASSWORD}) \
+          -deststorepass $TLS_KEYSTORE_PASSWORD
+      # import CA root certificate
+      keytool -import -trustcacerts -alias root -file $BPMS_SECRETS/$TLS_CA_CRT \
+          -keystore $BPMS_HOME/$BPMS_ROOT/standalone/configuration/$TLS_KEYSTORE -noprompt \
+          -storepass $TLS_KEYSTORE_PASSWORD
+      # create user file for https realm
+      touch $BPMS_HOME/$BPMS_ROOT/standalone/configuration/$TLS_USERS
+      # setup security module
+      cp $CONTAINER_SCRIPTS_PATH/tls.cli /tmp/tls.cli
+      VARS=( JBOSS_CONFIG TLS_REALM TLS_USERS TLS_KEYSTORE TLS_KEYSTORE_PASSWORD TLS_KEYSTORE_ALIAS )
+      for i in "${VARS[@]}"
+      do
+        sed -i "s'@@${i}@@'${!i}'g" /tmp/tls.cli
+      done
+      mv $BPMS_DATA/configuration/$JBOSS_CONFIG $BPMS_HOME/$BPMS_ROOT/standalone/configuration/
+      $BPMS_HOME/$BPMS_ROOT/bin/jboss-cli.sh --file=/tmp/tls.cli
+      # mv keystore, user properties file and server configuration file
+      mv $BPMS_HOME/$BPMS_ROOT/standalone/configuration/$JBOSS_CONFIG $BPMS_DATA/configuration/
+      mv $BPMS_HOME/$BPMS_ROOT/standalone/configuration/$TLS_KEYSTORE $BPMS_DATA/configuration/
+      mv $BPMS_HOME/$BPMS_ROOT/standalone/configuration/$TLS_USERS $BPMS_DATA/configuration/
+      # create admin user for https-realm
+       createUser "admin" "admin" "$TLS_REALM" "" "$TLS_USERS"
+    fi
+  fi
 
   CLEAN="true"
 fi
@@ -429,21 +494,21 @@ then
 fi
 
 # setup rhsso
-if [ "$KIE_SERVER" = "true" -a "$RH_SSO" = "true" ]
-then
+if [ "$KIE_SERVER" = "true" -a "$RHSSO" = "true" ]; then
   # non-persistent changes 
-  if [ ! -f $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/$(basename $KEYCLOAK_CONFIG) ]
-  then
+  if [ ! -f $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/keycloak.json ]; then
     echo "Configure KIE server for RH SSO" 
-
-    cp $KEYCLOAK_CONFIG $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/
+    cp $KEYCLOAK_CONFIG $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/keycloak.json
     sed -i "s'<auth-method>.*</auth-method>'<auth-method>KEYCLOAK</auth-method>'g" $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/web.xml
+    # replace placeholders in keycloak config
+    VARS=( RHSSO_URL RHSSO_TRUSTSTORE RHSSO_TRUSTSTORE_PASSWORD )
+    for i in "${VARS[@]}"; do
+      sed -i "s'@@${i}@@'${!i}'g" $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/keycloak.json
+    done
+    if [ ! -f $RHSSO_TRUSTSTORE ]; then
+      sed -i "s'\"disable-trust-manager\":.*,'\"disable-trust-manager\": true,'g" $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/keycloak.json
+    fi
   fi
-  # if rhsso, replace IP addr in keycloak config
-  RHSSO_IP=$(ping -q -c 1 -t 1 rhsso | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
-  RHSSO_PORT=8080
-  RHSSO_URL=$RHSSO_IP:$RHSSO_PORT
-  sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$RHSSO_URL'g" $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/$(basename $KEYCLOAK_CONFIG)
 fi
 
 SERVER_OPTS="$SERVER_OPTS -Djboss.bind.address=$IPADDR"

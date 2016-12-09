@@ -1,0 +1,9 @@
+embed-server --admin-only=true --std-out=discard --server-config=@@JBOSS_CONFIG@@
+batch
+/core-service=management/security-realm=@@TLS_REALM@@:add
+/core-service=management/security-realm=@@TLS_REALM@@/authentication=properties/:add(path=@@TLS_USERS@@, relative-to=jboss.server.config.dir)
+/core-service=management/security-realm=@@TLS_REALM@@/server-identity=ssl:add(keystore-path=@@TLS_KEYSTORE@@,keystore-relative-to=jboss.server.config.dir,keystore-password=@@TLS_KEYSTORE_PASSWORD@@, alias=@@TLS_KEYSTORE_ALIAS@@)
+/subsystem=undertow/server=default-server/https-listener=default-https:add(socket-binding=https,security-realm=@@TLS_REALM@@)
+/core-service=management/management-interface=http-interface:write-attribute(name=secure-socket-binding,value=management-https)
+/core-service=management/management-interface=http-interface/:write-attribute(name=security-realm,value=@@TLS_REALM@@)
+run-batch

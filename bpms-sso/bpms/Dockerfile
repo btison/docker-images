@@ -7,7 +7,8 @@ ENV BPMS_HOME=/opt/jboss \
     BPMS_DATA=/opt/jboss/data \
     EAP_DISTRO=jboss-eap-7.0.3-full-build.zip \
     BPMS_DISTRO=jboss-bpmsuite-6.4.0.GA-redhat-2-deployable-eap7.x.zip \
-    KEYCLOAK_ADAPTER=rh-sso-7.0.0-eap7-adapter.zip
+    KEYCLOAK_ADAPTER=rh-sso-7.0.0-eap7-adapter.zip \
+    BPMS_SECRETS=/opt/secrets
 
 # Install unzip, mysql driver
 RUN yum -y install unzip mysql-connector-java which && \
@@ -28,7 +29,8 @@ RUN mkdir -p $BPMS_HOME && \
     mkdir -p $BPMS_DATA && \
     chown -R jboss:jboss $BPMS_HOME $BPMS_DATA && \
     chmod +x /usr/bin/run-bpms.sh && \
-    chmod u+s `which ping`
+    chmod u+s `which ping` && \
+    mkdir -p $BPMS_SECRETS
 
 USER jboss
 
