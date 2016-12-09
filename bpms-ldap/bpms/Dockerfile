@@ -6,7 +6,8 @@ ENV BPMS_HOME=/opt/jboss \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/bpms \
     BPMS_DATA=/opt/jboss/data \
     EAP_DISTRO=jboss-eap-7.0.3-full-build.zip \
-    BPMS_DISTRO=jboss-bpmsuite-6.4.0.GA-redhat-2-deployable-eap7.x.zip
+    BPMS_DISTRO=jboss-bpmsuite-6.4.0.GA-redhat-2-deployable-eap7.x.zip \
+    BPMS_SECRETS=/opt/secrets
 
 # Install unzip, mysql driver
 RUN yum -y install unzip mysql-connector-java which && \
@@ -26,10 +27,8 @@ RUN mkdir -p $BPMS_HOME && \
     mkdir -p $BPMS_DATA && \
     chown -R jboss:jboss $BPMS_HOME $BPMS_DATA && \
     chmod +x /usr/bin/run-bpms.sh && \
-    chmod u+s `which ping`
-
-# dir for certificates
-RUN mkdir /opt/secrets
+    chmod u+s `which ping` && \
+    mkdir -p $BPMS_SECRETS
 
 USER jboss
 

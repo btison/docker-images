@@ -41,8 +41,7 @@ services:
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
-      - TLS_CA_CRT_FILENAME=acme.crt
-      - TLS_PASSWORD_FILENAME=password
+      - LDAP_CA_CRT=acme.crt
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-wb:/opt/jboss/data
@@ -77,8 +76,7 @@ services:
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
-      - TLS_CA_CRT_FILENAME=acme.crt
-      - TLS_PASSWORD_FILENAME=password
+      - LDAP_CA_CRT=acme.crt
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-kieserver:/opt/jboss/data
@@ -106,8 +104,7 @@ services:
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
-      - TLS_CA_CRT_FILENAME=acme.crt
-      - TLS_PASSWORD_FILENAME=password
+      - LDAP_CA_CRT=acme.crt
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-admin:/opt/jboss/data

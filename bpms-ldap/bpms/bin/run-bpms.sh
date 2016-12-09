@@ -210,6 +210,10 @@ if [ "$DEBUG_MODE" = "true" ]; then
     SERVER_OPTS="$SERVER_OPTS --debug ${DEBUG_PORT}"
 fi
 
+# Truststore
+BPMS_TRUSTSTORE=$BPMS_DATA/configuration/truststore.jks
+BPMS_TRUSTSTORE_PASSWORD=password
+
 # start options
 BPMS_OPTS=""
 
@@ -346,10 +350,9 @@ if [ "$FIRST_RUN" = "true" ]; then
   sed -i -e ':a' -e '$!{N;ba' -e '}' -e "s/$(quoteRe "<!-- ##SECURITY_DOMAINS## -->")/$(quoteSubst "$LDAP_SECURITY_DOMAIN_CONFIG")/" $BPMS_DATA/configuration/$JBOSS_CONFIG
 
   # truststore
-  if [ -f /opt/secrets/${TLS_CA_CRT_FILENAME} -a -f /opt/secrets/${TLS_PASSWORD_FILENAME} ]
-  then
-        keytool -importcert -file /opt/secrets/${TLS_CA_CRT_FILENAME} -alias ${TLS_CA_CRT_FILENAME} -keystore $BPMS_DATA/configuration/truststore.jks -storepass $(cat /opt/secrets/${TLS_PASSWORD_FILENAME}) -noprompt
-    cp -f /opt/secrets/${TLS_PASSWORD_FILENAME} $BPMS_DATA/configuration/truststore-password
+  if [ -f $BPMS_SECRETS/$LDAP_CA_CRT ]; then
+    keytool -importcert -file $BPMS_SECRETS/$LDAP_CA_CRT -alias $LDAP_CA_CRT \
+      -keystore $BPMS_TRUSTSTORE -storepass $BPMS_TRUSTSTORE_PASSWORD -noprompt
   else
     echo "Missing files for truststore. Skipping truststore setup."
   fi
@@ -535,8 +538,10 @@ SERVER_OPTS="$SERVER_OPTS -Dbpms.datasource.pool.max=$BPMS_DATASOURCE_POOL_MAX"
 SERVER_OPTS="$SERVER_OPTS --server-config=$JBOSS_CONFIG"
 
 # truststore
-SERVER_OPTS="$SERVER_OPTS -Djavax.net.ssl.trustStore=$BPMS_DATA/configuration/truststore.jks"
-SERVER_OPTS="$SERVER_OPTS -Djavax.net.ssl.trustStorePassword=$(cat $BPMS_DATA/configuration/truststore-password)"
+if [ -f $BPMS_TRUSTSTORE ]; then
+  SERVER_OPTS="$SERVER_OPTS -Djavax.net.ssl.trustStore=$BPMS_TRUSTSTORE"
+  SERVER_OPTS="$SERVER_OPTS -Djavax.net.ssl.trustStorePassword=$BPMS_TRUSTSTORE_PASSWORD"
+fi
 
 # start-up properties
 if [ -n "$START_UP_PROPS" ]
