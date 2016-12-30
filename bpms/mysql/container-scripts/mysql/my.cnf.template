@@ -3,6 +3,7 @@ user = mysql
 datadir = ${MYSQL_DATADIR}
 basedir = /usr
 plugin-dir = /usr/lib64/mysql/plugin
+transaction-isolation = ${MYSQL_TRANSACTION_ISOLATION_LEVEL}
 
 # Disabling symbolic-links is recommended to prevent assorted security risks
 symbolic-links = 0

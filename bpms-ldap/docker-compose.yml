@@ -8,6 +8,7 @@ services:
       - /etc/localtime:/etc/localtime
       - mysql:/var/lib/mysql/data
     environment:
+      - MYSQL_TRANSACTION_ISOLATION_LEVEL=READ-COMMITTED
       - MYSQL_LOWER_CASE_TABLE_NAMES=1
       - MYSQL_ROOT_PASSWORD=redhat
     network_mode: "bridge"
