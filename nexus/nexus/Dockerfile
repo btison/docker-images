@@ -1,7 +1,7 @@
 FROM centos7/java8
 
 ENV NEXUS_HOME=/opt/nexus \
-    NEXUS_VERSION=2.13.0-01 \
+    NEXUS_VERSION=2.14.2-01 \
     NEXUS_DATA=/data \
     NEXUS_ROOT=nexus \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/nexus

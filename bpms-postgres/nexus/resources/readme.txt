@@ -1,1 +1,1 @@
-nexus-2.13.0-01-bundle.zip
+nexus-2.14.2-01-bundle.zip
