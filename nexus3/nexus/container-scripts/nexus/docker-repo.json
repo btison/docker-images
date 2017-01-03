@@ -1,0 +1,5 @@
+{
+  "name": "docker-repo",
+  "type": "groovy",
+  "content": "repository.createDockerHosted('docker-repo',null,18443,'default',true)"
+}
