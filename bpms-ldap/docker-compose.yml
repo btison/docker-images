@@ -12,19 +12,10 @@ services:
       - MYSQL_LOWER_CASE_TABLE_NAMES=1
       - MYSQL_ROOT_PASSWORD=redhat
     network_mode: "bridge"
-  nexus:
-    build: nexus
-    expose:
-      - "8080"
-    volumes:
-      - /etc/localtime:/etc/localtime
-      - /data/docker-data/nexus:/data
-    network_mode: "bridge"
   bpms-wb:
     build: bpms
     links:
       - mysql:mysql
-      - nexus:nexus
     expose:
       - "8080"
     environment:
@@ -43,6 +34,7 @@ services:
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
       - LDAP_CA_CRT=acme.crt
+      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-wb:/opt/jboss/data
@@ -52,7 +44,6 @@ services:
     build: bpms
     links:
       - mysql:mysql
-      - nexus:nexus
       - bpms-admin:bpms-admin
     expose:
       - "8080"
@@ -78,6 +69,7 @@ services:
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
       - LDAP_CA_CRT=acme.crt
+      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-kieserver:/opt/jboss/data
@@ -87,7 +79,6 @@ services:
     build: bpms
     links:
       - mysql:mysql
-      - nexus:nexus
     expose:
       - "8080"
     environment:
@@ -106,6 +97,7 @@ services:
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
       - LDAP_CA_CRT=acme.crt
+      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-admin:/opt/jboss/data
