@@ -1,0 +1,14 @@
+version: '2'
+services:
+  mongodb:
+    build: mongodb
+    expose:
+      - "27017"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - mongodb:/var/lib/mongodb/data
+    environment:
+      - MONGODB_QUIET=true
+    network_mode: "bridge"
+volumes:
+  mongodb:
