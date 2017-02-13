@@ -1,0 +1,5 @@
+#!/bin/bash
+# Set the ownership of the JWS software to the JWS user.
+set -e
+
+chown -R jboss:jboss $JWS_HOME

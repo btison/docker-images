@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+# Enhance catalina.sh to make remote JAVA debugging possible by specifying
+# DEBUG=true environment variable (port 8000 - tomcat default)
+sed -i 's|if \[ "$1" = "jpda" \] ; then|if [ "$1" = "jpda" -o "$DEBUG" = "true" ] ; then|' $JWS_HOME/bin/catalina.sh
+sed -i '/CATALINA_OPTS="$CATALINA_OPTS $JPDA_OPTS"/{n;s|.*|  [ "$DEBUG" != "true" ] \&\& shift |}' $JWS_HOME/bin/catalina.sh
