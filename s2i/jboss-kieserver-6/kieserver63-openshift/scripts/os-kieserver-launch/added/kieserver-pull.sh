@@ -30,7 +30,7 @@ function generatePullPomXml() {
 }
 
 for (( i=0; i<${KIE_CONTAINER_DEPLOYMENT_COUNT}; i++ )); do
-    PULL_POM_FILE="pull-pom-${i}-$(generateRandom).xml"
+    PULL_POM_FILE="/tmp/pull-pom-${i}-$(generateRandom).xml"
     generatePullPomXml ${i} > ${PULL_POM_FILE}
     MAVEN_ARGS_PULL="-e -DskipTests dependency:go-offline -f ${PULL_POM_FILE} -Djava.net.preferIPv4Stack=true -Popenshift -Dcom.redhat.xpaas.repo.redhatga ${MAVEN_ARGS_APPEND}"
 
