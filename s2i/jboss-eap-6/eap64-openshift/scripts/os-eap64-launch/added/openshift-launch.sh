@@ -25,4 +25,10 @@ source $JBOSS_HOME/bin/launch/configure.sh
 
 echo "Running $JBOSS_IMAGE_NAME image, version $JBOSS_IMAGE_VERSION-$JBOSS_IMAGE_RELEASE"
 
-exec $JBOSS_HOME/bin/standalone.sh -c standalone-openshift.xml -bmanagement 127.0.0.1 $JBOSS_HA_ARGS ${JBOSS_MESSAGING_ARGS}
+DEBUG_OPTS=""
+DEBUG=${DEBUG:-false}
+if [ $DEBUG == "true" ]; then
+  DEBUG_OPTS="$DEBUG_OPTS --debug" 
+fi
+
+exec $JBOSS_HOME/bin/standalone.sh -c standalone-openshift.xml -bmanagement 127.0.0.1 $DEBUG_OPTS $JBOSS_HA_ARGS ${JBOSS_MESSAGING_ARGS}
