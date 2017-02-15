@@ -74,9 +74,18 @@ function copy_artifacts() {
 }
 
 function setup_maven() {
-  if [ -f "${S2I_SOURCE_DIR}/configuration/settings.xml" ]; then
-    maven_env_args="${maven_env_args} -s ${S2I_SOURCE_DIR}/configuration/settings.xml"
-    echo "Using custom maven settings from ${S2I_SOURCE_DIR}/configuration/settings.xml"
+  # workaround for Maven mirror support
+  if [ -f "${S2I_SOURCE_DIR}/.s2i/maven/settings.xml" ]; then    
+    if [ -n "$MAVEN_MIRROR_URL" ]; then
+      xml="    <mirror>\
+        <id>mirror.default</id>\
+        <url>$MAVEN_MIRROR_URL</url>\
+        <mirrorOf>external:*</mirrorOf>\
+      </mirror>"
+      sed -i "s|<!-- ### configured mirrors ### -->|$xml|" ${S2I_SOURCE_DIR}/.s2i/maven/settings.xml
+    fi
+    maven_env_args="${maven_env_args} -s ${S2I_SOURCE_DIR}/.s2i/maven/settings.xml"
+    echo "Using custom maven settings from ${S2I_SOURCE_DIR}/.s2i/maven/settings.xml"
   fi
 }
 
