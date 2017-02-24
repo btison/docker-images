@@ -1,5 +1,20 @@
 #!/bin/bash
 
+function get_heap_size {
+  CONTAINER_MEMORY_IN_BYTES=`cat /sys/fs/cgroup/memory/memory.limit_in_bytes`
+  DEFAULT_MEMORY_CEILING=$((2**60-1))
+  if [ "${CONTAINER_MEMORY_IN_BYTES}" -lt "${DEFAULT_MEMORY_CEILING}" ]; then
+    if [ -z $CONTAINER_HEAP_PERCENT ]; then
+      CONTAINER_HEAP_PERCENT=0.50
+    fi
+
+    CONTAINER_MEMORY_IN_MB=$((${CONTAINER_MEMORY_IN_BYTES}/1024**2))
+    CONTAINER_HEAP_MAX=$(echo "${CONTAINER_MEMORY_IN_MB} ${CONTAINER_HEAP_PERCENT}" | awk '{ printf "%d", $1 * $2 }')
+
+    echo "${CONTAINER_HEAP_MAX}"
+  fi
+}
+
 function dumpEnv() {
   echo "FIRST_RUN: ${FIRST_RUN}"
   echo "IPADDR: ${IPADDR}"
@@ -25,10 +40,16 @@ if [ "$FIRST_RUN" = "true" ]; then
   done	 
 fi
 
-MAX_HEAP=768m
-MIN_HEAP=256m
 JAVA_OPTS="-server -Djava.net.preferIPv4Stack=true"
-JAVA_OPTS="$JAVA_OPTS -Xms${MIN_HEAP} -Xmx${MAX_HEAP}"
+MAX_HEAP_DEFAULT=768m
+MAX_HEAP=$(get_heap_size)
+MIN_HEAP=256m
+if [ -n "$MAX_HEAP" ]; then
+  JAVA_OPTS="$JAVA_OPTS -Xms${MAX_HEAP}m -Xmx${MAX_HEAP}m"
+else
+  JAVA_OPTS="$JAVA_OPTS -Xms${MIN_HEAP} -Xmx${MAX_HEAP_DEFAULT}"
+fi
+echo $JAVA_OPTS
 LAUNCHER_CONF="./conf/jetty.xml ./conf/jetty-requestlog.xml"
 NEXUS_OPTS="-Dnexus-work=$NEXUS_DATA -Dapplication-port=8080 -Dapplication-host=$IPADDR"
 
