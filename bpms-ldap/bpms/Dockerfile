@@ -26,7 +26,7 @@ RUN groupadd -r jboss -g 400 && useradd -u 400 -r -g jboss -d /opt/jboss -s /bin
 RUN mkdir -p $BPMS_HOME && \
     mkdir -p $BPMS_DATA && \
     chown -R jboss:jboss $BPMS_HOME $BPMS_DATA && \
-    chmod +x /usr/bin/run-bpms.sh && \
+    chmod +x /usr/bin/run-bpms.sh /usr/bin/dynamic-resources.sh && \
     chmod u+s `which ping` && \
     mkdir -p $BPMS_SECRETS
 

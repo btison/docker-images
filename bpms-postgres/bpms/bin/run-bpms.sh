@@ -279,6 +279,11 @@ then
            $BPMS_HOME/$BPMS_ROOT/standalone/tmp
 fi
 
+# append standalone.conf to bin/standalone.conf if needed
+if ! grep -q "### Dynamic Resources ###" "$BPMS_HOME/$BPMS_ROOT/bin/standalone.conf"; then
+  cat $CONTAINER_SCRIPTS_PATH/standalone.conf >> $BPMS_HOME/$BPMS_ROOT/bin/standalone.conf
+fi
+
 # set up postgresql module
 PGSQL_MODULE_DIR=$(echo $PGSQL_MODULE_NAME | sed 's@\.@/@g')
 PGSQL_MODULE=$BPMS_HOME/$BPMS_ROOT/modules/$PGSQL_MODULE_DIR/main

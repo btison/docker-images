@@ -239,7 +239,7 @@ if [ "$FIRST_RUN" = "true" ]; then
   for i in "${VARS[@]}"
   do
     sed -i "s'@@${i}@@'${!i}'g" $BPMS_DATA/configuration/$JBOSS_CONFIG
-  done  
+  done
 
   # Setup maven repo
   echo "Setup local maven repo with Nexus"
@@ -367,6 +367,11 @@ then
     rm -rf $BPMS_HOME/$BPMS_ROOT/standalone/data \
            $BPMS_HOME/$BPMS_ROOT/standalone/log \
            $BPMS_HOME/$BPMS_ROOT/standalone/tmp
+fi
+
+# append standalone.conf to bin/standalone.conf if needed
+if ! grep -q "### Dynamic Resources ###" "$BPMS_HOME/$BPMS_ROOT/bin/standalone.conf"; then
+  cat $CONTAINER_SCRIPTS_PATH/standalone.conf >> $BPMS_HOME/$BPMS_ROOT/bin/standalone.conf
 fi
 
 # set up mysql module
