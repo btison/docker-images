@@ -1,25 +1,26 @@
 version: '2'
 services:
-  mysql:
-    build: mysql
-    expose:
-      - "3306"
+  postgresql:
+    build: postgresql
     volumes:
+      - postgresql:/var/lib/pgsql
       - /etc/localtime:/etc/localtime
-      - mysql:/var/lib/mysql/data
+    expose:
+      - "5432"
     environment:
-      - MYSQL_TRANSACTION_ISOLATION_LEVEL=READ-COMMITTED
-      - MYSQL_LOWER_CASE_TABLE_NAMES=1
-      - MYSQL_ROOT_PASSWORD=redhat
+      - DB_NAME=bpmswb,bpmskieserver,bpmsadmin
+      - DB_USER=jboss
+      - DB_PASS=jboss
+      - DB_EXTENSION=
     network_mode: "bridge"
   bpms-wb:
     build: bpms
     links:
-      - mysql:mysql
+      - postgresql:postgresql
     expose:
       - "8080"
     environment:
-      - MYSQL_BPMS_SCHEMA=bpmswb
+      - PGSQL_BPMS_SCHEMA=bpmswb
       - DASHBOARD=false
       - QUARTZ=true
       - KIE_SERVER=false
@@ -36,12 +37,12 @@ services:
   bpms-kieserver:
     build: bpms
     links:
-      - mysql:mysql
+      - postgresql:postgresql
       - bpms-admin:bpms-admin
     expose:
       - "8080"
     environment:
-      - MYSQL_BPMS_SCHEMA=bpmskieserver
+      - PGSQL_BPMS_SCHEMA=bpmskieserver
       - DASHBOARD=false
       - QUARTZ=true
       - KIE_SERVER=true
@@ -64,11 +65,11 @@ services:
   bpms-admin:
     build: bpms
     links:
-      - mysql:mysql
+      - postgresql:postgresql
     expose:
       - "8080"
     environment:
-      - MYSQL_BPMS_SCHEMA=bpmsadmin
+      - PGSQL_BPMS_SCHEMA=bpmsadmin
       - DASHBOARD=false
       - QUARTZ=false
       - KIE_SERVER=false
@@ -83,7 +84,7 @@ services:
       - bpms-admin:/opt/jboss/data
     network_mode: "bridge"
 volumes:
-  mysql:
+  postgresql:
   bpms-wb:
   bpms-admin:
   bpms-kieserver:

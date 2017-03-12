@@ -9,7 +9,7 @@ ENV BPMS_HOME=/opt/jboss \
     BPMS_DISTRO=jboss-bpmsuite-6.4.0.GA-redhat-2-deployable-eap7.x.zip
 
 # Install unzip, mysql driver
-RUN yum -y install unzip mysql-connector-java which && \
+RUN yum -y install unzip postgresql-jdbc which && \
     yum clean all -y
 
 # Copy files

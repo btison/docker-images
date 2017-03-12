@@ -34,13 +34,13 @@ function createUser() {
 function dumpEnv() {
   echo "FIRST_RUN: ${FIRST_RUN}"
   echo "IPADDR: ${IPADDR}"
-  echo "PGSQL_HOST_IP: ${PGSQL_HOST_IP}"
+  echo "MYSQL_HOST_IP: ${MYSQL_HOST_IP}"
   echo "NEXUS_IP: ${NEXUS_IP}"
   echo "BUSINESS_CENTRAL: ${BUSINESS_CENTRAL}"
   echo "BUSINESS_CENTRAL_DESIGN: ${BUSINESS_CENTRAL_DESIGN}"
   echo "KIE_SERVER: ${KIE_SERVER}"
   echo "DASHBOARD: ${DASHBOARD}"
-  echo "PGSQL_BPMS_SCHEMA: ${PGSQL_BPMS_SCHEMA}"
+  echo "MYSQL_BPMS_SCHEMA: ${MYSQL_BPMS_SCHEMA}"
   echo "JBOSS_CONFIG: ${JBOSS_CONFIG}"
   echo "QUARTZ: ${QUARTZ}"
   echo "MAVEN_SETTINGS: ${MAVEN_SETTINGS}"
@@ -74,8 +74,8 @@ function dumpEnv() {
 }
 
 IPADDR=$(ip a s | sed -ne '/127.0.0.1/!{s/^[ \t]*inet[ \t]*\([0-9.]\+\)\/.*$/\1/p}')
-PGSQL_HOST_IP=$(ping -q -c 1 -t 1 postgresql | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
-PGSQL_HOST_PORT=5432
+MYSQL_HOST_IP=$(ping -q -c 1 -t 1 mysql | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
+MYSQL_HOST_PORT=3306
 NEXUS_IP=$(ping -q -c 1 -t 1 ${NEXUS_HOST} | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
 NEXUS_PORT=8080
 NEXUS_URL=$NEXUS_IP:$NEXUS_PORT
@@ -89,11 +89,11 @@ FIRST_RUN=false
 CLEAN=false
 
 # Database
-DATABASE=postgresql
-DATABASE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
-PGSQL_DRIVER=postgresql-jdbc.jar
-PGSQL_DRIVER_PATH=/usr/share/java
-PGSQL_MODULE_NAME=com.postgresql
+DATABASE=mysql
+DATABASE_DIALECT=org.hibernate.dialect.MySQL5Dialect
+MYSQL_DRIVER=mysql-connector-java.jar
+MYSQL_DRIVER_PATH=/usr/share/java
+MYSQL_MODULE_NAME=com.mysql
 BPMS_DATASOURCE_POOL_MIN=${BPMS_DATASOURCE_POOL_MIN:-0}
 BPMS_DATASOURCE_POOL_MAX=${BPMS_DATASOURCE_POOL_MAX:-20}
 BPMS_DATASOURCE=jbpmDS
@@ -183,7 +183,7 @@ if [ "$FIRST_RUN" = "true" ]; then
   for i in "${VARS[@]}"
   do
     sed -i "s'@@${i}@@'${!i}'g" $BPMS_DATA/configuration/$JBOSS_CONFIG
-  done  
+  done
 
   # Setup maven repo
   echo "Setup local maven repo with Nexus"
@@ -214,7 +214,7 @@ if [ "$FIRST_RUN" = "true" ]; then
   # configuration : driver
   DRIVER=$(cat $CONTAINER_SCRIPTS_PATH/$DATABASE-driver-config.xml)
   #replace placeholders in driver file
-  VARS=( PGSQL_MODULE_NAME )
+  VARS=( MYSQL_MODULE_NAME )
   for i in "${VARS[@]}"
   do
     DRIVER=$(echo $DRIVER | sed "s'@@${i}@@'${!i}'")
@@ -284,21 +284,21 @@ if ! grep -q "### Dynamic Resources ###" "$BPMS_HOME/$BPMS_ROOT/bin/standalone.c
   cat $CONTAINER_SCRIPTS_PATH/standalone.conf >> $BPMS_HOME/$BPMS_ROOT/bin/standalone.conf
 fi
 
-# set up postgresql module
-PGSQL_MODULE_DIR=$(echo $PGSQL_MODULE_NAME | sed 's@\.@/@g')
-PGSQL_MODULE=$BPMS_HOME/$BPMS_ROOT/modules/$PGSQL_MODULE_DIR/main
-if [ ! -d $PGSQL_MODULE ];
+# set up mysql module
+MYSQL_MODULE_DIR=$(echo $MYSQL_MODULE_NAME | sed 's@\.@/@g')
+MYSQL_MODULE=$BPMS_HOME/$BPMS_ROOT/modules/$MYSQL_MODULE_DIR/main
+if [ ! -d $MYSQL_MODULE ];
 then
-  echo "Setup postgresql module"
-  mkdir -p $PGSQL_MODULE
-  cp -rp $CONTAINER_SCRIPTS_PATH/$DATABASE-module.xml $PGSQL_MODULE/module.xml
+  echo "Setup mysql module"
+  mkdir -p $MYSQL_MODULE
+  cp -rp $CONTAINER_SCRIPTS_PATH/$DATABASE-module.xml $MYSQL_MODULE/module.xml
   #replace placeholders in module file
-  VARS=( PGSQL_MODULE_NAME PGSQL_DRIVER )
+  VARS=( MYSQL_MODULE_NAME MYSQL_DRIVER )
   for i in "${VARS[@]}"
   do
-    sed -i "s'@@${i}@@'${!i}'" $PGSQL_MODULE/module.xml
+    sed -i "s'@@${i}@@'${!i}'" $MYSQL_MODULE/module.xml
   done
-  ln -s $PGSQL_DRIVER_PATH/$PGSQL_DRIVER $PGSQL_MODULE/$PGSQL_DRIVER
+  ln -s $MYSQL_DRIVER_PATH/$MYSQL_DRIVER $MYSQL_MODULE/$MYSQL_DRIVER
 fi
 
 # Configure business-central persistence.xml
@@ -435,9 +435,9 @@ SERVER_OPTS="$SERVER_OPTS -Djboss.bind.address.insecure=$IPADDR"
 SERVER_OPTS="$SERVER_OPTS -Djboss.node.name=server-$IPADDR"
 SERVER_OPTS="$SERVER_OPTS -Djboss.server.config.dir=$BPMS_DATA/configuration"
 SERVER_OPTS="$SERVER_OPTS -Djboss.server.deploy.dir=$BPMS_DATA/content"
-SERVER_OPTS="$SERVER_OPTS -Dpgsql.host.ip=$PGSQL_HOST_IP"
-SERVER_OPTS="$SERVER_OPTS -Dpgsql.host.port=$PGSQL_HOST_PORT"
-SERVER_OPTS="$SERVER_OPTS -Dpgsql.bpms.schema=$PGSQL_BPMS_SCHEMA"
+SERVER_OPTS="$SERVER_OPTS -Dmysql.host.ip=$MYSQL_HOST_IP"
+SERVER_OPTS="$SERVER_OPTS -Dmysql.host.port=$MYSQL_HOST_PORT"
+SERVER_OPTS="$SERVER_OPTS -Dmysql.bpms.schema=$MYSQL_BPMS_SCHEMA"
 SERVER_OPTS="$SERVER_OPTS -Dbpms.datasource.pool.min=$BPMS_DATASOURCE_POOL_MIN"
 SERVER_OPTS="$SERVER_OPTS -Dbpms.datasource.pool.max=$BPMS_DATASOURCE_POOL_MAX"
 SERVER_OPTS="$SERVER_OPTS --server-config=$JBOSS_CONFIG"
