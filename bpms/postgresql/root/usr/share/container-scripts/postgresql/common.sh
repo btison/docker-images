@@ -161,7 +161,7 @@ EOF
 
 function create_users() {
   if [[ ",$postinitdb_actions," = *,simple_db,* ]]; then
-    createuser "$POSTGRESQL_USER"
+    createuser "$POSTGRESQL_USER" --createdb --superuser
   fi
 
   if [ -v POSTGRESQL_MASTER_USER ]; then
