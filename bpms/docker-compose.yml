@@ -8,10 +8,10 @@ services:
     expose:
       - "5432"
     environment:
-      - DB_NAME=bpmswb,bpmskieserver,bpmsadmin
-      - DB_USER=jboss
-      - DB_PASS=jboss
-      - DB_EXTENSION=
+      - POSTGRESQL_USER=jboss
+      - POSTGRESQL_PASSWORD=jboss
+      - POSTGRESQL_DATABASE=bpmswb,bpmskieserver,bpmsadmin
+      - POSTGRESQL_EXTENSION=
     network_mode: "bridge"
   bpms-wb:
     build: bpms

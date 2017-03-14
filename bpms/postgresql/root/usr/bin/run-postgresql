@@ -1,11 +1,16 @@
 #!/bin/bash
 
+export ENABLE_REPLICATION=${ENABLE_REPLICATION:-false}
+
 set -eu
+export_vars=$(cgroup-limits) ; export $export_vars
 
 source "${CONTAINER_SCRIPTS_PATH}/common.sh"
 source "${CONTAINER_SCRIPTS_PATH}/bpms.sh"
 
 set_pgdata
+check_env_vars
+generate_passwd_file
 generate_postgresql_config
 
 if [ ! -f "$PGDATA/postgresql.conf" ]; then
@@ -22,5 +27,4 @@ set_passwords
 pg_ctl stop
 
 unset_env_vars
-
 exec postgres "$@"
