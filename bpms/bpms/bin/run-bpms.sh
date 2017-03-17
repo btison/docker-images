@@ -338,6 +338,28 @@ fi
 # setup nexus in maven settings file
 sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$NEXUS_URL'g" $MAVEN_SETTINGS
 
+# add additional libraries to business-central or kie-server deployment
+for i in $(compgen -A variable | grep "^BPMS_LIB_");
+  do
+    IFS=':' read -a gav <<< "${!i}"
+    gav_lib=${gav[1]}-${gav[2]}.jar
+    gav_url="$NEXUS_URL/nexus/service/local/artifact/maven/redirect?r=public&g=${gav[0]}&a=${gav[1]}&v=${gav[2]}&e=jar"
+    if [ "$KIE_SERVER" = "true" ]; then
+      if [ ! -f $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/lib/${gav_lib} ]; then
+        echo "Installing library ${gav_lib} in kie-server"
+        curl --insecure -s -L -o $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/lib/${gav_lib} \
+             "$gav_url"
+      fi
+    fi
+    if [ "$BUSINESS_CENTRAL" = "true" ]; then
+      if [ ! -f $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/lib/${gav_lib} ]; then
+        echo "Installing library ${gav_lib} in business-central"
+        curl --insecure -s -L -o $BPMS_HOME/$BPMS_ROOT/standalone/deployments/business-central.war/WEB-INF/lib/${gav_lib} \
+             "$gav_url"
+      fi
+    fi
+  done
+
 # Executor
 if [ ! "$EXECUTOR" = "true" ]
 then
