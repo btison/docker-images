@@ -465,10 +465,18 @@ SERVER_OPTS="$SERVER_OPTS -Dbpms.datasource.pool.max=$BPMS_DATASOURCE_POOL_MAX"
 SERVER_OPTS="$SERVER_OPTS --server-config=$JBOSS_CONFIG"
 
 # start-up properties
-if [ -n "$START_UP_PROPS" ]
+if [ -n "$STARTUP_PROPS" ]
 then
-  SERVER_OPTS="$SERVER_OPTS $(eval echo $START_UP_PROPS)"
+  SERVER_OPTS="$SERVER_OPTS $(eval echo $STARTUP_PROPS)"
 fi
+
+# start-up properties
+for i in $(compgen -A variable | grep "^STARTUP_PROP_"); do
+  prop="${!i}"
+  prop_resolved=$(eval echo $prop)
+  echo "Adding property ${prop_resolved} to the server startup properties"
+  SERVER_OPTS="$SERVER_OPTS ${prop_resolved}"
+done
 
 # Set debug settings
 if [ "$DEBUG_MODE" = "true" ]; then
