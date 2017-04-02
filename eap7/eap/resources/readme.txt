@@ -1,1 +1,1 @@
-jboss-eap-7.0.2-full-build.zip
+jboss-eap-7.0.4-full-build.zip

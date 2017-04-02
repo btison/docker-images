@@ -5,7 +5,7 @@ ENV EAP_HOME=/opt/jboss \
     EAP_ROOT_ORIG=jboss-eap-7.0 \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/eap \
     EAP_DATA=/opt/jboss/data \
-    EAP_DISTRO=jboss-eap-7.0.2-full-build.zip
+    EAP_DISTRO=jboss-eap-7.0.4-full-build.zip
 
 # Install unzip
 RUN yum -y install unzip which && \
