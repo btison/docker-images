@@ -30,6 +30,23 @@ function createUser() {
   fi
 }
 
+# Build Classpath for dynamic creation of server state file
+function getKieClassPath() {
+    kieJarDir="${BPMS_HOME}/${BPMS_ROOT}/standalone/deployments/kie-server.war/WEB-INF/lib"
+    kieClassPath="."
+    for kieJar in `ls ${kieJarDir}/*.jar` ; do
+        kieClassPath="${kieClassPath}:${kieJar}"
+    done
+    modJarDir="${BPMS_HOME}/${BPMS_ROOT}/modules/system/layers/base"
+    modJarPaths="javax/enterprise/api javax/inject/api"
+    for modJarPath in ${modJarPaths} ; do
+        for modJar in `ls ${modJarDir}/${modJarPath}/main/*.jar` ; do
+            kieClassPath="${kieClassPath}:${modJar}"
+        done
+    done
+    echo "${kieClassPath}"
+}
+
 # Dump environment
 function dumpEnv() {
   echo "FIRST_RUN: ${FIRST_RUN}"
@@ -267,6 +284,29 @@ if [ "$FIRST_RUN" = "true" ]; then
 
   # userinfo properties placeholder file
   cp $CONTAINER_SCRIPTS_PATH/jbpm-userinfo.properties $BPMS_DATA/configuration
+
+  # generate server state  
+  CONTAINERS=""
+  for i in $(compgen -A variable | grep "^KIESERVER_CONTAINER_"); do
+    CONTAINERS="${CONTAINERS}|${!i}"
+  done
+  
+  if [ "$KIE_SERVER" = "true" -a -n "$CONTAINERS" ]; then
+    echo "Generate KIE-server state xml"
+    CONTAINERS=${CONTAINERS#"|"}
+    echo "Containers to be deployed: $CONTAINERS"
+    serverconfig_lib_groupId=org.jboss.btison.bpms.kieserver
+    serverconfig_lib_artifactId=kieserver-serverconfig
+    serverconfig_lib_version=1.0.0
+    serverconfig_lib=${serverconfig_lib_artifactId}-${serverconfig_lib_version}.jar
+    serverconfig_lib_url="$NEXUS_URL/nexus/service/local/artifact/maven/redirect?r=public&g=${serverconfig_lib_groupId}&a=${serverconfig_lib_artifactId}&v=${serverconfig_lib_version}&e=jar"
+    curl --insecure -s -L -o $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/lib/${serverconfig_lib} \
+             "${serverconfig_lib_url}"
+    java -cp $(getKieClassPath) org.jboss.btison.bpms.kieserver.ServerConfig \
+      --serverRepo ${BPMS_DATA}/configuration --serverId kie-server-${KIE_SERVER_ID} \
+      --containers ${CONTAINERS} \
+      > ${BPMS_DATA}/configuration/kie-server-${KIE_SERVER_ID}.xml
+  fi
 
   CLEAN="true"
 fi
