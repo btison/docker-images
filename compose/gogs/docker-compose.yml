@@ -1,7 +1,7 @@
 version: '2'
 services:
   gogs:
-    build: gogs
+    image: gogs
     volumes:
       - gogs:/app/gogs/data
       - /etc/localtime:/etc/localtime
