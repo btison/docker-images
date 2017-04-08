@@ -1,13 +1,13 @@
 version: '2'
 services:
   nexus:
-    build: nexus
+    image: nexus3
     expose:
       - "8080"
     environment:
-      - TLS_CRT=nexus3_nexus.p12
+      - TLS_CRT=nexus3.p12
       - TLS_CRT_NAME=Nexus3-Certificate
-      - TLS_CRT_PASSWORD=nexus3_nexus.password
+      - TLS_CRT_PASSWORD=nexus3.password
     volumes:
       - /etc/localtime:/etc/localtime
       - nexus-data:/data
