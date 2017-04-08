@@ -1,5 +1,20 @@
 #! /bin/bash
 
+function get_heap_size {
+  CONTAINER_MEMORY_IN_BYTES=`cat /sys/fs/cgroup/memory/memory.limit_in_bytes`
+  DEFAULT_MEMORY_CEILING=$((2**60-1))
+  if [ "${CONTAINER_MEMORY_IN_BYTES}" -lt "${DEFAULT_MEMORY_CEILING}" ]; then
+    if [ -z $CONTAINER_HEAP_PERCENT ]; then
+      CONTAINER_HEAP_PERCENT=0.50
+    fi
+
+    CONTAINER_MEMORY_IN_MB=$((${CONTAINER_MEMORY_IN_BYTES}/1024**2))
+    CONTAINER_HEAP_MAX=$(echo "${CONTAINER_MEMORY_IN_MB} ${CONTAINER_HEAP_PERCENT}" | awk '{ printf "%d", $1 * $2 }')
+
+    echo "${CONTAINER_HEAP_MAX}"
+  fi
+}
+
 IPADDR=$(ip a s | sed -ne '/127.0.0.1/!{s/^[ \t]*inet[ \t]*\([0-9.]\+\)\/.*$/\1/p}')
 
 ZK_CLIENT_PORT=${ZK_CLIENT_PORT:-2181}
@@ -50,5 +65,16 @@ for i in $(compgen -A variable | grep "^ZK_SERVER_"); do
   echo "server.${zkServerArray[0]}=$SERVER_IPADDR:${zkServerArray[2]}:${zkServerArray[3]}" >> $ZK_HOME/$ZK_ROOT/conf/zoo.cfg
 
 done
+
+JAVA_OPTS=""
+MAX_HEAP_DEFAULT=128m
+MAX_HEAP=$(get_heap_size)
+if [ -n "$MAX_HEAP" ]; then
+  JAVA_OPTS="$JAVA_OPTS -Xmx${MAX_HEAP}m"
+else
+  JAVA_OPTS="$JAVA_OPTS -Xmx${MAX_HEAP_DEFAULT}"
+fi
+echo "JAVA_OPTS: $JAVA_OPTS"
+export JVMFLAGS=$JAVA_OPTS
 
 eval "exec $ZK_HOME/$ZK_ROOT/bin/zkServer.sh start-foreground $ZK_HOME/$ZK_ROOT/conf/zoo.cfg \"\$@\""
