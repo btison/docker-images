@@ -1,7 +1,7 @@
 version: '2'
 services:
   mongodb:
-    build: mongodb
+    image: mongodb
     expose:
       - "27017"
     volumes:
