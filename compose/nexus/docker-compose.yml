@@ -7,4 +7,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - /data/docker-data/nexus:/data
-    network_mode: "bridge"
+networks:
+  default:
+    external:
+      name: dockernet
