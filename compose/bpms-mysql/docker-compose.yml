@@ -1,7 +1,7 @@
 version: '2'
 services:
   mysql:
-    build: mysql
+    image: bpms-mysql-mysql
     expose:
       - "3306"
     volumes:
@@ -13,7 +13,7 @@ services:
       - MYSQL_ROOT_PASSWORD=redhat
     network_mode: "bridge"
   bpms-wb:
-    build: bpms
+    image: bpms-mysql
     links:
       - mysql:mysql
     expose:
@@ -28,13 +28,13 @@ services:
       - EXECUTOR_JMS=true
       - KIE_SERVER_CONTROLLER=false
       - BUSINESS_CENTRAL_DESIGN=true
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-wb:/opt/jboss/data
     network_mode: "bridge"
   bpms-kieserver:
-    build: bpms
+    build: bpms-mysql
     links:
       - mysql:mysql
       - bpms-admin:bpms-admin
@@ -56,13 +56,13 @@ services:
       - KIE_SERVER_CONTROLLER_HOST=bpms-admin
       - EXECUTOR=true
       - EXECUTOR_JMS=true
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-kieserver:/opt/jboss/data
     network_mode: "bridge"
   bpms-admin:
-    build: bpms
+    build: bpms-mysql
     links:
       - mysql:mysql
     expose:
@@ -77,7 +77,7 @@ services:
       - EXECUTOR_JMS=false
       - KIE_SERVER_CONTROLLER=true
       - BUSINESS_CENTRAL_DESIGN=false
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-admin:/opt/jboss/data
