@@ -1,7 +1,7 @@
 version: '2'
 services:
   mysql:
-    build: mysql
+    image: bpms-sso-mysql
     expose:
       - "3306"
     volumes:
@@ -28,13 +28,13 @@ services:
       - EXECUTOR_JMS=true
       - KIE_SERVER_CONTROLLER=false
       - BUSINESS_CENTRAL_DESIGN=true
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-wb:/opt/jboss/data
     network_mode: "bridge"
   bpms-kieserver:
-    build: bpms
+    image: bpms-sso
     links:
       - mysql:mysql
       - bpms-admin:bpms-admin
@@ -57,21 +57,21 @@ services:
       - EXECUTOR=true
       - EXECUTOR_JMS=true
       - RHSSO=true
-      - RHSSO_URL=https://rhsso-rhsso-1.rhsso-rhsso.docker:8443/auth
+      - RHSSO_URL=https://rhsso-rhsso-1.rhsso.docker:8443/auth
       - RHSSO_CA_CRT=acme.crt
       - USE_TLS=true
       - TLS_CA_CRT=acme.crt
       - TLS_CRT=bpmssso-bpms-kieserver.p12
       - TLS_CRT_NAME=BPMS-Certificate
       - TLS_CRT_PASSWORD=bpmssso-bpms-kieserver.password
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-kieserver:/opt/jboss/data
       - bpms-secret:/opt/secrets
     network_mode: "bridge"
   bpms-admin:
-    build: bpms
+    image: bpms-sso
     links:
       - mysql:mysql
     expose:
@@ -86,7 +86,7 @@ services:
       - EXECUTOR_JMS=false
       - KIE_SERVER_CONTROLLER=true
       - BUSINESS_CENTRAL_DESIGN=false
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-admin:/opt/jboss/data
