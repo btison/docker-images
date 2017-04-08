@@ -1,0 +1,64 @@
+version: '2'
+services:
+  postgresql:
+    image: bpms-postgresql
+    volumes:
+      - postgresql:/var/lib/pgsql
+      - /etc/localtime:/etc/localtime
+    expose:
+      - "5432"
+    environment:
+      - POSTGRESQL_USER=jboss
+      - POSTGRESQL_PASSWORD=jboss
+      - POSTGRESQL_DATABASE=bpmskieserver
+      - POSTGRESQL_EXTENSION= 
+  bpms-kieserver:
+    image: bpms
+    expose:
+      - "8080"
+    environment:
+      - PGSQL_BPMS_SCHEMA=bpmskieserver
+      - DASHBOARD=false
+      - QUARTZ=true
+      - KIE_SERVER=true
+      - BUSINESS_CENTRAL=false
+      - BPMS_EXT_DISABLED=false
+      - BRMS_EXT_DISABLED=false
+      - BRP_EXT_DISABLED=true
+      - JBPMUI_EXT_DISABLED=false
+      - KIE_SERVER_BYPASS_AUTH_USER=true
+      - KIE_SERVER_ID=1
+      - KIE_SERVER_MANAGED=false
+      - KIE_SERVER_CONTROLLER_HOST=
+      - EXECUTOR=true
+      - EXECUTOR_JMS=true
+      - EXECUTOR_POOL_SIZE=1
+      - EXECUTOR_RETRY_INTERVAL=1
+      - CLEAN=true
+      - DEBUG_MODE=true
+      - NEXUS_HOST=nexus_nexus_1.dockernet
+      - STARTUP_PROP_1=-Dkafka.broker.list=kafka_kafka1_1.dockernet:9092,kafka_kafka2_1.docker:9092
+      - STARTUP_PROP_2=-Dkafka.acks=1
+      - STARTUP_PROP_3=-Dkafka.retries=0
+      - STARTUP_PROP_4=-Dkafka.topic=bpms
+      - BPMS_LIB_1=org.jboss.btison.bpms.poc.search.eventlistener:state-eventlistener-extension:1.0-SNAPSHOT
+      - BPMS_LIB_2=org.jboss.btison.bpms.poc.search.eventlistener:eventlistener-api:1.0-SNAPSHOT
+      - BPMS_LIB_3=org.jboss.btison.bpms.poc.search.eventlistener:state-eventlistener:1.0-SNAPSHOT
+      - BPMS_LIB_4=org.jboss.btison.bpms.poc.search.eventlistener:eventlistener-impl:1.0-SNAPSHOT
+      - BPMS_LIB_5=org.jboss.btison.bpms.poc.search.eventlistener:kafka-extension:1.0-SNAPSHOT
+      - BPMS_LIB_6=org.jboss.btison.bpms.poc.search.eventlistener:kafka-consumer:1.0-SNAPSHOT
+      - BPMS_LIB_7=org.jboss.btison.bpms.poc.search.eventlistener:eventlistener-model:1.0-SNAPSHOT
+      - BPMS_LIB_8=org.apache.kafka:kafka-clients:0.10.1.1
+      - BPMS_LIB_9=net.jpountz.lz4:lz4:1.3.0
+      - BPMS_LIB_10=org.xerial.snappy:snappy-java:1.1.2.6
+      - KIESERVER_CONTAINER_1=test=org.jboss.btison.bpms.poc.search.kjar:simple-processes-kjar:1.0-SNAPSHOT
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - bpms-kieserver:/opt/jboss/data
+volumes:
+  postgresql:
+  bpms-kieserver:
+networks:
+  default:
+    external:
+      name: dockernet

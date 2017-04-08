@@ -1,0 +1,18 @@
+version: '2'
+services:
+  vertx:
+    image: runjava
+    expose:
+      - "8080"
+    environment:
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
+      - JAVA_APP_GAV=org.jboss.btison.bpms.poc.search.vertx:vertx-server:1.0-SNAPSHOT:fat:jar
+      - SYSTEM_PROP_1=-Dkafka.bootstrap.servers=kafka_kafka1_1.dockernet:9092,kafka_kafka2_1.dockernet:9092
+      - SYSTEM_PROP_2=-Dkafka.groupId=bpmsGroupId
+      - SYSTEM_PROP_3=-Dkafka.topic=bpms
+      - SYSTEM_PROP_4=-Dkafka.consumers.number=3
+      - SYSTEM_PROP_5=-Dkafka.commit.number.messages=10
+networks:
+  default:
+    external:
+      name: dockernet
