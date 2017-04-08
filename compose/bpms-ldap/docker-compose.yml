@@ -1,7 +1,7 @@
 version: '2'
 services:
   mysql:
-    build: mysql
+    image: bpms-ldap-mysql
     expose:
       - "3306"
     volumes:
@@ -13,7 +13,7 @@ services:
       - MYSQL_ROOT_PASSWORD=redhat
     network_mode: "bridge"
   bpms-wb:
-    build: bpms
+    image: bpms-ldap
     links:
       - mysql:mysql
     expose:
@@ -29,19 +29,19 @@ services:
       - KIE_SERVER_CONTROLLER=false
       - BUSINESS_CENTRAL_DESIGN=true
       - LDAP_SECURITY_DOMAIN=bpms
-      - LDAP_URL=ldaps://ldap-openldap-1.ldap-openldap.docker:636
+      - LDAP_URL=ldaps://openldap-openldap-1.openldap.docker:636
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
       - LDAP_CA_CRT=acme.crt
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-wb:/opt/jboss/data
       - bpms-secret:/opt/secrets
     network_mode: "bridge"
   bpms-kieserver:
-    build: bpms
+    image: bpms-ldap
     links:
       - mysql:mysql
       - bpms-admin:bpms-admin
@@ -64,19 +64,19 @@ services:
       - EXECUTOR=true
       - EXECUTOR_JMS=true
       - LDAP_SECURITY_DOMAIN=bpms
-      - LDAP_URL=ldaps://ldap-openldap-1.ldap-openldap.docker:636
+      - LDAP_URL=ldaps://openldap-openldap-1.openldap.docker:636
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
       - LDAP_CA_CRT=acme.crt
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-kieserver:/opt/jboss/data
       - bpms-secret:/opt/secrets
     network_mode: "bridge"
   bpms-admin:
-    build: bpms
+    image: bpms-ldap
     links:
       - mysql:mysql
     expose:
@@ -92,12 +92,12 @@ services:
       - KIE_SERVER_CONTROLLER=true
       - BUSINESS_CENTRAL_DESIGN=false
       - LDAP_SECURITY_DOMAIN=bpms
-      - LDAP_URL=ldaps://ldap-openldap-1.ldap-openldap.docker:636
+      - LDAP_URL=ldaps://openldap-openldap-1.openldap.docker:636
       - LDAP_BASE_DN=dc=acme,dc=org
       - LDAP_BIND_CN=admin
       - LDAP_ADMIN_PASSWORD=admin
       - LDAP_CA_CRT=acme.crt
-      - NEXUS_HOST=nexus-nexus-1.nexus-nexus.docker
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-admin:/opt/jboss/data
