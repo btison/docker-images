@@ -1,7 +1,7 @@
 version: '2'
 services:
   mysql:
-    build: mysql
+    image: rhsso-mysql
     expose:
       - "3306"
     volumes:
@@ -12,7 +12,7 @@ services:
       - MYSQL_ROOT_PASSWORD=redhat
     network_mode: "bridge"
   rhsso:
-    build: rhsso
+    image: rhsso
     links:
       - mysql:mysql
     expose:
@@ -21,7 +21,7 @@ services:
       - MYSQL_RHSSO_SCHEMA=keycloak
       - USE_TLS=true
       - TLS_CA_CRT=acme.crt
-      - TLS_CRT=rhsso_rhsso.p12
+      - TLS_CRT=rhsso.p12
       - TLS_CRT_NAME=RHSSO-Certificate
       - TLS_CRT_PASSWORD=password
     volumes:
