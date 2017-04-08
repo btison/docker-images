@@ -1,7 +1,7 @@
 version: '2'
 services:
   openldap:
-    build: openldap
+    image: openldap
     expose:
       - "389"
       - "636"
@@ -25,7 +25,7 @@ services:
       # Tls
       - LDAP_TLS=true
       - LDAP_TLS_PASSWORD_FILENAME=password
-      - LDAP_TLS_CRT_FILENAME=ldap_openldap.p12
+      - LDAP_TLS_CRT_FILENAME=openldap.p12
       - LDAP_TLS_CA_CRT_FILENAME=acme.crt
       - LDAP_TLS_CRT_NAME=LDAP-Certificate
       - LDAP_TLS_ENFORCE=true
