@@ -12,11 +12,8 @@ services:
       - POSTGRESQL_PASSWORD=jboss
       - POSTGRESQL_DATABASE=bpmswb,bpmskieserver,bpmsadmin
       - POSTGRESQL_EXTENSION=
-    network_mode: "bridge"
   bpms-wb:
     image: bpms
-    links:
-      - postgresql:postgresql
     expose:
       - "8080"
     environment:
@@ -33,12 +30,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-wb:/opt/jboss/data
-    network_mode: "bridge"
   bpms-kieserver:
     image: bpms
-    links:
-      - postgresql:postgresql
-      - bpms-admin:bpms-admin
     expose:
       - "8080"
     environment:
@@ -61,11 +54,8 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-kieserver:/opt/jboss/data
-    network_mode: "bridge"
   bpms-admin:
     image: bpms
-    links:
-      - postgresql:postgresql
     expose:
       - "8080"
     environment:
@@ -82,9 +72,12 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-admin:/opt/jboss/data
-    network_mode: "bridge"
 volumes:
   postgresql:
   bpms-wb:
   bpms-admin:
   bpms-kieserver:
+networks:
+  default:
+    external:
+      name: dockernet
