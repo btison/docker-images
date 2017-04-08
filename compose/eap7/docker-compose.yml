@@ -1,7 +1,7 @@
 version: '2'
 services:
   eap:
-    build: eap
+    image: eap7
     expose:
       - "8080"
       - "9990"
