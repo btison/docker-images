@@ -1,6 +1,6 @@
 FROM centos:7
 
-ENV VERSION=0.9.97 \
+ENV VERSION=0.11.4 \
     HOME=/app/gogs/data \
     PATH=/app/gogs:$PATH
 

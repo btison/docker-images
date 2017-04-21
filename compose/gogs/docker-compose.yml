@@ -17,6 +17,7 @@ services:
       - GOGS_RUN_USER=git
       - GOGS_RUN_MODE=prod
       - GOGS_REPOSITORY__ROOT=/app/gogs/data/repositories
+      - GOGS_SERVER__DOMAIN=gogs-gogs-1.gogs.docker
       - GOGS_SERVER__START_SSH_SERVER=true
       - GOGS_SERVER__SSH_PORT=2222
       - GOGS_SERVER__SSH_ROOT_PATH=/app/gogs/data/git/.ssh
