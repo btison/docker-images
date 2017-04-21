@@ -12,6 +12,11 @@ services:
       - SYSTEM_PROP_3=-Dkafka.topic=bpms
       - SYSTEM_PROP_4=-Dkafka.consumers.number=3
       - SYSTEM_PROP_5=-Dkafka.commit.number.messages=10
+      - SYSTEM_PROP_6=-Delasticsearch.cluster.name=es-bpms
+      - SYSTEM_PROP_7=-Delasticsearch.index.name=bpms
+      - SYSTEM_PROP_8=-Delasticsearch.client.transport.sniff=true
+      - SYSTEM_PROP_9=-Delasticsearch.transport.address=es_es1_1.dockernet:9300
+      - DEBUG_MODE=true
 networks:
   default:
     external:

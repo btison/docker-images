@@ -1,0 +1,17 @@
+version: '2'
+services:
+  es1:
+    image: elasticsearch
+    environment:
+      - ES_CLUSTER_NAME=es-bpms
+      - ES_NODE_NAME=es-bpms-1
+    volumes:
+      - es1-conf:/opt/es/conf
+      - es1-data:/opt/es/data
+volumes:
+  es1-data:
+  es1-conf:
+networks:
+  default:
+    external:
+      name: dockernet
