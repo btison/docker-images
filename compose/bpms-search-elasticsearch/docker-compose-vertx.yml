@@ -16,6 +16,7 @@ services:
       - SYSTEM_PROP_7=-Delasticsearch.index.name=bpms
       - SYSTEM_PROP_8=-Delasticsearch.client.transport.sniff=true
       - SYSTEM_PROP_9=-Delasticsearch.transport.address=es_es1_1.dockernet:9300
+      - SYSTEM_PROP_10=-Dvertx.options.eventLoopPoolSize=5
       - DEBUG_MODE=true
 networks:
   default:
