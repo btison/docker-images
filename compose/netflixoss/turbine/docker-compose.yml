@@ -1,0 +1,17 @@
+version: '2'
+services:
+  turbine:
+    image: runjava
+    expose:
+      - "8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
+      - JAVA_APP_GAV=org.jboss.btison.docker.turbine:turbine-server:1.0.0-SNAPSHOT:jar
+      - DEBUG_MODE=false
+      - SYSTEM_PROP_1=-Dturbine.instanceUrlSuffix=:8080/hystrix.stream
+networks:
+  default:
+    external:
+      name: dockernet

@@ -1,0 +1,13 @@
+version: '2'
+services:
+  hystrix:
+    image: jetty
+    expose:
+      - "8080"
+    environment:
+      - NEXUS_HOST=nexus-nexus-1.nexus.docker
+      - DEBUG_MODE=false
+networks:
+  default:
+    external:
+      name: dockernet
