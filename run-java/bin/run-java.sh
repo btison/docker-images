@@ -72,8 +72,8 @@ done
 
 if [ -n "$JAVA_APP_GAV" ]; then
   cd $JAVA_APP_DIR
-  echo "exec java $JAVA_OPTS -jar $JAVA_APP_LIB"
-  exec java $JAVA_OPTS -jar $JAVA_APP_LIB
+  echo "exec java $JAVA_OPTS -jar $JAVA_APP_LIB $@"
+  exec java $JAVA_OPTS -jar $JAVA_APP_LIB "$@"
 else
   echo "ERROR: No Java app specified"
 fi
