@@ -1,0 +1,8 @@
+version: '2'
+services:
+  swagger-ui:
+    image: swaggerui
+networks:
+  default:
+    external:
+      name: dockernet
