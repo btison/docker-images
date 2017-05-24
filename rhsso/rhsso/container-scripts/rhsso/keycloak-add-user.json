@@ -5,8 +5,8 @@
     "enabled" : true,
     "credentials" : [ {
       "type" : "password",
-      "hashedSaltedValue" : "vxd6aePwVDCPEe4/dJyNpK36yV3U/bYjOpqimeVrmrfk04qPIWJiCoFnv/ryD7wHDSBuSh3Y52PtM2X/KxvtaQ==",
-      "salt" : "tFqpn2fxArWBVxtreP6ECQ==",
+      "hashedSaltedValue" : "mz/tPL2qfsuZ3YN085VG8pKpIZ1egZbZp79ADG+0AM5+an69FRCpFHjHufIoJru8kpiq3GY4xezxMyaRT8dkzw==",
+      "salt" : "vSLXhtWPgY802HPfvjepYQ==",
       "hashIterations" : 100000,
       "algorithm" : "pbkdf2"
     } ],

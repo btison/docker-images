@@ -1,7 +1,7 @@
 embed-server --admin-only=true --std-out=discard --server-config=@@JBOSS_CONFIG@@
 batch
-/subsystem=datasources/jdbc-driver=mysql:add(driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource,driver-name=mysql,driver-module-name=@@MYSQL_MODULE_NAME@@)
+/subsystem=datasources/jdbc-driver=postgresql:add(driver-xa-datasource-class-name=org.postgresql.xa.PGXADataSource,driver-name=postgresql,driver-module-name=@@POSTGRESQL_MODULE_NAME@@)
 /subsystem=datasources/data-source=KeycloakDS:remove
-data-source add --name=KeycloakDS --jndi-name="java:jboss/datasources/KeycloakDS" --driver-name=mysql --user-name=jboss --password=jboss --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLExceptionSorter --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.mysql.MySQLValidConnectionChecker --connection-url="jdbc:mysql://${mysql.host.ip}:${mysql.host.port}/${mysql.rhsso.schema}?transformedBitIsBoolean=true&sessionVariables=storage_engine=InnoDB"
+data-source add --name=KeycloakDS --jndi-name="java:jboss/datasources/KeycloakDS" --driver-name=postgresql --user-name=jboss --password=jboss --exception-sorter-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter --valid-connection-checker-class-name=org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker --connection-url="jdbc:postgresql://${postgresql.host.ip}:${postgresql.host.port}/${postgresql.rhsso.schema}"
 /subsystem=datasources/data-source=KeycloakDS:write-attribute(name=enabled,value=true)
 run-batch

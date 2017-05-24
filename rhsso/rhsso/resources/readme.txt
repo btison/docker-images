@@ -1,1 +1,1 @@
-rh-sso-7.0.0.zip
+rh-sso-7.1.0.zip

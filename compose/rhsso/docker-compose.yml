@@ -1,24 +1,23 @@
 version: '2'
 services:
-  mysql:
-    image: rhsso-mysql
-    expose:
-      - "3306"
+  postgresql:
+    image: rhsso-postgresql
     volumes:
+      - postgresql:/var/lib/pgsql
       - /etc/localtime:/etc/localtime
-      - mysql:/var/lib/mysql/data
+    expose:
+      - "5432"
     environment:
-      - MYSQL_LOWER_CASE_TABLE_NAMES=1
-      - MYSQL_ROOT_PASSWORD=redhat
-    network_mode: "bridge"
+      - POSTGRESQL_USER=jboss
+      - POSTGRESQL_PASSWORD=jboss
+      - POSTGRESQL_DATABASE=keycloak
+      - POSTGRESQL_EXTENSION=
   rhsso:
     image: rhsso
-    links:
-      - mysql:mysql
     expose:
       - "8080"
     environment:
-      - MYSQL_RHSSO_SCHEMA=keycloak
+      - POSTGRESQL_RHSSO_SCHEMA=keycloak
       - USE_TLS=true
       - TLS_CA_CRT=acme.crt
       - TLS_CRT=rhsso.p12
@@ -29,9 +28,12 @@ services:
       - rhsso:/opt/jboss/data
       - rhsso-import:/opt/jboss/import
       - rhsso-secret:/opt/secrets
-    network_mode: "bridge"
 volumes:
-  mysql:
+  postgresql:
   rhsso:
   rhsso-import:
   rhsso-secret:
+networks:
+  default:
+    external:
+      name: dockernet

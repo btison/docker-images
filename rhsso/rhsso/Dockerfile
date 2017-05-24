@@ -2,15 +2,15 @@ FROM centos7/java8
 
 ENV RHSSO_HOME=/opt/jboss \
     RHSSO_ROOT=rhsso \
-    RHSSO_ROOT_ORIG=rh-sso-7.0 \
+    RHSSO_ROOT_ORIG=rh-sso-7.1 \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/rhsso \
     RHSSO_DATA=/opt/jboss/data \
-    RHSSO_DISTRO=rh-sso-7.0.0.zip \
+    RHSSO_DISTRO=rh-sso-7.1.0.zip \
     RHSSO_IMPORT=/opt/jboss/import \
     RHSSO_SECRETS=/opt/secrets
 
 # Install unzip, mysql driver
-RUN yum -y install unzip mysql-connector-java which && \
+RUN yum -y install unzip postgresql-jdbc which && \
     yum clean all -y
 
 # Copy files

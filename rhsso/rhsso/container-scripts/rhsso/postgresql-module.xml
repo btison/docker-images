@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module xmlns="urn:jboss:module:1.0" name="@@MYSQL_MODULE_NAME@@">
+<module xmlns="urn:jboss:module:1.0" name="@@POSTGRESQL_MODULE_NAME@@">
   <resources>
-    <resource-root path="@@MYSQL_DRIVER@@"/>
+    <resource-root path="@@POSTGRESQL_DRIVER@@"/>
   </resources>
   <dependencies>
     <module name="javax.api"/>

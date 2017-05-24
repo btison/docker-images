@@ -29,8 +29,8 @@ function dumpEnv() {
   echo "======================="
   echo "FIRST_RUN: ${FIRST_RUN}"
   echo "IPADDR: ${IPADDR}"
-  echo "MYSQL_HOST_IP: ${MYSQL_HOST_IP}"
-  echo "MYSQL_RHSSO_SCHEMA: ${MYSQL_RHSSO_SCHEMA}"
+  echo "POSTGRESQL_HOST_IP: ${POSTGRESQL_HOST_IP}"
+  echo "POSTGRESQL_RHSSO_SCHEMA: ${POSTGRESQL_RHSSO_SCHEMA}"
   echo "JBOSS_CONFIG: ${JBOSS_CONFIG}"
   echo "DEBUG_MODE: ${DEBUG_MODE}"
   echo "DEBUG_PORT: ${DEBUG_PORT}"
@@ -45,20 +45,20 @@ function dumpEnv() {
 }
 
 IPADDR=$(ip a s | sed -ne '/127.0.0.1/!{s/^[ \t]*inet[ \t]*\([0-9.]\+\)\/.*$/\1/p}')
-MYSQL_HOST_IP=$(ping -q -c 1 -t 1 mysql | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
-MYSQL_HOST_PORT=3306
+POSTGRESQL_HOST_IP=$(ping -q -c 1 -t 1 postgresql | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
+POSTGRESQL_HOST_PORT=5432
 
 FIRST_RUN=false
 CLEAN=false
 
 # Database
-DATABASE=mysql
-MYSQL_DRIVER=mysql-connector-java.jar
-MYSQL_DRIVER_PATH=/usr/share/java
-MYSQL_MODULE_NAME=com.mysql
+DATABASE=postgresql
+POSTGRESQL_DRIVER=postgresql-jdbc.jar
+POSTGRESQL_DRIVER_PATH=/usr/share/java
+POSTGRESQL_MODULE_NAME=com.postgresql
 
 # Standalone config file
-JBOSS_CONFIG=standalone.xml
+JBOSS_CONFIG=standalone-docker.xml
 
 # debug options
 DEBUG_MODE=${DEBUG_MODE:-false}
@@ -92,22 +92,25 @@ sed -i "s/password.restriction=WARN/password.restriction=RELAX/" $RHSSO_HOME/$RH
 
 # configuration, only on first startup
 if [ "$FIRST_RUN" = "true" ]; then
-  # configure the datasource on the server
-  echo "Configure the datasource"
-  #replace placeholders in cli file
-  cp $CONTAINER_SCRIPTS_PATH/rhsso.cli /tmp/rhsso.cli
-  VARS=( MYSQL_MODULE_NAME MYSQL_DRIVER MYSQL_DRIVER_PATH JBOSS_CONFIG )
-  for i in "${VARS[@]}"
-  do
-    sed -i "s'@@${i}@@'${!i}'" /tmp/rhsso.cli
-  done
-  $RHSSO_HOME/$RHSSO_ROOT/bin/jboss-cli.sh --file=/tmp/rhsso.cli
 
   # copy configuration
   echo "Copy configuration to $RHSSO_DATA"
   mkdir -p $RHSSO_DATA
   mkdir -p $RHSSO_DATA/content
   cp -r $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration $RHSSO_DATA
+
+  cp $RHSSO_DATA/configuration/standalone.xml $RHSSO_DATA/configuration/$JBOSS_CONFIG
+
+  # configure the datasource on the server
+  echo "Configure the datasource"
+  #replace placeholders in cli file
+  cp $CONTAINER_SCRIPTS_PATH/rhsso.cli /tmp/rhsso.cli
+  VARS=( POSTGRESQL_MODULE_NAME JBOSS_CONFIG )
+  for i in "${VARS[@]}"
+  do
+    sed -i "s'@@${i}@@'${!i}'" /tmp/rhsso.cli
+  done
+  $RHSSO_HOME/$RHSSO_ROOT/bin/jboss-cli.sh -Djboss.server.config.dir=$RHSSO_DATA/configuration --file=/tmp/rhsso.cli
 
   echo "Create users"
   # create admin user
@@ -131,17 +134,17 @@ if [ "$FIRST_RUN" = "true" ]; then
       TLS_KEYSTORE_PASSWORD=$(cat ${RHSSO_SECRETS}/${TLS_CRT_PASSWORD})
       # import pkcs12 certificate into keystore
       # WFCORE-1373: JBoss CLI embedded server does not recognize -Djboss.server.config.dir
-      keytool -importkeystore -destkeystore $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_KEYSTORE \
+      keytool -importkeystore -destkeystore $RHSSO_DATA/configuration/$TLS_KEYSTORE \
           -srckeystore $RHSSO_SECRETS/$TLS_CRT -srcstoretype pkcs12 \
           -srcalias $TLS_CRT_NAME -destalias $TLS_KEYSTORE_ALIAS -noprompt \
           -srcstorepass $(cat ${RHSSO_SECRETS}/${TLS_CRT_PASSWORD}) \
           -deststorepass $TLS_KEYSTORE_PASSWORD
       # import CA root certificate
       keytool -import -trustcacerts -alias root -file $RHSSO_SECRETS/$TLS_CA_CRT \
-          -keystore $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_KEYSTORE -noprompt \
+          -keystore $RHSSO_DATA/configuration/$TLS_KEYSTORE -noprompt \
           -storepass $TLS_KEYSTORE_PASSWORD
       # create user file for https realm
-      touch $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_USERS
+      touch $RHSSO_DATA/configuration/$TLS_USERS
       # setup security module
       cp $CONTAINER_SCRIPTS_PATH/tls.cli /tmp/tls.cli
       VARS=( JBOSS_CONFIG TLS_REALM TLS_USERS TLS_KEYSTORE TLS_KEYSTORE_PASSWORD TLS_KEYSTORE_ALIAS )
@@ -149,11 +152,8 @@ if [ "$FIRST_RUN" = "true" ]; then
       do
         sed -i "s'@@${i}@@'${!i}'g" /tmp/tls.cli
       done
-      $RHSSO_HOME/$RHSSO_ROOT/bin/jboss-cli.sh --file=/tmp/tls.cli
-      # mv keystore, user properties file and server configuration file
-      cp $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$JBOSS_CONFIG $RHSSO_DATA/configuration/
-      mv $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_KEYSTORE $RHSSO_DATA/configuration/
-      mv $RHSSO_HOME/$RHSSO_ROOT/standalone/configuration/$TLS_USERS $RHSSO_DATA/configuration/
+      $RHSSO_HOME/$RHSSO_ROOT/bin/jboss-cli.sh -Djboss.server.config.dir=$RHSSO_DATA/configuration --file=/tmp/tls.cli
+
       # create admin user for https-realm
        createUser "admin" "admin" "$TLS_REALM" "" "$TLS_USERS"
     fi
@@ -176,21 +176,21 @@ then
     rm -rf $RHSSO_HOME/$RHSSO_ROOT/standalone/data $RHSSO_HOME/$RHSSO_ROOT/standalone/log $RHSSO_HOME/$RHSSO_ROOT/standalone/tmp
 fi
 
-# set up mysql module
-MYSQL_MODULE_DIR=$(echo $MYSQL_MODULE_NAME | sed 's@\.@/@g')
-MYSQL_MODULE=$RHSSO_HOME/$RHSSO_ROOT/modules/$MYSQL_MODULE_DIR/main
-if [ ! -d $MYSQL_MODULE ];
+# set up postgresql module
+POSTGRESQL_MODULE_DIR=$(echo $POSTGRESQL_MODULE_NAME | sed 's@\.@/@g')
+POSTGRESQL_MODULE=$RHSSO_HOME/$RHSSO_ROOT/modules/$POSTGRESQL_MODULE_DIR/main
+if [ ! -d $POSTGRESQL_MODULE ];
 then
-  echo "Setup mysql module"
-  mkdir -p $MYSQL_MODULE
-  cp -rp $CONTAINER_SCRIPTS_PATH/$DATABASE-module.xml $MYSQL_MODULE/module.xml
+  echo "Setup postgresql module"
+  mkdir -p $POSTGRESQL_MODULE
+  cp -rp $CONTAINER_SCRIPTS_PATH/$DATABASE-module.xml $POSTGRESQL_MODULE/module.xml
   #replace placeholders in module file
-  VARS=( MYSQL_MODULE_NAME MYSQL_DRIVER )
+  VARS=( POSTGRESQL_MODULE_NAME POSTGRESQL_DRIVER )
   for i in "${VARS[@]}"
   do
-    sed -i "s'@@${i}@@'${!i}'" $MYSQL_MODULE/module.xml
+    sed -i "s'@@${i}@@'${!i}'" $POSTGRESQL_MODULE/module.xml
   done
-  ln -s $MYSQL_DRIVER_PATH/$MYSQL_DRIVER $MYSQL_MODULE/$MYSQL_DRIVER
+  ln -s $POSTGRESQL_DRIVER_PATH/$POSTGRESQL_DRIVER $POSTGRESQL_MODULE/$POSTGRESQL_DRIVER
 fi
 
 # start-up properties
@@ -211,9 +211,9 @@ SERVER_OPTS="$SERVER_OPTS -Djboss.bind.address.insecure=$IPADDR"
 SERVER_OPTS="$SERVER_OPTS -Djboss.node.name=server-$IPADDR"
 SERVER_OPTS="$SERVER_OPTS -Djboss.server.config.dir=$RHSSO_DATA/configuration"
 SERVER_OPTS="$SERVER_OPTS -Djboss.server.deploy.dir=$RHSSO_DATA/content"
-SERVER_OPTS="$SERVER_OPTS -Dmysql.host.ip=$MYSQL_HOST_IP"
-SERVER_OPTS="$SERVER_OPTS -Dmysql.host.port=$MYSQL_HOST_PORT"
-SERVER_OPTS="$SERVER_OPTS -Dmysql.rhsso.schema=$MYSQL_RHSSO_SCHEMA"
+SERVER_OPTS="$SERVER_OPTS -Dpostgresql.host.ip=$POSTGRESQL_HOST_IP"
+SERVER_OPTS="$SERVER_OPTS -Dpostgresql.host.port=$POSTGRESQL_HOST_PORT"
+SERVER_OPTS="$SERVER_OPTS -Dpostgresql.rhsso.schema=$POSTGRESQL_RHSSO_SCHEMA"
 SERVER_OPTS="$SERVER_OPTS --server-config=$JBOSS_CONFIG"
 
 # Set debug settings
