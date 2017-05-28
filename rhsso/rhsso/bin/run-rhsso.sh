@@ -176,6 +176,11 @@ then
     rm -rf $RHSSO_HOME/$RHSSO_ROOT/standalone/data $RHSSO_HOME/$RHSSO_ROOT/standalone/log $RHSSO_HOME/$RHSSO_ROOT/standalone/tmp
 fi
 
+# append standalone.conf to bin/standalone.conf if needed
+if ! grep -q "### Dynamic Resources ###" "$RHSSO_HOME/$RHSSO_ROOT/bin/standalone.conf"; then
+  cat $CONTAINER_SCRIPTS_PATH/standalone.conf >> $RHSSO_HOME/$RHSSO_ROOT/bin/standalone.conf
+fi
+
 # set up postgresql module
 POSTGRESQL_MODULE_DIR=$(echo $POSTGRESQL_MODULE_NAME | sed 's@\.@/@g')
 POSTGRESQL_MODULE=$RHSSO_HOME/$RHSSO_ROOT/modules/$POSTGRESQL_MODULE_DIR/main
