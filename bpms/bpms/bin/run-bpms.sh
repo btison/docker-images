@@ -153,6 +153,9 @@ JBPMUI_EXT_DISABLED=${JBPMUI_EXT_DISABLED:-false}
 # KIE server bypass authenticated user
 KIE_SERVER_BYPASS_AUTH_USER=${KIE_SERVER_BYPASS_AUTH_USER:-true}
 
+# KIE Server filter classes
+KIE_SERVER_FILTER_CLASSES=${KIE_SERVER_FILTER_CLASSES:-false}
+
 # quartz is enabled by default
 QUARTZ=${QUARTZ:-true}
 
@@ -443,6 +446,7 @@ then
   BPMS_OPTS="$BPMS_OPTS -Dorg.jbpm.ui.server.ext.disabled=$JBPMUI_EXT_DISABLED"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.repo=$BPMS_DATA/configuration"
   BPMS_OPTS="$BPMS_OPTS -Dorg.kie.server.bypass.auth.user=$KIE_SERVER_BYPASS_AUTH_USER"
+  BPMS_OPTS="$BPMS_OPTS -Dorg.drools.server.filter.classes=$KIE_SERVER_FILTER_CLASSES"
 fi
 
 if [ "$KIE_SERVER_BYPASS_AUTH_USER" = "true" -a "$KIE_SERVER" = "true" ]
