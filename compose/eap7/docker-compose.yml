@@ -9,6 +9,9 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
       - eap:/opt/jboss/data
-    network_mode: "bridge"   
 volumes:
   eap:
+networks:
+  default:
+    external:
+      name: dockernet
