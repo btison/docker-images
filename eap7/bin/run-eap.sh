@@ -103,6 +103,11 @@ then
            $EAP_HOME/$EAP_ROOT/standalone/tmp
 fi
 
+# append standalone.conf to bin/standalone.conf if needed
+if ! grep -q "### Dynamic Resources ###" "$RHSSO_HOME/$RHSSO_ROOT/bin/standalone.conf"; then
+  cat $CONTAINER_SCRIPTS_PATH/standalone.conf >> $RHSSO_HOME/$RHSSO_ROOT/bin/standalone.conf
+fi
+
 SERVER_OPTS="$SERVER_OPTS -Djboss.bind.address=$IPADDR"
 SERVER_OPTS="$SERVER_OPTS -Djboss.bind.address.management=$IPADDR"
 SERVER_OPTS="$SERVER_OPTS -Djboss.bind.address.insecure=$IPADDR"
