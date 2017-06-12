@@ -31,6 +31,9 @@ services:
       - GOGS_ATTACHMENT__PATH=/app/gogs/data/attachments
       - GOGS_LOG__ROOT_PATH=/app/gogs/data/logs
       - GOGS_LOG__LEVEL=Error
-    network_mode: "bridge"
 volumes:
   gogs:
+networks:
+  default:
+    external:
+      name: dockernet
