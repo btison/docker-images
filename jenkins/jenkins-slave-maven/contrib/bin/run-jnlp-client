@@ -1,0 +1,90 @@
+#!/bin/bash
+#
+# This script will launch the JNLP remoting client that Jenkins master server
+# will use for the auto-discovery of this slave.
+#
+
+# The directory that Jenkins will execute the builds and store cache files.
+# The directory has to be writeable for the user that the container is running
+# under.
+
+#NOTE:  periodically check https://ce-gitlab.usersys.redhat.com/ce/jboss-dockerfiles/blob/develop/scripts/os-java-run/added/java-default-options for updates
+
+export JENKINS_HOME=/home/jenkins
+
+# Make sure the Java clients have valid $HOME directory set
+export HOME=${JENKINS_HOME}
+
+source /usr/local/bin/generate_container_user
+
+# Configure the slave image
+source /usr/local/bin/configure-slave
+
+set -e
+
+
+JAR="${JENKINS_HOME}/remoting.jar"
+PARAMS=""
+
+# if -url is not provided try env vars
+if [[ "$@" != *"-url "* ]]; then
+  if [ ! -z "$JENKINS_URL" ]; then
+    PARAMS="$PARAMS -url $JENKINS_URL"
+  elif [ ! -z "$JENKINS_SERVICE_HOST" ] && [ ! -z "$JENKINS_SERVICE_PORT" ]; then
+    PARAMS="$PARAMS -url http://$JENKINS_SERVICE_HOST:$JENKINS_SERVICE_PORT"
+  fi
+fi
+
+echo "Downloading ${JENKINS_URL}/jnlpJars/remoting.jar ..."
+curl -sS ${JENKINS_URL}/jnlpJars/remoting.jar -o ${JAR}
+
+# if -tunnel is not provided try env vars
+if [[ "$@" != *"-tunnel "* ]]; then
+  if [ ! -z "$JENKINS_TUNNEL" ]; then
+    PARAMS="$PARAMS -tunnel $JENKINS_TUNNEL"
+  elif [ ! -z "$JENKINS_SLAVE_SERVICE_HOST" ] && [ ! -z "$JENKINS_SLAVE_SERVICE_PORT" ]; then
+    PARAMS="$PARAMS -tunnel $JENKINS_SLAVE_SERVICE_HOST:$JENKINS_SLAVE_SERVICE_PORT"
+  fi
+fi
+
+JENKINS_AGENT_NAME=${JENKINS_AGENT_NAME:-maven}
+
+if [ -z "$JNLP_PROTOCOL_OPTS" ]; then
+  echo "Warning: JnlpProtocol3 is disabled by default, use JNLP_PROTOCOL_OPTS to alter the behavior"
+  JNLP_PROTOCOL_OPTS="-Dorg.jenkinsci.remoting.engine.JnlpProtocol3.disabled=true"
+fi
+
+CONTAINER_MEMORY_IN_BYTES=`cat /sys/fs/cgroup/memory/memory.limit_in_bytes`
+DEFAULT_MEMORY_CEILING=$((2**40-1))
+if [ "${CONTAINER_MEMORY_IN_BYTES}" -lt "${DEFAULT_MEMORY_CEILING}" ]; then
+  if [ -z $CONTAINER_HEAP_PERCENT ]; then
+    CONTAINER_HEAP_PERCENT=0.50
+  fi    
+  CONTAINER_MEMORY_IN_MB=$((${CONTAINER_MEMORY_IN_BYTES}/1024**2))
+  CONTAINER_HEAP_MAX=$(echo "${CONTAINER_MEMORY_IN_MB} ${CONTAINER_HEAP_PERCENT}" | awk '{ printf "%d", $1 * $2 }')      
+  JAVA_MAX_HEAP_PARAM="-Xmx${CONTAINER_HEAP_MAX}m"
+  if [-z $CONTAINER_INITIAL_PERCENT]; then
+    # jboss default was 100% or ms==mx
+    JAVA_INITIAL_HEAP_PARAM="-Xms${CONTAINER_HEAP_MAX}m"
+  else
+    CONTAINER_INITIAL_HEAP=$(echo "${CONTAINER_HEAP_MAX} ${CONTAINER_INITIAL_PERCENT}" | awk '{ printf "%d", $1 * $2 }')
+    JAVA_INITIAL_HEAP_PARAM="-Xms${CONTAINER_INITIAL_HEAP}m"
+  fi
+fi 
+
+if [ -z $JAVA_GC_OPTS ]; then
+  JAVA_GC_OPTS="-XX:+UseParallelGC -XX:MaxPermSize=100m -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=40 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:MaxMetaspaceSize=100m"
+fi
+
+
+if [ ! -z "${USE_JAVA_DIAGNOSTICS}" ]; then
+  JAVA_DIAGNOSTICS="-XX:NativeMemoryTracking=summary -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps -XX:+UnlockDiagnosticVMOptions"
+fi
+
+if [ ! -z "${CONTAINER_CORE_LIMIT}" ]; then
+  JAVA_CORE_LIMIT="-XX:ParallelGCThreads=${CONTAINER_CORE_LIMIT} -Djava.util.concurrent.ForkJoinPool.common.parallelism=${CONTAINER_CORE_LIMT} -XX:CICompilerCount=2"
+fi
+
+echo Running java $JAVA_GC_OPTS $JAVA_INITIAL_HEAP_PARAM $JAVA_MAX_HEAP_PARAM $JAVA_CORE_LIMIT $JAVA_DIAGNOSTICS $JAVA_OPTS $JNLP_PROTOCOL_OPTS -cp $JAR hudson.remoting.jnlp.Main -headless $PARAMS  $JENKINS_AGENT_NAME "$@"
+cd ${JENKINS_DIR} && exec java $JAVA_OPTS \
+  -cp $JAR hudson.remoting.jnlp.Main -headless $PARAMS $JENKINS_SECRET $JENKINS_AGENT_NAME "$@"
