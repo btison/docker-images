@@ -1,0 +1,16 @@
+version: '2'
+services:
+  jenkins:
+    image: jenkins
+    expose:
+      - "8080"
+      - "50000"
+    volumes:
+      - jenkins:/var/lib/jenkins
+      - /etc/localtime:/etc/localtime
+volumes:
+  jenkins:
+networks:
+  default:
+    external:
+      name: dockernet

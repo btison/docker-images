@@ -1,0 +1,8 @@
+version: '2'
+services:
+  jenkins-slave-maven:
+    image: jenkins-slave-maven
+networks:
+  default:
+    external:
+      name: dockernet
