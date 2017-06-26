@@ -20,6 +20,7 @@ if [ "${CONTAINER_MEMORY_IN_BYTES}" -lt "${DEFAULT_MEMORY_CEILING}" ]; then
     fi
     
     CONTAINER_MEMORY_IN_MB=$((${CONTAINER_MEMORY_IN_BYTES}/1024**2))
+    CONTAINER_HEAP_MAX=$(echo "${CONTAINER_MEMORY_IN_MB} ${CONTAINER_HEAP_PERCENT}" | awk '{ printf "%d", $1 * $2 }')
     
     JAVA_MAX_HEAP_PARAM="-Xmx${CONTAINER_HEAP_MAX}m"
     if [ -z $CONTAINER_INITIAL_PERCENT ]; then
@@ -152,6 +153,7 @@ fi
 
 # if `docker run` first argument start with `--` the user is passing jenkins launcher arguments
 if [[ $# -lt 1 ]] || [[ "$1" == "--"* ]]; then
+   echo "java $JAVA_GC_OPTS $JAVA_INITIAL_HEAP_PARAM $JAVA_MAX_HEAP_PARAM -Duser.home=${HOME} $JAVA_CORE_LIMIT $JAVA_DIAGNOSTICS $JAVA_OPTS -Dfile.encoding=UTF8 -jar /usr/lib/jenkins/jenkins.war $JENKINS_OPTS $JENKINS_ACCESSLOG $@"
    exec java $JAVA_GC_OPTS $JAVA_INITIAL_HEAP_PARAM $JAVA_MAX_HEAP_PARAM -Duser.home=${HOME} $JAVA_CORE_LIMIT $JAVA_DIAGNOSTICS $JAVA_OPTS -Dfile.encoding=UTF8 -jar /usr/lib/jenkins/jenkins.war $JENKINS_OPTS $JENKINS_ACCESSLOG "$@"
 fi
 

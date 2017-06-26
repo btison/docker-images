@@ -1,6 +1,9 @@
 FROM centos7/java8
 
-ENV HOME=/home/jenkins
+ENV HOME=/home/jenkins \
+    BASH_ENV=/usr/local/bin/scl_enable \
+    ENV=/usr/local/bin/scl_enable \
+    PROMPT_COMMAND=". /usr/local/bin/scl_enable"
 
 RUN yum install -y centos-release-scl-rh && \
     INSTALL_PKGS="bc gettext git lsof rsync tar unzip which zip rh-maven33*" && \
@@ -19,6 +22,8 @@ RUN useradd -r -d /home/jenkins -s /bin/bash -c "Jenkins user" jenkins && \
     chmod -R g+w $HOME && \
     chmod 775 /etc/passwd && \
     chmod +x /usr/local/bin/run-jnlp-client /usr/local/bin/generate_container_user /usr/local/bin/configure-slave /usr/local/bin/scl_enable 
+
+USER jenkins
 
 # Run the Jenkins JNLP client
 ENTRYPOINT ["/usr/local/bin/run-jnlp-client"]
