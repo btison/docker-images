@@ -26,7 +26,7 @@ services:
       - EXECUTOR_JMS=true
       - KIE_SERVER_CONTROLLER=false
       - BUSINESS_CENTRAL_DESIGN=true
-      - NEXUS_HOST=nexus-nexus-1.nexus.docker
+      - NEXUS_HOST=nexus_nexus_1.dockernet
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-wb:/opt/jboss/data
@@ -50,7 +50,7 @@ services:
       - KIE_SERVER_CONTROLLER_HOST=bpms-admin
       - EXECUTOR=true
       - EXECUTOR_JMS=true
-      - NEXUS_HOST=nexus-nexus-1.nexus.docker
+      - NEXUS_HOST=nexus_nexus_1.dockernet
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-kieserver:/opt/jboss/data
@@ -68,7 +68,7 @@ services:
       - EXECUTOR_JMS=false
       - KIE_SERVER_CONTROLLER=true
       - BUSINESS_CENTRAL_DESIGN=false
-      - NEXUS_HOST=nexus-nexus-1.nexus.docker
+      - NEXUS_HOST=nexus_nexus_1.dockernet
     volumes:
       - /etc/localtime:/etc/localtime
       - bpms-admin:/opt/jboss/data
