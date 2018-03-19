@@ -4,4 +4,5 @@ function execute_scripts() {
   psql -d ${database} < ${CONTAINER_SCRIPTS_PATH}/sql/postgresql-jbpm-schema.sql
   psql -d ${database} < ${CONTAINER_SCRIPTS_PATH}/sql/postgres-dashbuilder-schema.sql
   psql -d ${database} < ${CONTAINER_SCRIPTS_PATH}/sql/quartz_tables_postgres.sql
+  psql -d ${database} < ${CONTAINER_SCRIPTS_PATH}/sql/postgresql-jbpm-lo-trigger-clob.sql
 }

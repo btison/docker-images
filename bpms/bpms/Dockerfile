@@ -5,8 +5,8 @@ ENV BPMS_HOME=/opt/jboss \
     BPMS_ROOT_ORIG=jboss-eap-7.0 \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/bpms \
     BPMS_DATA=/opt/jboss/data \
-    EAP_DISTRO=jboss-eap-7.0.3-full-build.zip \
-    BPMS_DISTRO=jboss-bpmsuite-6.4.0.GA-redhat-2-deployable-eap7.x.zip
+    EAP_DISTRO=jboss-eap-7.0.9-full-build.zip \
+    BPMS_DISTRO=jboss-bpmsuite-6.4.7.GA-deployable-eap7.x.zip
 
 # Install unzip, mysql driver
 RUN yum -y install unzip postgresql-jdbc which && \
