@@ -130,6 +130,9 @@ GIT_REPO=$BPMS_DATA/bpms-repo
 DEBUG_MODE=${DEBUG_MODE:-false}
 DEBUG_PORT=${DEBUG_PORT:-8787}
 
+# MDB Pools
+MDB_MAX_POOL=${MDB_MAX_POOL:-16}
+
 # Executor
 EXECUTOR=${EXECUTOR:-true}
 EXECUTOR_JMS=${EXECUTOR_JMS:-true}
@@ -137,6 +140,8 @@ EXECUTOR_POOL_SIZE=${EXECUTOR_POOL_SIZE:-1}
 EXECUTOR_RETRY_COUNT=${EXECUTOR_RETRY_COUNT:-3}
 EXECUTOR_INTERVAL=${EXECUTOR_INTERVAL:-3}
 EXECUTOR_TIMEUNIT=${EXECUTOR_TIMEUNIT:-SECONDS}
+
+MDB_EXECUTOR_MAX_SESSION=${MDB_EXECUTOR_MAX_SESSION:-16}
 
 # Kie Server managed
 KIE_SERVER_MANAGED=${KIE_SERVER_MANAGED:-false}
@@ -199,7 +204,7 @@ if [ "$FIRST_RUN" = "true" ]; then
   echo "Copy $JBOSS_CONFIG"
   cp -p --remove-destination $CONTAINER_SCRIPTS_PATH/standalone.xml $BPMS_DATA/configuration/$JBOSS_CONFIG
   #replace placeholders
-  VARS=( BPMS_DATASOURCE )
+  VARS=( BPMS_DATASOURCE MDB_MAX_POOL )
   for i in "${VARS[@]}"
   do
     sed -i "s'@@${i}@@'${!i}'g" $BPMS_DATA/configuration/$JBOSS_CONFIG
@@ -419,6 +424,18 @@ BPMS_OPTS="$BPMS_OPTS -Dorg.kie.executor.retry.count=${EXECUTOR_RETRY_COUNT}"
 BPMS_OPTS="$BPMS_OPTS -Dorg.kie.executor.interval=${EXECUTOR_INTERVAL}"
 BPMS_OPTS="$BPMS_OPTS -Dorg.kie.executor.timeunit=${EXECUTOR_TIMEUNIT}"
 
+# Executor MDB settings
+if [ "$KIE_SERVER" = "true" ];
+then
+  cp -f $CONTAINER_SCRIPTS_PATH/ejb-jar.xml $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/
+  #replace placeholders
+  VARS=( MDB_EXECUTOR_MAX_SESSION )
+  for i in "${VARS[@]}"
+  do
+    sed -i "s'@@${i}@@'${!i}'g" $BPMS_HOME/$BPMS_ROOT/standalone/deployments/kie-server.war/WEB-INF/ejb-jar.xml
+  done
+fi
+
 # KIE-server in managed mode
 if [ "$KIE_SERVER_MANAGED" = "true" ] 
 then
@@ -507,6 +524,12 @@ SERVER_OPTS="$SERVER_OPTS -Dpgsql.bpms.schema=$PGSQL_BPMS_SCHEMA"
 SERVER_OPTS="$SERVER_OPTS -Dbpms.datasource.pool.min=$BPMS_DATASOURCE_POOL_MIN"
 SERVER_OPTS="$SERVER_OPTS -Dbpms.datasource.pool.max=$BPMS_DATASOURCE_POOL_MAX"
 SERVER_OPTS="$SERVER_OPTS --server-config=$JBOSS_CONFIG"
+
+# MDB pools
+if [ "$KIE_SERVER" = "true" ]
+then
+  SERVER_OPTS="$SERVER_OPTS -Dactivemq.artemis.client.global.thread.pool.max.size=$MDB_MAX_POOL"
+fi
 
 # start-up properties
 if [ -n "$STARTUP_PROPS" ]
