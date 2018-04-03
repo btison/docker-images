@@ -103,7 +103,7 @@ then
 fi
 
 FIRST_RUN=false
-CLEAN=false
+CLEAN=${CLEAN:-false}
 
 # Database
 DATABASE=postgresql
