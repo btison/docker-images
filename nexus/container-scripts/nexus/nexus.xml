@@ -228,12 +228,12 @@
           <memberRepository>snapshots</memberRepository>
           <memberRepository>thirdparty</memberRepository>
           <memberRepository>central</memberRepository>
-          <memberRepository>bpms-ea</memberRepository>
           <memberRepository>fuse-ea</memberRepository>
-          <memberRepository>jboss-enterprise</memberRepository>
           <memberRepository>jboss</memberRepository>
           <memberRepository>jboss-snapshots</memberRepository>
-          <memberRepository>jboss-earlyaccess</memberRepository>
+          <memberRepository>redhat-techpreview</memberRepository>
+          <memberRepository>redhat-earlyaccess</memberRepository>
+          <memberRepository>redhat-ga</memberRepository>
         </memberRepositories>
       </externalConfiguration>
     </repository>
@@ -286,7 +286,7 @@
         <provider>file</provider>
       </localStorage>
       <remoteStorage>
-        <url>http://repository.jboss.org/nexus/content/groups/public-jboss/</url>
+        <url>http://repository.jboss.org/nexus/content/groups/developer/</url>
       </remoteStorage>
       <externalConfiguration>
         <repositoryPolicy>SNAPSHOT</repositoryPolicy>
@@ -300,8 +300,8 @@
       </externalConfiguration>
     </repository>
     <repository>
-      <id>jboss-enterprise</id>
-      <name>JBoss Enterprise</name>
+      <id>redhat-techpreview</id>
+      <name>Red Hat Tech Preview</name>
       <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
       <providerHint>maven2</providerHint>
       <localStatus>IN_SERVICE</localStatus>
@@ -317,7 +317,7 @@
         <provider>file</provider>
       </localStorage>
       <remoteStorage>
-        <url>http://maven.repository.redhat.com/techpreview/all/</url>
+        <url>https://maven.repository.redhat.com/techpreview/all/</url>
       </remoteStorage>
       <externalConfiguration>
         <repositoryPolicy>RELEASE</repositoryPolicy>
@@ -362,8 +362,8 @@
       </externalConfiguration>
     </repository>
     <repository>
-      <id>bpms-ea</id>
-      <name>BPMS Early Access</name>
+      <id>redhat-earlyaccess</id>
+      <name>Red Hat Early Access</name>
       <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
       <providerHint>maven2</providerHint>
       <localStatus>IN_SERVICE</localStatus>
@@ -379,7 +379,7 @@
         <provider>file</provider>
       </localStorage>
       <remoteStorage>
-        <url>http://download.devel.redhat.com/brewroot/repos/jb-bxms-6.2-build/latest/maven/</url>
+        <url>https://maven.repository.redhat.com/earlyaccess/all/</url>
       </remoteStorage>
       <externalConfiguration>
         <repositoryPolicy>RELEASE</repositoryPolicy>
@@ -393,8 +393,8 @@
       </externalConfiguration>
     </repository>
     <repository>
-      <id>jboss-earlyaccess</id>
-      <name>JBoss Early Access</name>
+      <id>redhat-ga</id>
+      <name>Red Hat GA</name>
       <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
       <providerHint>maven2</providerHint>
       <localStatus>IN_SERVICE</localStatus>
@@ -410,7 +410,7 @@
         <provider>file</provider>
       </localStorage>
       <remoteStorage>
-        <url>http://maven.repository.redhat.com/earlyaccess/all/</url>
+        <url>https://maven.repository.redhat.com/ga/</url>
       </remoteStorage>
       <externalConfiguration>
         <repositoryPolicy>RELEASE</repositoryPolicy>
