@@ -1,0 +1,33 @@
+#!/bin/bash
+
+export ENABLE_REPLICATION=${ENABLE_REPLICATION:-false}
+
+set -eu
+export_vars=$(cgroup-limits) ; export $export_vars
+
+source "${CONTAINER_SCRIPTS_PATH}/common.sh"
+source "${CONTAINER_SCRIPTS_PATH}/bpms.sh"
+
+set_pgdata
+check_env_vars
+generate_passwd_file
+generate_postgresql_config
+
+PG_INITIALIZED=false
+
+if [ ! -f "$PGDATA/postgresql.conf" ]; then
+  initialize_database
+  PG_INITIALIZED=:
+fi
+
+pg_ctl -w start -o "-h ''"
+if $PG_INITIALIZED ; then
+  create_users
+  create_database
+fi
+set_passwords
+pg_ctl stop
+
+unset_env_vars
+echo "Starting server..."
+exec postgres "$@"

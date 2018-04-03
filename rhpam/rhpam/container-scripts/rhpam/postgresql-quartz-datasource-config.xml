@@ -1,0 +1,12 @@
+<datasource jta="false" jndi-name="java:jboss/datasources/@@QUARTZ_DATASOURCE@@" pool-name="@@QUARTZ_DATASOURCE@@" enabled="true">
+  <connection-url>jdbc:postgresql://${pgsql.host.ip}:${pgsql.host.port}/${pgsql.rhpam.schema}</connection-url>
+  <driver>pgsql</driver>
+  <security>
+    <user-name>jboss</user-name>
+    <password>jboss</password>
+  </security>
+  <validation>
+    <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"/>
+    <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"/>
+  </validation>
+</datasource>

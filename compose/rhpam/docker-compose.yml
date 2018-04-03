@@ -1,0 +1,87 @@
+version: '2'
+services:
+  postgresql:
+    image: rhpam-postgresql
+    volumes:
+      - postgresql:/var/lib/pgsql
+      - /etc/localtime:/etc/localtime
+    expose:
+      - "5432"
+    environment:
+      - POSTGRESQL_USER=jboss
+      - POSTGRESQL_PASSWORD=jboss
+      - POSTGRESQL_DATABASE=rhpamwb,rhpamkieserver
+      - POSTGRESQL_EXTENSION=
+  rhpam-wb:
+    image: rhpam
+    expose:
+      - "8080"
+    environment:
+      - PGSQL_RHPAM_SCHEMA=rhpamwb
+      - QUARTZ=true
+      - KIE_SERVER=true
+      - BUSINESS_CENTRAL=true
+      - EXECUTOR=true
+      - EXECUTOR_JMS=true
+      - KIE_SERVER_CONTROLLER=true
+      - BUSINESS_CENTRAL_DESIGN=true
+      - RHPAM_EXT_DISABLED=false
+      - RHDM_EXT_DISABLED=false
+      - BRP_EXT_DISABLED=false
+      - JBPMUI_EXT_DISABLED=false
+      - KIE_SERVER_BYPASS_AUTH_USER=false
+      - KIE_SERVER_ID=local
+      - KIE_SERVER_MANAGED=true
+      - KIE_SERVER_CONTROLLER_HOST=local
+      - NEXUS_HOST=nexus_nexus_1.dockernet
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - rhpam-wb:/opt/jboss/data
+  rhpam-kieserver:
+    image: rhpam
+    expose:
+      - "8080"
+    environment:
+      - PGSQL_RHPAM_SCHEMA=rhpamkieserver
+      - QUARTZ=true
+      - KIE_SERVER=true
+      - BUSINESS_CENTRAL=false
+      - RHPAM_EXT_DISABLED=false
+      - RHDM_EXT_DISABLED=false
+      - BRP_EXT_DISABLED=false
+      - JBPMUI_EXT_DISABLED=false
+      - KIE_SERVER_BYPASS_AUTH_USER=true
+      - KIE_SERVER_ID=1
+      - KIE_SERVER_MANAGED=true
+      - KIE_SERVER_CONTROLLER_HOST=rhba-admin
+      - EXECUTOR=true
+      - EXECUTOR_JMS=true
+      - NEXUS_HOST=nexus_nexus_1.dockernet
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - rhpam-kieserver:/opt/jboss/data
+  rhpam-admin:
+    image: rhpam
+    expose:
+      - "8080"
+    environment:
+      - QUARTZ=false
+      - KIE_SERVER=false
+      - BUSINESS_CENTRAL=true
+      - EXECUTOR=false
+      - EXECUTOR_JMS=false
+      - KIE_SERVER_CONTROLLER=true
+      - BUSINESS_CENTRAL_DESIGN=false
+      - NEXUS_HOST=nexus_nexus_1.dockernet
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - rhpam-admin:/opt/jboss/data
+volumes:
+  postgresql:
+  rhpam-wb:
+  rhpam-admin:
+  rhpam-kieserver:
+networks:
+  default:
+    external:
+      name: dockernet

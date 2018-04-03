@@ -1,0 +1,16 @@
+<datasource jndi-name="java:jboss/datasources/@@RHPAM_DATASOURCE@@" pool-name="@@RHPAM_DATASOURCE@@" enabled="true">
+  <connection-url>jdbc:postgresql://${pgsql.host.ip}:${pgsql.host.port}/${pgsql.rhpam.schema}</connection-url>
+  <driver>pgsql</driver>
+  <pool>
+    <min-pool-size>${rhpam.datasource.pool.min}</min-pool-size>
+    <max-pool-size>${rhpam.datasource.pool.max}</max-pool-size>
+  </pool>
+  <security>
+    <user-name>jboss</user-name>
+    <password>jboss</password>
+  </security>
+  <validation>
+    <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker"/>
+    <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter"/>
+  </validation>
+</datasource>
