@@ -1,0 +1,92 @@
+version: '2'
+services:
+  rhdm-dc:
+    image: rhdm
+    mem_limit: 3gb
+    expose:
+      - "8080"
+    environment:
+      - KIE_SERVER=false
+      - DECISION_CENTRAL=true
+      - KIE_SERVER_CONTROLLER=true
+      - DECISION_CENTRAL_DESIGN=true
+      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
+      - NEXUS_HOST=nexus
+      - GC_MAX_METASPACE_SIZE=500
+      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_INITIAL_MEM_RATIO=0
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - rhdm-dc:/opt/jboss/data
+  rhdm-dc-kieserver:
+    image: rhdm
+    mem_limit: 2gb
+    expose:
+      - "8080"
+    environment:
+      - KIE_SERVER=true
+      - DECISION_CENTRAL=false
+      - RHDM_EXT_DISABLED=false
+      - BRP_EXT_DISABLED=false
+      - KIE_SERVER_ID=dev
+      - KIE_SERVER_MANAGED=true
+      - KIE_SERVER_CONTROLLER_HOST=rhdm-dc
+      - MAVEN_REPO_HOST=rhdm-dc
+      - NEXUS_HOST=nexus
+      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_INITIAL_MEM_RATIO=0
+      - CLEAN=true
+      - DEBUG=true
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - rhdm-dc-kieserver:/opt/jboss/data
+  rhdm-kieserver:
+    image: rhdm
+    mem_limit: 2gb
+    expose:
+      - "8080"
+    environment:
+      - KIE_SERVER=true
+      - DECISION_CENTRAL=false
+      - RHDM_EXT_DISABLED=false
+      - BRP_EXT_DISABLED=false
+      - KIE_SERVER_ID=1
+      - KIE_SERVER_MANAGED=true
+      - KIE_SERVER_CONTROLLER_HOST=rhdm-admin
+      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
+      - NEXUS_HOST=nexus
+      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_INITIAL_MEM_RATIO=0
+      - CLEAN=true
+      - DEBUG=true
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - rhdm-kieserver:/opt/jboss/data
+  rhdm-admin:
+    image: rhdm
+    mem_limit: 3gb
+    expose:
+      - "8080"
+    environment:
+      - DECISION_CENTRAL=true
+      - KIE_SERVER_CONTROLLER=true
+      - DECISION_CENTRAL_DESIGN=false
+      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
+      - NEXUS_HOST=nexus
+      - GC_MAX_METASPACE_SIZE=500
+      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_INITIAL_MEM_RATIO=0
+      - CLEAN=true
+      - DEBUG=true
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - rhdm-admin:/opt/jboss/data
+volumes:
+  rhdm-dc:
+  rhdm-admin:
+  rhdm-kieserver:
+  rhdm-dc-kieserver:
+networks:
+  default:
+    external:
+      name: dockernet
