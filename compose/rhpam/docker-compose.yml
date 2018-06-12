@@ -10,35 +10,30 @@ services:
     environment:
       - POSTGRESQL_USER=jboss
       - POSTGRESQL_PASSWORD=jboss
-      - POSTGRESQL_DATABASE=rhpamwb,rhpamkieserver
+      - POSTGRESQL_DATABASE=rhpamkieserver
       - POSTGRESQL_EXTENSION=
-  rhpam-wb:
+  rhpam-bc:
     image: rhpam
+    mem_limit: 3gb
     expose:
       - "8080"
     environment:
-      - PGSQL_RHPAM_SCHEMA=rhpamwb
-      - QUARTZ=true
-      - KIE_SERVER=true
+      - KIE_SERVER=false
       - BUSINESS_CENTRAL=true
-      - EXECUTOR=true
-      - EXECUTOR_JMS=true
-      - KIE_SERVER_CONTROLLER=true
       - BUSINESS_CENTRAL_DESIGN=true
-      - RHPAM_EXT_DISABLED=false
-      - RHDM_EXT_DISABLED=false
-      - BRP_EXT_DISABLED=false
-      - JBPMUI_EXT_DISABLED=false
-      - KIE_SERVER_BYPASS_AUTH_USER=false
-      - KIE_SERVER_ID=local
-      - KIE_SERVER_MANAGED=true
-      - KIE_SERVER_CONTROLLER_HOST=local
-      - NEXUS_HOST=nexus_nexus_1.dockernet
+      - KIE_SERVER_CONTROLLER=false
+      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
+      - NEXUS_HOST=nexus
+      - GC_MAX_METASPACE_SIZE=500
+      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_INITIAL_MEM_RATIO=0
+      - CLEAN=true
     volumes:
       - /etc/localtime:/etc/localtime
-      - rhpam-wb:/opt/jboss/data
+      - rhpam-bc:/opt/jboss/data
   rhpam-kieserver:
     image: rhpam
+    mem_limit: 2gb
     expose:
       - "8080"
     environment:
@@ -50,35 +45,47 @@ services:
       - RHDM_EXT_DISABLED=false
       - BRP_EXT_DISABLED=false
       - JBPMUI_EXT_DISABLED=false
-      - KIE_SERVER_BYPASS_AUTH_USER=true
+      - RHPAM_CASE_EXT_DISABLED=false
+      - KIE_SERVER_BYPASS_AUTH_USER=false
       - KIE_SERVER_ID=1
       - KIE_SERVER_MANAGED=true
-      - KIE_SERVER_CONTROLLER_HOST=rhba-admin
+      - KIE_SERVER_CONTROLLER_HOST=rhpam-admin
+      - KIE_SERVER_CONTROLLER_TYPE=controller
       - EXECUTOR=true
       - EXECUTOR_JMS=true
-      - NEXUS_HOST=nexus_nexus_1.dockernet
+      - EXECUTOR_POOL_SIZE=1
+      - EXECUTOR_RETRY_INTERVAL=3
+      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
+      - NEXUS_HOST=nexus
+      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_INITIAL_MEM_RATIO=0
+      - CLEAN=true
+      - DEBUG=true
     volumes:
       - /etc/localtime:/etc/localtime
       - rhpam-kieserver:/opt/jboss/data
   rhpam-admin:
     image: rhpam
+    mem_limit: 3gb
     expose:
       - "8080"
     environment:
-      - QUARTZ=false
-      - KIE_SERVER=false
-      - BUSINESS_CENTRAL=true
-      - EXECUTOR=false
-      - EXECUTOR_JMS=false
-      - KIE_SERVER_CONTROLLER=true
+      - BUSINESS_CENTRAL=false
       - BUSINESS_CENTRAL_DESIGN=false
-      - NEXUS_HOST=nexus_nexus_1.dockernet
+      - KIE_SERVER_CONTROLLER=true
+      - KIE_SERVER=false
+      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
+      - NEXUS_HOST=nexus
+      - GC_MAX_METASPACE_SIZE=500
+      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_INITIAL_MEM_RATIO=0
+      - CLEAN=true
     volumes:
       - /etc/localtime:/etc/localtime
       - rhpam-admin:/opt/jboss/data
 volumes:
   postgresql:
-  rhpam-wb:
+  rhpam-bc:
   rhpam-admin:
   rhpam-kieserver:
 networks:

@@ -445,4 +445,3 @@ CREATE TRIGGER deploymentstore_deploymentunit_clob_after_delete_trigger
   FOR EACH ROW
   WHEN (old.deploymentunit IS NOT NULL)
   EXECUTE PROCEDURE deploymentstore_deploymentunit_clob_after_delete();
-

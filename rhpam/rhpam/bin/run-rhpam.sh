@@ -33,57 +33,17 @@ function createUser() {
 # Dump environment
 function dumpEnv() {
   echo "FIRST_RUN: ${FIRST_RUN}"
-  echo "IPADDR: ${IPADDR}"
-  echo "PGSQL_HOST_IP: ${PGSQL_HOST_IP}"
-  echo "NEXUS_IP: ${NEXUS_IP}"
-  echo "BUSINESS_CENTRAL: ${BUSINESS_CENTRAL}"
-  echo "BUSINESS_CENTRAL_DESIGN: ${BUSINESS_CENTRAL_DESIGN}"
-  echo "KIE_SERVER: ${KIE_SERVER}"
-  echo "PGSQL_RHPAM_SCHEMA: ${PGSQL_RHPAM_SCHEMA}"
-  echo "JBOSS_CONFIG: ${JBOSS_CONFIG}"
-  echo "QUARTZ: ${QUARTZ}"
-  echo "MAVEN_SETTINGS: ${MAVEN_SETTINGS}"
-  echo "DEBUG_MODE: ${DEBUG_MODE}"
-  echo "DEBUG_PORT: ${DEBUG_PORT}"
-  echo "EXECUTOR: ${EXECUTOR}"
-  echo "EXECUTOR_JMS: ${EXECUTOR_JMS}"
-  echo "EXECUTOR_POOL_SIZE: ${EXECUTOR_POOL_SIZE}"
-  echo "EXECUTOR_RETRY_COUNT: ${EXECUTOR_RETRY_COUNT}"
-  echo "EXECUTOR_INTERVAL: ${EXECUTOR_INTERVAL}"
-  echo "EXECUTOR_TIMEUNIT: ${EXECUTOR_TIMEUNIT}"
-  echo "RHPAM_DATASOURCE_POOL_MIN: ${RHPAM_DATASOURCE_POOL_MIN}"
-  echo "RHPAM_DATASOURCE_POOL_MAX: ${RHPAM_DATASOURCE_POOL_MAX}"
-  if [ "${KIE_SERVER}" = "true" ];then
-    echo "KIE_SERVER_ID: ${KIE_SERVER_ID}"
-    echo "KIE_SERVER_MANAGED: ${KIE_SERVER_MANAGED}"
-    echo "RHPAM_EXT_DISABLED: ${RHPAM_EXT_DISABLED}"
-    echo "RHDM_EXT_DISABLED: ${RHDM_EXT_DISABLED}"
-    echo "BRP_EXT_DISABLED: ${BRP_EXT_DISABLED}"
-    echo "JBPMUI_EXT_DISABLED: ${JBPMUI_EXT_DISABLED}"
-    echo "KIE_SERVER_BYPASS_AUTH_USER: ${KIE_SERVER_BYPASS_AUTH_USER}"
-  fi
-  if [ -n "$KIE_SERVER_CONTROLLER_HOST" ];then
-    echo "KIE_SERVER_CONTROLLER_IP: ${KIE_SERVER_CONTROLLER_IP}"
-  fi
-  if [ "$BUSINESS_CENTRAL" = "true" ];then
-    echo "KIE_SERVER_CONTROLLER: ${KIE_SERVER_CONTROLLER}"
-    echo "MAVEN_REPO: ${MAVEN_REPO}"
-    echo "GIT_REPO: ${GIT_REPO}"
-  fi
+  echo $RHPAM_OPTS
+  echo SERVER_OPTS
 }
 
 IPADDR=$(ip a s | sed -ne '/127.0.0.1/!{s/^[ \t]*inet[ \t]*\([0-9.]\+\)\/.*$/\1/p}')
+
 PGSQL_HOST_IP=$(ping -q -c 1 -t 1 postgresql | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
 PGSQL_HOST_PORT=5432
-NEXUS_IP=$(ping -q -c 1 -t 1 ${NEXUS_HOST} | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
+
 NEXUS_PORT=8080
-NEXUS_URL=$NEXUS_IP:$NEXUS_PORT
-if [ -n "$KIE_SERVER_CONTROLLER_HOST" -a "$KIE_SERVER_CONTROLLER_HOST" = "local" ]; then
-  KIE_SERVER_CONTROLLER_IP=$IPADDR
-elif [ -n "$KIE_SERVER_CONTROLLER_HOST" ]; then
-  echo "ping for kie server controller"
-  KIE_SERVER_CONTROLLER_IP=$(ping -q -c 1 -t 1 ${KIE_SERVER_CONTROLLER_HOST} | grep -m 1 PING | cut -d "(" -f2 | cut -d ")" -f1)
-fi
+NEXUS_URL=$NEXUS_HOST:$NEXUS_PORT
 
 FIRST_RUN=false
 CLEAN=${CLEAN:-false}
@@ -102,16 +62,15 @@ QUARTZ_DATASOURCE=quartzDS
 # Standalone config file
 JBOSS_CONFIG=standalone-docker.xml
 
-# Maven settings
-MAVEN_REPO=$RHPAM_DATA/m2/repository
-MAVEN_SETTINGS=$RHPAM_DATA/configuration/settings.xml
-
 # Git repo settings
 GIT_REPO=$RHPAM_DATA/rhpam-repo
 
 # debug options
 DEBUG_MODE=${DEBUG_MODE:-false}
 DEBUG_PORT=${DEBUG_PORT:-8787}
+
+# Kie Examples
+KIE_EXAMPLE=${KIE_EXAMPLE:-false}
 
 # MDB Pools
 MDB_MAX_POOL=${MDB_MAX_POOL:-16}
@@ -126,20 +85,173 @@ EXECUTOR_TIMEUNIT=${EXECUTOR_TIMEUNIT:-SECONDS}
 
 MDB_EXECUTOR_MAX_SESSION=${MDB_EXECUTOR_MAX_SESSION:-16}
 
-# Kie Examples
-KIE_EXAMPLE=${KIE_EXAMPLE:-false}
-
 # Kie Server managed
 KIE_SERVER_MANAGED=${KIE_SERVER_MANAGED:-false}
 
 # KIE Controller
 KIE_SERVER_CONTROLLER=${KIE_SERVER_CONTROLLER:-false}
 
+# KIE admin user
+KIE_ADMIN_USER=${KIE_ADMIN_USER:-admin1}
+KIE_ADMIN_PWD=${KIE_ADMIN_PWD:-admin}
+KIE_ADMIN_ROLES=${KIE_ADMIN_ROLES:-"admin,user,kie-server,kiemgmt,rest-all"}
+
+# KIE Server User
+KIE_SERVER_USER=${KIE_SERVER_USER:-kieserver}
+KIE_SERVER_PWD=${KIE_SERVER_PWD:-kieserver1!}
+KIE_SERVER_ROLES=${KIE_SERVER_ROLES:-"kie-server,rest-all"}
+
+# Maven settings
+MAVEN_REPO=$RHPAM_DATA/m2/repository
+MAVEN_SETTINGS=$RHPAM_DATA/configuration/settings.xml
+MAVEN_REPO_LAYOUT=${MAVEN_REPO_LAYOUT:-default}
+MAVEN_REPO_RELEASES_ENABLED=${MAVEN_REPO_RELEASES_ENABLED:-true}
+MAVEN_REPO_RELEASES_UPDATE_POLICY=${MAVEN_REPO_RELEASES_UPDATE_POLICY:-always}
+MAVEN_REPO_SNAPSHOTS_ENABLED=${MAVEN_REPO_SNAPSHOTS_ENABLED:-true}
+MAVEN_REPO_SNAPSHOTS_UPDATE_POLICY=${MAVEN_REPO_SNAPSHOTS_UPDATE_POLICY:-always}
+MAVEN_REPO_USER_NAME=${MAVEN_REPO_USER_NAME:-$KIE_ADMIN_USER}
+MAVEN_REPO_PASSWORD=${MAVEN_REPO_PASSWORD:-$KIE_ADMIN_PWD}
+MAVEN_REPO_PROTOCOL=${MAVEN_REPO_PROTOCOL:-http}
+MAVEN_REPO_PORT=${MAVEN_REPO_PORT:-8080}
+MAVEN_REPO_PATH=${MAVEN_REPO_PATH:-"maven2/"}
+MAVEN_MIRROR_ID=${MAVEN_MIRROR_ID:-nexus}
+MAVEN_MIRROR_OF=${MAVEN_MIRROR_OF:-"external:*"}
+
+function add_maven_repo() {
+
+  local settings=$1
+  local repo_id=$2
+  local url=$3
+
+  local layout=${MAVEN_REPO_LAYOUT}
+  local releases_enabled=${MAVEN_REPO_RELEASES_ENABLED}
+  local releases_update_policy=${MAVEN_REPO_RELEASES_UPDATE_POLICY}
+  local snapshots_enabled=${MAVEN_REPO_SNAPSHOTS_ENABLED}
+  local snapshots_update_policy=${MAVEN_REPO_SNAPSHOTS_UPDATE_POLICY}
+
+  # configure the repository in a profile
+  local profile_id="${repo_id}-profile"
+  local xml="\n\
+  <profile>\n\
+    <id>${profile_id}</id>\n\
+    <repositories>\n\
+      <repository>\n\
+        <id>${repo_id}</id>\n\
+        <url>${url}</url>\n\
+        <layout>${layout}</layout>\n\
+        <releases>\n\
+          <enabled>${releases_enabled}</enabled>\n\
+          <updatePolicy>${releases_update_policy}</updatePolicy>\n\
+        </releases>\n\
+        <snapshots>\n\
+          <enabled>${snapshots_enabled}</enabled>\n\
+          <updatePolicy>${snapshots_update_policy}</updatePolicy>\n\
+        </snapshots>\n\
+      </repository>\n\
+    </repositories>\n\
+  </profile>\n\
+  <!-- ### configured profiles ### -->"
+  sed -i "s|<!-- ### configured profiles ### -->|${xml}|" "${settings}"
+
+  # activate the configured profile
+  xml="\n\
+  <activeProfile>${profile_id}</activeProfile>\n\
+  <!-- ### active profiles ### -->"
+  sed -i "s|<!-- ### active profiles ### -->|${xml}|" "${settings}"
+}
+
+function add_maven_server() {
+    local settings=$1
+    local server_id=$2
+
+    local username=$MAVEN_REPO_USER_NAME
+    local password=$MAVEN_REPO_PASSWORD
+
+    local do_rewrite="false"
+    local xml="\n\
+    <server>\n\
+      <id>${server_id}</id>"
+    if [ "${username}" != "" -a "${password}" != "" ]; then
+        xml="${xml}\n\
+      <username>${username}</username>\n\
+      <password><![CDATA[${password}]]></password>"
+        do_rewrite="true"
+    fi
+    xml="${xml}\n\
+    </server>\n\
+    <!-- ### configured servers ### -->"
+    sed -i "s|<!-- ### configured servers ### -->|${xml}|" "${settings}"
+}
+
+function configure_mirror() {
+  local settings="${1}"
+  local mirror_id="${2}"
+  local mirror_url="${3}"
+  local mirror_of="${4}"
+
+  local xml="<mirror>\n\
+      <id>${mirror_id}</id>\n\
+      <url>${mirror_url}</url>\n\
+      <mirrorOf>${mirror_of}</mirrorOf>\n\
+    </mirror>\n\
+    <!-- ### configured mirrors ### -->"
+
+  sed -i "s|<!-- ### configured mirrors ### -->|$xml|" "${settings}"
+}
+
+# KIE Controller
+if [ -n "$KIE_SERVER_CONTROLLER_HOST" -a "$KIE_SERVER_CONTROLLER_HOST" = "local" ]; then
+  KIE_SERVER_CONTROLLER_IP=$IPADDR
+elif [ -n "$KIE_SERVER_CONTROLLER_HOST" ]; then
+  KIE_SERVER_CONTROLLER_IP=${KIE_SERVER_CONTROLLER_HOST}
+fi
+# http or ws
+KIE_SERVER_CONTROLLER_PROTOCOL=${KIE_SERVER_CONTROLLER_PROTOCOL:-ws}
+KIE_SERVER_CONTROLLER_PORT=${KIE_SERVER_CONTROLLER_PORT:-8080}
+
+KIE_SERVER_CONTROLLER=${KIE_SERVER_CONTROLLER:-false}
+KIE_SERVER_CONTROLLER_USER=${KIE_SERVER_CONTROLLER_USER:-controllerUser}
+KIE_SERVER_CONTROLLER_PWD=${KIE_SERVER_CONTROLLER_PWD:-controller1!}
+KIE_SERVER_CONTROLLER_ROLES=${KIE_SERVER_CONTROLLER_ROLES:-"kie-server,rest-all,guest"}
+
+function configure_controller_access {
+  # host
+  local kieServerControllerHost="${KIE_SERVER_CONTROLLER_IP}"
+  # port
+  local kieServerControllerPort="${KIE_SERVER_CONTROLLER_PORT}"
+  # protocol
+  local kieServerControllerProtocol=${KIE_SERVER_CONTROLLER_PROTOCOL}
+  # path
+  local kieServerControllerPath
+  if [ "$KIE_SERVER_CONTROLLER_TYPE" = "bc" ]; then
+    kieServerControllerPath="business-central/rest/controller"
+  else
+    kieServerControllerPath="controller/rest/controller"
+  fi  
+  if [ "${kieServerControllerProtocol}" = "ws" ]; then
+    kieServerControllerPath=${kieServerControllerPath/rest/websocket}
+  fi
+  # url
+  local kieServerControllerUrl="${kieServerControllerProtocol}://${kieServerControllerHost}:${kieServerControllerPort}/${kieServerControllerPath}"
+  
+  # KIE-server in managed mode
+  if [ "$KIE_SERVER_MANAGED" = "true" ] 
+  then
+    RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.controller=${kieServerControllerUrl}"
+    RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.controller.user=${KIE_SERVER_CONTROLLER_USER}"
+    RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.controller.pwd=${KIE_SERVER_CONTROLLER_PWD}"
+  fi
+}
+
+# KIE Server sync deploy
+KIE_SERVER_SYNC_DEPLOY=${KIE_SERVER_SYNC_DEPLOY:=true}
+
 # KIE server extensions
 RHPAM_EXT_DISABLED=${RHPAM_EXT_DISABLED:-false}
 RHDM_EXT_DISABLED=${RHDM_EXT_DISABLED:-false}
 BRP_EXT_DISABLED=${BRP_EXT_DISABLED:-false}
 JBPMUI_EXT_DISABLED=${JBPMUI_EXT_DISABLED:-false}
+RHPAM_CASE_EXT_DISABLED=${RHPAM_CASE_EXT_DISABLED:-false}
 
 # KIE server bypass authenticated user
 KIE_SERVER_BYPASS_AUTH_USER=${KIE_SERVER_BYPASS_AUTH_USER:-true}
@@ -162,11 +274,6 @@ fi
 if [ ! -d "$RHPAM_DATA/configuration" ]; then 
   FIRST_RUN=true
   echo "First run"
-fi
-
-# Set debug settings if not already set
-if [ "$DEBUG_MODE" = "true" ]; then
-    SERVER_OPTS="$SERVER_OPTS --debug ${DEBUG_PORT}"
 fi
 
 # start options
@@ -195,8 +302,9 @@ if [ "$FIRST_RUN" = "true" ]; then
   do
     sed -i "s'@@${i}@@'${!i}'g" $RHPAM_DATA/configuration/$JBOSS_CONFIG
   done
-  # remove kie login-module for kie-server
-  if [ "$KIE_SERVER" = "true" -a ! "$BUSINESS_CENTRAL" = "true" ]; then
+  
+  # remove kie login-module for kie-server and headless controller
+  if [ ! "$BUSINESS_CENTRAL" = "true" ]; then
     echo "Remove KIE login module"
     sed -i "/^.*org\.kie\.security\.jaas\.KieLoginModule.*$/d" $RHPAM_DATA/configuration/$JBOSS_CONFIG
   fi
@@ -210,13 +318,17 @@ if [ "$FIRST_RUN" = "true" ]; then
     sed -i "s'@@${i}@@'${!i}'" $MAVEN_SETTINGS
   done
 
-  # Remove kie sample project
-  echo "Remove org.kie.example"
-  if [ ! "$KIE_EXAMPLE" = "true" ];
+  if [[ ! -z ${MAVEN_REPO_HOST} ]];
   then
-    sed -i 's/property name="org.kie.example" value="true"/property name="org.kie.example" value="false"/' $RHPAM_DATA/configuration/$JBOSS_CONFIG
+    repo_url="${MAVEN_REPO_PROTOCOL}://${MAVEN_REPO_HOST}:${MAVEN_REPO_PORT}/${MAVEN_REPO_PATH}"
+    add_maven_repo "${MAVEN_SETTINGS}" "${MAVEN_REPO_HOST}" "${repo_url}"
+    add_maven_server "${MAVEN_SETTINGS}" "${MAVEN_REPO_HOST}"
   fi
 
+  if [ -n "${MAVEN_MIRROR_URL}" ];
+  then
+    configure_mirror "${MAVEN_SETTINGS}" "${MAVEN_MIRROR_ID}" "${MAVEN_MIRROR_URL}" "${MAVEN_MIRROR_OF}"
+  fi
 
   # Quartz Properties
   echo "Copy quartz properties file"
@@ -274,17 +386,18 @@ if [ "$FIRST_RUN" = "true" ]; then
   createUser "admin" "admin"
 
   # create application users
-  createUser "admin1" "admin" "admin,user,kie-server,kiemgmt,rest-all"
-  createUser "busadmin" "busamin" "Administrators,analyst,user,rest-all,kie-server"
+  createUser $KIE_ADMIN_USER $KIE_ADMIN_PWD $KIE_ADMIN_ROLES
+  createUser "busadmin" "busadmin" "Administrators,analyst,user,rest-all,kie-server"
   createUser "user1" "user" "user,kie-server"
-  createUser "kieserver" "kieserver1!" "kie-server"
+  createUser $KIE_SERVER_USER $KIE_SERVER_PWD $KIE_SERVER_ROLES
+  createUser $KIE_SERVER_CONTROLLER_USER $KIE_SERVER_CONTROLLER_PWD $KIE_SERVER_CONTROLLER_ROLES 
   
   # create additional users
   for i in $(compgen -A variable | grep "^RHPAM_USER_");
   do
-    IFS=':' read -a bpmsUserArray <<< "${!i}"
-    echo "Create user ${bpmsUserArray[0]}"
-    createUser ${bpmsUserArray[0]} ${bpmsUserArray[1]} ${bpmsUserArray[2]} 
+    IFS=':' read -a rhpamUserArray <<< "${!i}"
+    echo "Create user ${rhpamUserArray[0]}"
+    createUser ${rhpamUserArray[0]} ${rhpamUserArray[1]} ${rhpamUserArray[2]} 
   done
 
   # userinfo properties placeholder file
@@ -324,24 +437,29 @@ then
 fi
 
 # remove unwanted deployments
-if [ ! "$BUSINESS_CENTRAL" = "true" ];
+if [ "$BUSINESS_CENTRAL" = "true" ];
 then
-  rm -f $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/business-central.war.*
-else
   rm -f $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/business-central.war.*
   touch $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/business-central.war.dodeploy
+else
+  rm -f $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/business-central.war.*
 fi
 
-if [ ! "$KIE_SERVER" = "true" ];
+if [ "$KIE_SERVER" = "true" ];
 then
   rm -f $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/kie-server.war.*
+  touch $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/kie-server.war.dodeploy
 else
   rm -f $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/kie-server.war.*
-  touch $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/kie-server.war.dodeploy
 fi
 
-# setup nexus in maven settings file
-sed -r -i "s'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{1,5}'$NEXUS_URL'g" $MAVEN_SETTINGS
+if [ "$KIE_SERVER_CONTROLLER" = "true" -a ! "$BUSINESS_CENTRAL" = "true" ];
+then
+  rm -f $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/controller.war.*
+  touch $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/controller.war.dodeploy
+else
+  rm -f $RHPAM_HOME/$RHPAM_ROOT/standalone/deployments/controller.war.*
+fi
 
 # add additional libraries to business-central or kie-server deployment
 for i in $(compgen -A variable | grep "^RHPAM_LIB_");
@@ -389,16 +507,14 @@ fi
 # KIE-server in managed mode
 if [ "$KIE_SERVER_MANAGED" = "true" ] 
 then
-  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.controller=http://${KIE_SERVER_CONTROLLER_IP}:8080/business-central/rest/controller"
-  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.controller.user=kieserver"
-  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.controller.pwd=kieserver1!"
+  configure_controller_access
 fi
 
 # Business Central as KIE controller
-if [ "$KIE_SERVER_CONTROLLER" = "true" -a "$BUSINESS_CENTRAL" = "true" ]
+if [ "$KIE_SERVER_CONTROLLER" = "true" -a ! "$KIE_SERVER" = "true" ]
 then
-  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.user=kieserver"
-  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.pwd=kieserver1!"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.user=${KIE_SERVER_USER}"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.pwd=${KIE_SERVER_PWD}"
 fi
 
 if [ "$KIE_SERVER" = "true" ]
@@ -410,10 +526,12 @@ then
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.jbpm.server.ext.disabled=$RHPAM_EXT_DISABLED"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.drools.server.ext.disabled=$RHDM_EXT_DISABLED"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.optaplanner.server.ext.disabled=$BRP_EXT_DISABLED"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.jbpm.case.server.ext.disabled=$RHPAM_CASE_EXT_DISABLED"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.jbpm.ui.server.ext.disabled=$JBPMUI_EXT_DISABLED"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.repo=$RHPAM_DATA/configuration"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.bypass.auth.user=$KIE_SERVER_BYPASS_AUTH_USER"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.drools.server.filter.classes=$KIE_SERVER_FILTER_CLASSES"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.server.sync.deploy=$KIE_SERVER_SYNC_DEPLOY"
 fi
 
 if [ "$KIE_SERVER_BYPASS_AUTH_USER" = "true" -a "$KIE_SERVER" = "true" ]
@@ -433,9 +551,10 @@ fi
 if [ "$BUSINESS_CENTRAL_DESIGN" = "true" -a "$BUSINESS_CENTRAL" = "true" ]
 then
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.ssh.enabled=true"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.ssh.algorithm=RSA"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.ssh.host=$IPADDR"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.daemon.enabled=true"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.daemon.host=$IPADDR"
-  RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.ssh.host=$IPADDR"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.ext.security.management.api.userManagementServices=WildflyCLIUserManagementService"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.host=$IPADDR"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.port=9990"
@@ -447,10 +566,13 @@ fi
 
 if [ "$BUSINESS_CENTRAL" = "true" ]
 then
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.jbpm.designer.perspective=full -Ddesignerdataobjects=false"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.guvnor.m2repo.dir=$MAVEN_REPO"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.dir=$GIT_REPO"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.ssh.cert.dir=$GIT_REPO"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.metadata.index.dir=$GIT_REPO"
   RHPAM_OPTS="$RHPAM_OPTS -Ddatasource.management.wildfly.host=$IPADDR"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.kie.demo=$KIE_EXAMPLE -Dorg.kie.example=$KIE_EXAMPLE"
 fi
 
 # maven settings

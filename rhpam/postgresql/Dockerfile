@@ -3,7 +3,7 @@ FROM centos7/base
 # Based on Openshift image for PostgreSQL 6.4
 # https://github.com/sclorg/postgresql-container
 
-ENV POSTGRESQL_VERSION=9.5 \
+ENV POSTGRESQL_VERSION=9.6 \
     HOME=/var/lib/pgsql \
     PGUSER=postgres
 
@@ -15,7 +15,7 @@ ADD root /
 # safe in the future. This should *never* change, the last test is there
 # to make sure of that.
 RUN yum install -y centos-release-scl && \
-    INSTALL_PKGS="rsync tar gettext bind-utils nss_wrapper rh-postgresql95 rh-postgresql95-postgresql-contrib" && \
+    INSTALL_PKGS="rsync tar gettext bind-utils nss_wrapper rh-postgresql96 rh-postgresql96-postgresql-contrib" && \
     yum -y --setopt=tsflags=nodocs install $INSTALL_PKGS && \
     rpm -V $INSTALL_PKGS && \
     yum clean all && \
@@ -27,7 +27,7 @@ RUN yum install -y centos-release-scl && \
 
 # Get prefix path and path to scripts rather than hard-code them in scripts
 ENV CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/postgresql \
-    ENABLED_COLLECTIONS=rh-postgresql95
+    ENABLED_COLLECTIONS=rh-postgresql96
 
 # When bash is started non-interactively, to run a shell script, for example it
 # looks for this variable and source the content of this file. This will enable
