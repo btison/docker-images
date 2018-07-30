@@ -83,7 +83,7 @@ MAVEN_REPO_USER_NAME=${MAVEN_REPO_USER_NAME:-$KIE_ADMIN_USER}
 MAVEN_REPO_PASSWORD=${MAVEN_REPO_PASSWORD:-$KIE_ADMIN_PWD}
 MAVEN_REPO_PROTOCOL=${MAVEN_REPO_PROTOCOL:-http}
 MAVEN_REPO_PORT=${MAVEN_REPO_PORT:-8080}
-MAVEN_REPO_PATH=${MAVEN_REPO_PATH:-"maven2/"}
+MAVEN_REPO_PATH=${MAVEN_REPO_PATH:-"decision-central/maven2/"}
 MAVEN_MIRROR_ID=${MAVEN_MIRROR_ID:-nexus}
 MAVEN_MIRROR_OF=${MAVEN_MIRROR_OF:-"external:*"}
 
@@ -194,7 +194,7 @@ function configure_controller_access {
   # path
   local kieServerControllerPath="decision-central/rest/controller"
   if [ "${kieServerControllerProtocol}" = "ws" ]; then
-    kieServerControllerPath="websocket/controller"
+    kieServerControllerPath="decision-central/websocket/controller"
   fi
   # url
   local kieServerControllerUrl="${kieServerControllerProtocol}://${kieServerControllerHost}:${kieServerControllerPort}/${kieServerControllerPath}"
