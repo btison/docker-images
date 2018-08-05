@@ -92,13 +92,13 @@ KIE_SERVER_MANAGED=${KIE_SERVER_MANAGED:-false}
 KIE_SERVER_CONTROLLER=${KIE_SERVER_CONTROLLER:-false}
 
 # KIE admin user
-KIE_ADMIN_USER=${KIE_ADMIN_USER:-admin1}
-KIE_ADMIN_PWD=${KIE_ADMIN_PWD:-admin}
+KIE_ADMIN_USER=${KIE_ADMIN_USER:-adminUser}
+KIE_ADMIN_PWD=${KIE_ADMIN_PWD:-admin1!}
 KIE_ADMIN_ROLES=${KIE_ADMIN_ROLES:-"admin,user,kie-server,kiemgmt,rest-all"}
 
 # KIE Server User
-KIE_SERVER_USER=${KIE_SERVER_USER:-kieserver}
-KIE_SERVER_PWD=${KIE_SERVER_PWD:-kieserver1!}
+KIE_SERVER_USER=${KIE_SERVER_USER:-executionUser}
+KIE_SERVER_PWD=${KIE_SERVER_PWD:-execution1!}
 KIE_SERVER_ROLES=${KIE_SERVER_ROLES:-"kie-server,rest-all"}
 
 # Maven settings
