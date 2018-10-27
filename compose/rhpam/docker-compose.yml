@@ -12,6 +12,7 @@ services:
       - POSTGRESQL_PASSWORD=jboss
       - POSTGRESQL_DATABASE=rhpamkieserver
       - POSTGRESQL_EXTENSION=
+      - POSTGRESQL_MAX_PREPARED_TRANSACTIONS=100
   rhpam-bc:
     image: rhpam
     mem_limit: 3gb
