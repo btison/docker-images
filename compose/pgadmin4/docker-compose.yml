@@ -1,9 +1,9 @@
 version: '2'
 services:
   pgadmin4:
-    image: dpage/pgadmin4
+    image: crunchydata/crunchy-pgadmin4:centos7-9.6.8-1.8.2
     expose:
-      - "80"
+      - "5050"
     volumes:
       - /etc/localtime:/etc/localtime
 networks:
