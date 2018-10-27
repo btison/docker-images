@@ -13,6 +13,9 @@ services:
       - POSTGRESQL_SHARED_BUFFERS=32MB
       - POSTGRESQL_EFFECTIVE_CACHE_SIZE=128MB
       - ENABLE_REPLICATION=false
-    network_mode: "bridge"
 volumes:
   postgresql:
+networks:
+  default:
+    external:
+      name: dockernet
