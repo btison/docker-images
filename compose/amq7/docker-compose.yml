@@ -1,0 +1,20 @@
+version: '2'
+services:
+  amq:
+    image: amq7
+    mem_limit: 2gb
+    expose:
+      - "8161"
+      - "5672"
+      - "1883"
+      - "61613"
+      - "61616"
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - amq:/opt/amq/data
+volumes:
+  amq:
+networks:
+  default:
+    external:
+      name: dockernet
