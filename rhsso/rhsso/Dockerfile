@@ -2,10 +2,10 @@ FROM centos7/java8
 
 ENV RHSSO_HOME=/opt/jboss \
     RHSSO_ROOT=rhsso \
-    RHSSO_ROOT_ORIG=rh-sso-7.1 \
+    RHSSO_ROOT_ORIG=rh-sso-7.2 \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/rhsso \
     RHSSO_DATA=/opt/jboss/data \
-    RHSSO_DISTRO=rh-sso-7.1.0.zip \
+    RHSSO_DISTRO=rh-sso-7.2.0.zip \
     RHSSO_IMPORT=/opt/jboss/import \
     RHSSO_SECRETS=/opt/secrets
 
