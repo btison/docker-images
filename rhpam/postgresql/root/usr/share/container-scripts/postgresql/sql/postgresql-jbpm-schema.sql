@@ -834,7 +834,7 @@
     create index IDX_CMI_Owner ON ContextMappingInfo(OWNER_ID);
     
     create index IDX_RequestInfo_status ON RequestInfo(status);
-    create index IDX_RequestInfo_timestamp ON RequestInfo(timestamp);
+    create index IDX_RequestInfo_timestamp ON RequestInfo(timestamp); -- remove this index on PostgreSQLPlus as it does not allow timestamp in column list 
     create index IDX_RequestInfo_owner ON RequestInfo(owner);
     
     create index IDX_BAMTaskSumm_createdDate on BAMTaskSummary(createdDate);
@@ -872,3 +872,10 @@
 
     create index IDX_ErrorInfo_pInstId on ExecutionErrorInfo(PROCESS_INST_ID);
     create index IDX_ErrorInfo_errorAck on ExecutionErrorInfo(ERROR_ACK);
+
+    create index IDX_AuditTaskImpl_taskId on AuditTaskImpl(taskId);
+    create index IDX_AuditTaskImpl_pInstId on AuditTaskImpl(processInstanceId);
+    create index IDX_AuditTaskImpl_workItemId on AuditTaskImpl(workItemId);
+    create index IDX_AuditTaskImpl_name on AuditTaskImpl(name);
+    create index IDX_AuditTaskImpl_processId on AuditTaskImpl(processId);
+    create index IDX_AuditTaskImpl_status on AuditTaskImpl(status);
