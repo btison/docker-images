@@ -102,32 +102,88 @@ KIE_SERVER_PWD=${KIE_SERVER_PWD:-execution1!}
 KIE_SERVER_ROLES=${KIE_SERVER_ROLES:-"kie-server,rest-all"}
 
 # Maven settings
-MAVEN_REPO=$RHPAM_DATA/m2/repository
+MAVEN_LOCAL_REPO=$RHPAM_DATA/m2/repository
 MAVEN_SETTINGS=$RHPAM_DATA/configuration/settings.xml
-MAVEN_REPO_LAYOUT=${MAVEN_REPO_LAYOUT:-default}
-MAVEN_REPO_RELEASES_ENABLED=${MAVEN_REPO_RELEASES_ENABLED:-true}
-MAVEN_REPO_RELEASES_UPDATE_POLICY=${MAVEN_REPO_RELEASES_UPDATE_POLICY:-always}
-MAVEN_REPO_SNAPSHOTS_ENABLED=${MAVEN_REPO_SNAPSHOTS_ENABLED:-true}
-MAVEN_REPO_SNAPSHOTS_UPDATE_POLICY=${MAVEN_REPO_SNAPSHOTS_UPDATE_POLICY:-always}
-MAVEN_REPO_USER_NAME=${MAVEN_REPO_USER_NAME:-$KIE_ADMIN_USER}
-MAVEN_REPO_PASSWORD=${MAVEN_REPO_PASSWORD:-$KIE_ADMIN_PWD}
-MAVEN_REPO_PROTOCOL=${MAVEN_REPO_PROTOCOL:-http}
-MAVEN_REPO_PORT=${MAVEN_REPO_PORT:-8080}
-MAVEN_REPO_PATH=${MAVEN_REPO_PATH:-"business-central/maven2/"}
 MAVEN_MIRROR_ID=${MAVEN_MIRROR_ID:-nexus}
 MAVEN_MIRROR_OF=${MAVEN_MIRROR_OF:-"external:*"}
+
+function configure_maven_repo() {
+    local settings=$1
+    local repo_url=$2
+    local repo_id=$3
+    if [[ -z $4 ]]; then
+      local prefix="MAVEN"
+    else
+      local prefix="${4}_MAVEN"
+    fi
+
+    if [[ -z ${repo_url} ]]; then
+        local repo_service=$(_find_prefixed_env "${prefix}" "REPO_SERVICE")
+        # host
+        local repo_host=$(_find_prefixed_env "${prefix}" "REPO_HOST")
+        if [[ -z ${repo_host} ]]; then
+            repo_host=$(_find_prefixed_env "${repo_service}" "SERVICE_HOST")
+        fi
+        if [[ ! -z ${repo_host} ]]; then
+            # protocol
+            local repo_protocol=$(_find_prefixed_env "${prefix}" "REPO_PROTOCOL" "http")
+            # port
+            local repo_port=$(_find_prefixed_env "${prefix}" "REPO_PORT")
+            if [ "${repo_port}" = "" ]; then
+                repo_port=$(_find_prefixed_env "${repo_service}" "SERVICE_PORT" "8080")
+            fi
+            local repo_path=$(_find_prefixed_env "${prefix}" "REPO_PATH")
+            # strip leading slash if exists
+            if [[ "${repo_path}" =~ ^/ ]]; then
+                repo_path="${repo_path:1:${#repo_path}}"
+            fi
+            # url
+            repo_url="${repo_protocol}://${repo_host}:${repo_port}/${repo_path}"
+        fi
+    fi
+    if [[ ! -z ${repo_url} ]]; then
+        add_maven_repo "${settings}" "${repo_id}" "${repo_url}" "${prefix}_MAVEN"
+        add_maven_server "${settings}" "${repo_id}" "${prefix}"
+    else
+        log_warning "Variable \"${prefix}_REPO_URL\" not set. Skipping maven repo setup for the prefix \"${prefix}\"."
+    fi
+}
+
+function configure_maven_repos() {
+    local settings="${MAVEN_SETTINGS}"
+    local local_repo_path="${MAVEN_LOCAL_REPO}"
+    if [ "${local_repo_path}" != "" ]; then
+        set_local_repo_path "${settings}" "${local_repo_path}"
+    fi
+
+    local single_repo_url="${MAVEN_REPO_URL}"
+    if [ -n "$single_repo_url" ]; then
+      local single_repo_id=$(_find_env "MAVEN_REPO_ID" "repo-$(generate_random_id)")
+      configure_maven_repo $settings "$single_repo_url" "$single_repo_id"
+    fi
+
+    local multi_repo_counter=1
+    IFS=',' read -a multi_repo_prefixes <<< ${MAVEN_REPOS}
+    for multi_repo_prefix in ${multi_repo_prefixes[@]}; do
+        local multi_repo_url=$(_find_prefixed_env "${multi_repo_prefix}" "MAVEN_REPO_URL")
+        local multi_repo_id=$(_find_prefixed_env "${multi_repo_prefix}" "MAVEN_REPO_ID" "repo${multi_repo_counter}-$(generate_random_id)")
+        configure_maven_repo $settings "$multi_repo_url" "$multi_repo_id" $multi_repo_prefix
+        multi_repo_counter=$((multi_repo_counter+1))
+    done
+}
 
 function add_maven_repo() {
 
   local settings=$1
   local repo_id=$2
   local url=$3
+  local prefix=$4
 
-  local layout=${MAVEN_REPO_LAYOUT}
-  local releases_enabled=${MAVEN_REPO_RELEASES_ENABLED}
-  local releases_update_policy=${MAVEN_REPO_RELEASES_UPDATE_POLICY}
-  local snapshots_enabled=${MAVEN_REPO_SNAPSHOTS_ENABLED}
-  local snapshots_update_policy=${MAVEN_REPO_SNAPSHOTS_UPDATE_POLICY}
+  local layout=$(_find_prefixed_env "${prefix}" "REPO_LAYOUT" "default")
+  local releases_enabled=$(_find_prefixed_env "${prefix}" "REPO_RELEASES_ENABLED" true)
+  local releases_update_policy=$(_find_prefixed_env "${prefix}" "REPO_RELEASES_UPDATE_POLICY" "always")
+  local snapshots_enabled=$(_find_prefixed_env "${prefix}" "REPO_SNAPSHOTS_ENABLED" true)
+  local snapshots_update_policy=$(_find_prefixed_env "${prefix}" "REPO_SNAPSHOTS_UPDATE_POLICY" "always")
 
   # configure the repository in a profile
   local profile_id="${repo_id}-profile"
@@ -163,14 +219,23 @@ function add_maven_repo() {
 function add_maven_server() {
     local settings=$1
     local server_id=$2
+    local prefix=$3
 
-    local username=$MAVEN_REPO_USER_NAME
-    local password=$MAVEN_REPO_PASSWORD
+    local username=$(_find_prefixed_env "$prefix" REPO_USERNAME)
+    local password=$(_find_prefixed_env "$prefix" "REPO_PASSWORD")
+    local private_key=$(_find_prefixed_env "$prefix" "REPO_PRIVATE_KEY")
+    local passphrase=$(_find_prefixed_env "$prefix" "REPO_PASSPHRASE")
 
     local do_rewrite="false"
     local xml="\n\
     <server>\n\
       <id>${server_id}</id>"
+    if [ "${private_key}" != "" -a "${passphrase}" != "" ]; then
+        xml="${xml}\n\
+      <privateKey>${private_key}</privateKey>\n\
+      <passphrase><![CDATA[${passphrase}]]></passphrase>"
+        do_rewrite="true"
+    fi
     if [ "${username}" != "" -a "${password}" != "" ]; then
         xml="${xml}\n\
       <username>${username}</username>\n\
@@ -181,6 +246,7 @@ function add_maven_server() {
     </server>\n\
     <!-- ### configured servers ### -->"
     sed -i "s|<!-- ### configured servers ### -->|${xml}|" "${settings}"
+
 }
 
 function configure_mirror() {
@@ -197,6 +263,37 @@ function configure_mirror() {
     <!-- ### configured mirrors ### -->"
 
   sed -i "s|<!-- ### configured mirrors ### -->|$xml|" "${settings}"
+}
+
+function _find_prefixed_env() {
+  local prefix=$1
+
+  if [[ -z $prefix ]]; then
+    _find_env $2 $3
+  else
+    prefix=${prefix^^} # uppercase
+    prefix=${prefix//-/_} #replace - by _
+
+    local var_name=$prefix"_"$2
+    echo ${!var_name:-$3}
+  fi
+}
+
+function _find_env() {
+  var=${!1}
+  echo "${var:-$2}"
+}
+
+function generate_random_id() {
+    cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1
+}
+
+function set_local_repo_path() {
+    local settings="${1}"
+    local local_path="${2}"
+    local xml="\n\
+    <localRepository>${local_path}</localRepository>"
+    sed -i "s|<!-- ### configured local repository ### -->|${xml}|" "${settings}"
 }
 
 # KIE Controller
@@ -314,26 +411,10 @@ if [ "$FIRST_RUN" = "true" ]; then
     sed -i "/^.*org\.kie\.security\.jaas\.KieLoginModule.*$/d" $RHPAM_DATA/configuration/$JBOSS_CONFIG
   fi
 
-  # Setup maven repo
-  echo "Setup local maven repo with Nexus"
+  # Setup maven
+  echo "Setup maven"
   cp $CONTAINER_SCRIPTS_PATH/maven-settings.xml $MAVEN_SETTINGS
-  VARS=( MAVEN_REPO )
-  for i in "${VARS[@]}"
-  do
-    sed -i "s'@@${i}@@'${!i}'" $MAVEN_SETTINGS
-  done
-
-  if [[ ! -z ${MAVEN_REPO_HOST} ]];
-  then
-    repo_url="${MAVEN_REPO_PROTOCOL}://${MAVEN_REPO_HOST}:${MAVEN_REPO_PORT}/${MAVEN_REPO_PATH}"
-    add_maven_repo "${MAVEN_SETTINGS}" "${MAVEN_REPO_HOST}" "${repo_url}"
-    add_maven_server "${MAVEN_SETTINGS}" "${MAVEN_REPO_HOST}"
-  fi
-
-  if [ -n "${MAVEN_MIRROR_URL}" ];
-  then
-    configure_mirror "${MAVEN_SETTINGS}" "${MAVEN_MIRROR_ID}" "${MAVEN_MIRROR_URL}" "${MAVEN_MIRROR_OF}"
-  fi
+  configure_maven_repos
 
   # Quartz Properties
   echo "Copy quartz properties file"
@@ -564,6 +645,7 @@ then
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.ext.security.management.api.userManagementServices=WildflyCLIUserManagementService"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.host=$IPADDR"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.ext.security.management.wildfly.cli.port=9990"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.appformer.m2repo.url=http://$IPADDR:8080/business-central/maven2"
 elif [ "$BUSINESS_CENTRAL" = "true" ]
 then
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.ssh.enabled=false"
@@ -573,7 +655,7 @@ fi
 if [ "$BUSINESS_CENTRAL" = "true" ]
 then
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.jbpm.designer.perspective=full -Ddesignerdataobjects=false"
-  RHPAM_OPTS="$RHPAM_OPTS -Dorg.guvnor.m2repo.dir=$MAVEN_REPO"
+  RHPAM_OPTS="$RHPAM_OPTS -Dorg.guvnor.m2repo.dir=$MAVEN_LOCAL_REPO"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.dir=$GIT_REPO"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.nio.git.ssh.cert.dir=$GIT_REPO"
   RHPAM_OPTS="$RHPAM_OPTS -Dorg.uberfire.metadata.index.dir=$GIT_REPO"

@@ -1,5 +1,5 @@
 <settings>
-  <localRepository>@@MAVEN_REPO@@</localRepository>
+  <!-- ### configured local repository ### -->
   <offline>false</offline>
   <servers>
     <!-- ### configured servers ### -->
@@ -265,7 +265,7 @@
 
   </profiles>
   <activeProfiles>
-    <activeProfile>securecentral</activeProfile>
+    <!-- <activeProfile>securecentral</activeProfile> -->
     <!-- ### active profiles ### -->
   </activeProfiles>  
 </settings>

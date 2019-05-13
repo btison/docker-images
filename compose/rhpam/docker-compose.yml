@@ -23,10 +23,12 @@ services:
       - BUSINESS_CENTRAL=true
       - BUSINESS_CENTRAL_DESIGN=true
       - KIE_SERVER_CONTROLLER=false
-      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
-      - NEXUS_HOST=nexus
+      - MAVEN_REPOS=EXTERNAL
+      - EXTERNAL_MAVEN_REPO_HOST=nexus
+      - EXTERNAL_MAVEN_REPO_PORT=8080
+      - EXTERNAL_MAVEN_REPO_PATH=nexus/content/groups/public
       - GC_MAX_METASPACE_SIZE=500
-      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_MAX_MEM_RATIO=60
       - JAVA_INITIAL_MEM_RATIO=0
       - CLEAN=true
     volumes:
@@ -34,7 +36,7 @@ services:
       - rhpam-bc:/opt/jboss/data
   rhpam-kieserver:
     image: rhpam
-    mem_limit: 2gb
+    mem_limit: 3gb
     expose:
       - "8080"
     environment:
@@ -56,9 +58,14 @@ services:
       - EXECUTOR_JMS=true
       - EXECUTOR_POOL_SIZE=1
       - EXECUTOR_RETRY_INTERVAL=3
-      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
-      - NEXUS_HOST=nexus
-      - JAVA_MAX_MEM_RATIO=80
+      - MAVEN_REPOS=RHPAMBC,EXTERNAL
+      - EXTERNAL_MAVEN_REPO_HOST=nexus
+      - EXTERNAL_MAVEN_REPO_PORT=8080
+      - EXTERNAL_MAVEN_REPO_PATH=nexus/content/groups/public
+      - RHPAMBC_MAVEN_REPO_HOST=rhpam-bc
+      - RHPAMBC_MAVEN_REPO_PORT=8080
+      - RHPAMBC_MAVEN_REPO_PATH=business-central/maven2/
+      - JAVA_MAX_MEM_RATIO=60
       - JAVA_INITIAL_MEM_RATIO=0
       - CLEAN=true
       - DEBUG=true
@@ -75,10 +82,12 @@ services:
       - BUSINESS_CENTRAL_DESIGN=false
       - KIE_SERVER_CONTROLLER=true
       - KIE_SERVER=false
-      - MAVEN_MIRROR_URL=http://nexus:8080/nexus/content/groups/public
-      - NEXUS_HOST=nexus
+      - MAVEN_REPOS=EXTERNAL
+      - EXTERNAL_MAVEN_REPO_HOST=nexus
+      - EXTERNAL_MAVEN_REPO_PORT=8080
+      - EXTERNAL_MAVEN_REPO_PATH=nexus/content/groups/public
       - GC_MAX_METASPACE_SIZE=500
-      - JAVA_MAX_MEM_RATIO=80
+      - JAVA_MAX_MEM_RATIO=60
       - JAVA_INITIAL_MEM_RATIO=0
       - CLEAN=true
     volumes:

@@ -6,13 +6,13 @@ RUN yum -y install unzip postgresql-jdbc which && \
 
 ENV RHPAM_HOME=/opt/jboss \
     RHPAM_ROOT=rhpam \
-    RHPAM_ROOT_ORIG=jboss-eap-7.1 \
+    RHPAM_ROOT_ORIG=jboss-eap-7.2 \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/rhpam \
     RHPAM_DATA=/opt/jboss/data \
-    EAP_DISTRO=jboss-eap-7.1.4-full-build.zip \
-    RHPAM_BC_DISTRO=rhpam-7.1.0-business-central-eap7-deployable.zip \
-    RHPAM_KIESERVER_DISTRO=rhpam-7.1.0-kie-server-ee7.zip \
-    RHPAM_CONTROLLER_DISTRO=rhpam-7.0-controller-ee7.zip
+    EAP_DISTRO=jboss-eap-7.2.0.zip \
+    RHPAM_BC_DISTRO=rhpam-7.3.0-business-central-eap7-deployable.zip \
+    RHPAM_KIESERVER_DISTRO=rhpam-7.3.0-kie-server-ee8.zip \
+    RHPAM_CONTROLLER_DISTRO=rhpam-7.3-controller-ee7.zip
 
 # Copy files
 COPY bin /usr/bin/
