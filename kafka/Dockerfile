@@ -4,7 +4,7 @@ ENV KAFKA_HOME=/opt/kafka \
     KAFKA_ROOT=kafka-broker \
     KAFKA_LOG=/opt/kafka/kafka-log \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/kafka \
-    KAFKA_VERSION=0.10.1.1
+    KAFKA_VERSION=2.12-2.1.1
 
 # Install packages
 RUN yum -y install tar which && \
@@ -13,7 +13,7 @@ RUN yum -y install tar which && \
 # Copy files
 COPY bin /usr/bin/
 COPY container-scripts /usr/share/container-scripts/
-COPY resources/kafka_2.11-$KAFKA_VERSION.tgz /tmp/resources/kafka.tgz
+COPY resources/kafka_$KAFKA_VERSION.tgz /tmp/resources/kafka.tgz
 
 # Create user kafka
 RUN groupadd -r kafka -g 400 && \
@@ -31,6 +31,6 @@ USER kafka
 
 # Install Kafka
 RUN tar -zxf /tmp/resources/kafka.tgz -C $KAFKA_HOME && \
-    mv $KAFKA_HOME/kafka_2.11-$KAFKA_VERSION $KAFKA_HOME/$KAFKA_ROOT
+    mv $KAFKA_HOME/kafka_$KAFKA_VERSION $KAFKA_HOME/$KAFKA_ROOT
 
 CMD ["/usr/bin/run-kafka.sh"]
