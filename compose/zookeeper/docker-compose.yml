@@ -1,0 +1,46 @@
+version: '2'
+services:
+  zk1:
+    image: zk
+    mem_limit: 256M    
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - zk1-data:/opt/zookeeper/zk-data
+      - zk1-log:/opt/zookeeper/zk-log
+    environment:
+      - ZK_ID=1
+      - ZK_SERVER_2=2:zk_zk1_1.dockernet:2888:3888
+      - ZK_SERVER_3=3:zk_zk3_1.dockernet:2888:3888
+  zk2:
+    image: zk
+    mem_limit: 256M
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - zk2-data:/opt/zookeeper/zk-data
+      - zk2-log:/opt/zookeeper/zk-log
+    environment:
+      - ZK_ID=2
+      - ZK_SERVER_1=1:zk_zk2_1.dockernet:2888:3888
+      - ZK_SERVER_3=3:zk_zk3_1.dockernet:2888:3888
+  zk3:
+    image: zk
+    mem_limit: 256M  
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - zk3-data:/opt/zookeeper/zk-data
+      - zk3-log:/opt/zookeeper/zk-log
+    environment:
+      - ZK_ID=3
+      - ZK_SERVER_1=1:zk_zk1_1.dockernet:2888:3888
+      - ZK_SERVER_2=2:zk_zk2_1.dockernet:2888:3888
+volumes:
+  zk1-data:
+  zk1-log:
+  zk2-data:
+  zk2-log:
+  zk3-data:
+  zk3-log:
+networks:
+  default:
+    external:
+      name: dockernet

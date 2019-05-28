@@ -1,0 +1,40 @@
+version: '2'
+services:
+  kafka1:
+    image: kafka
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - kafka1-log:/opt/kafka/kafka-log
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZK_1=zk_zk1_1.dockernet:2181
+      - KAFKA_ZK_2=zk_zk2_1.dockernet:2181
+      - KAFKA_ZK_3=zk_zk3_1.dockernet:2181
+  kafka2:
+    image: kafka
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - kafka2-log:/opt/kafka/kafka-log
+    environment:
+      - KAFKA_BROKER_ID=2
+      - KAFKA_ZK_1=zk_zk1_1.dockernet:2181
+      - KAFKA_ZK_2=zk_zk2_1.dockernet:2181
+      - KAFKA_ZK_3=zk_zk3_1.dockernet:2181
+  kafka3:
+    image: kafka
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - kafka3-log:/opt/kafka/kafka-log
+    environment:
+      - KAFKA_BROKER_ID=3
+      - KAFKA_ZK_1=zk_zk1_1.dockernet:2181
+      - KAFKA_ZK_2=zk_zk2_1.dockernet:2181
+      - KAFKA_ZK_3=zk_zk3_1.dockernet:2181
+volumes:
+  kafka1-log:
+  kafka2-log:
+  kafka3-log:
+networks:
+  default:
+    external:
+      name: dockernet
