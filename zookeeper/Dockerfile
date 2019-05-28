@@ -5,7 +5,7 @@ ENV ZK_HOME=/opt/zookeeper \
     ZK_DATA=/opt/zookeeper/zk-data \
     ZK_LOG=/opt/zookeeper/zk-log \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/zookeeper \
-    ZK_VERSION=3.4.9
+    ZK_VERSION=3.4.14
 
 # Install packages
 RUN yum -y install tar which && \
