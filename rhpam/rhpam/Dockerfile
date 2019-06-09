@@ -10,8 +10,8 @@ ENV RHPAM_HOME=/opt/jboss \
     CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/rhpam \
     RHPAM_DATA=/opt/jboss/data \
     EAP_DISTRO=jboss-eap-7.2.0.zip \
-    RHPAM_BC_DISTRO=rhpam-7.3.0-business-central-eap7-deployable.zip \
-    RHPAM_KIESERVER_DISTRO=rhpam-7.3.0-kie-server-ee8.zip \
+    RHPAM_BC_DISTRO=rhpam-7.3.1-business-central-eap7-deployable.zip \
+    RHPAM_KIESERVER_DISTRO=rhpam-7.3.1-kie-server-ee8.zip \
     RHPAM_CONTROLLER_DISTRO=rhpam-7.3-controller-ee7.zip
 
 # Copy files
